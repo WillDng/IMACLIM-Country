@@ -1,0 +1,16 @@
+//Names;;;;;;;;;;;;;
+//;;;;;;;;;;;;;
+//Sectors;Crude_oil;Natural_gas;Petr_Ref;Ely_gas_wat;Agric_fish;Oth_mining;Petchem;Non_met_min;Oth_Manuf;Cial_pub_sces;wtp;atp;otp
+//;;;;;;;;;;;;;
+// Production;;;;;;;;;;;;;
+sigma_Phi;1;1;1;1;1;1;1;1;1;1;1;1;1
+sigma_Theta;1;1;1;1;1;1;1;1;1;1;1;1;1
+ConstrainedShare_Labour;0.8;0.8;0.8;0.8;0.8;0.8;0.8;0.8;0.8;0.8;0.8;0.8;0.8
+ConstrainedShare_Capital;0.8;0.8;0.8;0.8;0.8;0.8;0.8;0.8;0.8;0.8;0.8;0.8;0.8
+//;;;;;;;;;;;;;
+//International trade parameters;;;;;;;;;;;;;
+sigma;1.2;1.2;1.2;1.2;1.2;1.2;1.2;1.2;1.2;1.2;1.2;1.2;1.2
+sigma_X;0;0;0;0;0;0;1;1;1;1;1;1;1
+sigma_M;0;0;0;0.5;0.5;0.5;1;1;1;1;1;1;1
+delta_M_parameter;0;0;0;0;0;0;0;0;0;0;0;0;0
+delta_X_parameter;0;0;0;0;0;0;0;0;0;0;0;0;0
