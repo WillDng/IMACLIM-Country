@@ -119,7 +119,7 @@ exec("Checks_loads.sce");
 disp("STEP 3: CODE CALIBRATION...");
 exec("Check_CalibSyst.sce");
 exec("Calibration.sce");
-
+pause
 ////////////////////////////////////////////////////////////
 // 	STEP 4: INPUT OUTPUT ANALYSIS BY
 ////////////////////////////////////////////////////////////

@@ -12,46 +12,43 @@ parameters.ConstrainedShare_IC(Indice_EnerSect,:) = parameters.ConstrainedShare_
 // parameters.ConstrainedShare_IC(Indice_EnerSect,find(Index_Sectors== "Composite")) = 0.45*parameters.ConstrainedShare_IC(Indice_EnerSect,find(Index_Sectors== "Composite"));
 
 
-
-
 // - sigma_ConsoBudget = 1
 parameters.sigma_ConsoBudget = 1 ; 
 
 // - calculer u_tot
 
 // - calculer la Labour_Product (productivité du travail)
-parameters.time_period = 5 ; // Changing projection horizon from 20y to 5y
+parameters.time_period = 20 ;
 // parameters.Mu = 1;
 // Labour_Product = (1 + parameters.Mu)^time_period ; 
 
 // parameters.Carbon_Tax_rate = 1e5;
 
 /// GDP in 2015 - thousand of euro 2010 - source : Insee 
-/// GDP in 2015 - thousand of SAR 2010 - source: GSTAT -Salah
-GDP_2015 = 2350373 * 10^3 ;
+GDP_2015 = 2095 * 10^6 ;
 
 ////// Source: SNBC - Reference scénario (AMS2)
 // From 2016-2020 ( adapt to 2015 here) 
-// GDP_rate1 = 1.6 ;
-// GDP_2020 = GDP_2015*(  GDP_rate1/100 + 1)^(2020-2015) ; 
+GDP_rate1 = 1.6 ;
+GDP_2020 = GDP_2015*(  GDP_rate1/100 + 1)^(2020-2015) ; 
 // From 2021-2025 
-// GDP_rate2 = 1.9 ; 
-// GDP_2025 = GDP_2020*(  GDP_rate2/100 + 1)^(2025-2020) ;
+GDP_rate2 = 1.9 ; 
+GDP_2025 = GDP_2020*(  GDP_rate2/100 + 1)^(2025-2020) ;
 // From 2026-2030 
-// GDP_rate3 = 1.7 ; 
-// GDP_2030 = GDP_2025*(  GDP_rate3/100 + 1)^(2030-2025) ;
+GDP_rate3 = 1.7 ; 
+GDP_2030 = GDP_2025*(  GDP_rate3/100 + 1)^(2030-2025) ;
 // From 2031-2035 
-// GDP_rate4 = 1.6 ;
-// GDP_2035 = GDP_2030*(  GDP_rate4/100 + 1)^(2035-2030) ;
+GDP_rate4 = 1.6 ;
+GDP_2035 = GDP_2030*(  GDP_rate4/100 + 1)^(2035-2030) ;
 /// GDP unit : thousand of euro 2010
 
 
 // Labour force  2035 -  units : thousand of people - Source : from INSEE 
-Labour_force_2015  = 15000;
-//Labour_force_2035  = 30122;
+Labour_force_2030  = 30143;
+Labour_force_2035  = 30122;
 
-Labour_force_proj =  Labour_force_2015 ;
-GDP_proj = GDP_2015 ; 
+Labour_force_proj =  Labour_force_2030 ;
+GDP_proj = GDP_2030 ; 
 
 // Estimation du nombre de personnes employées (avec taux de chômage historique) : Labour_force_2035 * ( 1 - u_tot_ref ) ;
 // Estimation du nombre d'équivalent temps plein : Labour_force_2035 * ( 1 - u_tot_ref ) * LabourByWorker_coef;
@@ -76,11 +73,11 @@ parameters.Mu =  Labour_Product^(1/parameters.time_period) - 1 ;
 ///////////////////////////////////////////////
 // Deriv_calib.Population_ref = Population;
 /// Population 2035 - in thousand of people - Source: from INSEE ('projection de population à 2070')
-Population_2015 = 32000 ; 
+Population_2030 = 70281 ; 
 /// Population 2035 - in thousand of people - Source: from SNBC 
-//Population_2035 = 71680 ; 
+Population_2035 = 71680 ; 
 
-Population_proj = Population_2015;
+Population_proj = Population_2030;
 
 Deriv_Exogenous.Population =  (Population_proj / sum(ini.Population)) *ini.Population ;
  
