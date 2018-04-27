@@ -47,7 +47,7 @@ GDP_2015 = 2350373 * 10^3 ;
 
 
 // Labour force  2035 -  units : thousand of people - Source : from INSEE 
-Labour_force_2015  = 15000;
+Labour_force_2015  = 11823.876; // Labour_force in the private sector : 10575818 ; in the Gov : 1248058
 //Labour_force_2035  = 30122;
 
 Labour_force_proj =  Labour_force_2015 ;
@@ -76,7 +76,7 @@ parameters.Mu =  Labour_Product^(1/parameters.time_period) - 1 ;
 ///////////////////////////////////////////////
 // Deriv_calib.Population_ref = Population;
 /// Population 2035 - in thousand of people - Source: from INSEE ('projection de population à 2070')
-Population_2015 = 32000 ; 
+Population_2015 = 31521 ; 
 /// Population 2035 - in thousand of people - Source: from SNBC 
 //Population_2035 = 71680 ; 
 
