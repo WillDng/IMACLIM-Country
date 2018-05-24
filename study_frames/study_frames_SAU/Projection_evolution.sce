@@ -20,7 +20,7 @@ parameters.sigma_ConsoBudget = 1 ;
 // - calculer u_tot
 
 // - calculer la Labour_Product (productivité du travail)
-parameters.time_period = 5 ; // Changing projection horizon from 20y to 5y
+parameters.time_since_BY = 5 ; // Changing projection horizon from 20y to 5y
 // parameters.Mu = 1;
 // Labour_Product = (1 + parameters.Mu)^time_period ; 
 
@@ -57,11 +57,12 @@ GDP_proj = GDP_2015 ;
 // Estimation du nombre d'équivalent temps plein : Labour_force_2035 * ( 1 - u_tot_ref ) * LabourByWorker_coef;
 
 // Labour producitivy level compared to base year - as used in equations
-Labour_Product = ( GDP_proj / ini.GDP )  / ( ( Labour_force_proj * ( 1 - u_tot_ref ) * ini.LabourByWorker_coef ) / sum(ini.Labour) ) ;
+Labour_Product = ( GDP_proj / BY.GDP )  / ( ( Labour_force_proj * ( 1 - BY.u_tot ) * BY.LabourByWorker_coef ) / sum(BY.Labour) ) ;
 
-Deriv_Exogenous.Labour_force =  (Labour_force_proj / sum(ini.Labour_force)) * ini.Labour_force ;
+Deriv_Exogenous.Labour_force =  (Labour_force_proj / sum(BY.Labour_force)) * BY.Labour_force ;
 
-parameters.Mu =  Labour_Product^(1/parameters.time_period) - 1 ;
+parameters.Mu =  Labour_Product^(1/parameters.time_since_BY) - 1 ;
+parameters.phi_L =  ones(parameters.phi_L)*parameters.Mu;
 
 
 // - voir si Distribution_Shares(Indice_Labour_Income, Indice_Households) 
@@ -82,7 +83,7 @@ Population_2015 = 31521 ;
 
 Population_proj = Population_2015;
 
-Deriv_Exogenous.Population =  (Population_proj / sum(ini.Population)) *ini.Population ;
+Deriv_Exogenous.Population =  (Population_proj / sum(BY.Population)) *BY.Population ;
  
 // Population_growth_rate = (Population_2035 - initial_value.Population) / initial_value.Population ; 
 

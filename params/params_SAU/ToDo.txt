@@ -1,0 +1,3 @@
+Créer le fichier phi_IC pour le niveau de désagrégation le plus grand
+Penser à ajouter les nouveaux paramètres dans les bons fichiers
+C'est déjà fait pour EnComp, à faire pour le reste si nécessaire

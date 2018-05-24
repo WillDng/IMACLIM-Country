@@ -80,7 +80,7 @@
 	initial_value.OtherIndirTax_DOM = initial_value.OtherIndirTax - initial_value.OtherIndirTax_IMP;
 	
 	// for final consumption taxes :  Hypothesis: prorata the weight of FC_valueIMP in FC_value
-if Country <> "India"
+if Country <> "India" & Country <> "Saudi_Arabia" 
 	initial_value.VA_Tax_IMP = initial_value.VA_Tax .* (sum(initial_value.FC_valueIMP,"c")./sum(initial_value.FC_value,"c"))' ;
 	initial_value.VA_Tax_DOM = initial_value.VA_Tax - initial_value.VA_Tax_IMP;
 	

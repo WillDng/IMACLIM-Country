@@ -18,8 +18,8 @@ Other_Direct_Tax;1;nb_Households;Var_interm;0;%inf
 Corporate_Tax;1;nb_Corporations;Var;0;%inf
 Production_Tax;1;nb_Sectors;Var;-%inf;%inf
 Labour_Tax;1;nb_Sectors;Var;0;%inf
-Energy_Tax_IC;1;nb_Commodities;Var;-%inf;%inf
-Energy_Tax_FC;1;nb_Commodities;Var;-%inf;%inf
+Energy_Tax_IC;1;nb_Commodities;Var;0;%inf
+Energy_Tax_FC;1;nb_Commodities;Var;0;%inf
 OtherIndirTax;1;nb_Commodities;Var;-%inf;%inf
 VA_Tax;1;nb_Commodities;Var;0;%inf
 Carbon_Tax_IC;nb_Commodities;nb_Sectors;Var;-%inf;%inf
@@ -42,8 +42,10 @@ kappa;1;nb_Sectors;Var_interm;0;%inf
 pY;nb_Sectors;1;Var;0;%inf
 Transp_margins_rates;1;nb_Commodities;Var;-1;1
 Transp_margins;1;nb_Commodities;Var;-%inf;%inf
+delta_TranspMargins_rate;1;1;Var;0;10
 Trade_margins_rates;1;nb_Commodities;Var;-1;1
 Trade_margins;1;nb_Commodities;Var;-%inf;%inf
+delta_TradeMargins_rate;1;1;Var;0;10
 SpeMarg_IC;nb_Sectors;nb_Commodities;Var;-%inf;%inf
 SpeMarg_C;nb_Households;nb_Commodities;Var;-%inf;%inf
 SpeMarg_X;1;nb_Commodities;Var;-%inf;%inf
@@ -54,8 +56,6 @@ Y;nb_Sectors;1;Var;0;%inf
 IC;nb_Commodities;nb_Sectors;Var;0;%inf
 M;nb_Sectors;1;Var_interm;0;%inf
 X;nb_Commodities;1;Var_interm;0;%inf
-delta_M_parameter;1;nb_Sectors;Var;-%inf;%inf
-delta_X_parameter;1;nb_Commodities;Var;-%inf;%inf
 Capital_consumption;1;nb_Sectors;Var;0;%inf
 p;1;nb_Commodities;Var_interm;0;%inf
 pIC;nb_Commodities;nb_Sectors;Var_interm;0;%inf
@@ -79,3 +79,4 @@ Distribution_Shares;nb_IncomeSources;nb_InstitAgents;Var;-1;1
 NetCompWages_byAgent;1;nb_InstitAgents;Var;0;%inf
 GOS_byAgent;1;nb_InstitAgents;Var;0;%inf
 Other_Transfers;1;nb_InstitAgents;Var;-%inf;%inf
+pM;nb_Sectors;1;Var_interm;0;%inf
