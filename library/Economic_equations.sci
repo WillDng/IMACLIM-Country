@@ -1957,15 +1957,15 @@ endfunction
 //new
 //--------------------------
 
-function SpeMarg_rates_IC = SpeMarg_rates_IC_const_1(Transp_margins_rates, Trade_margins_rates, pIC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p);
+// function SpeMarg_rates_IC = SpeMarg_rates_IC_const_1(Transp_margins_rates, Trade_margins_rates, pIC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p);
     
-    SpeMarg_rates_C = SpeMarg_rates_C_const_1( Transp_margins_rates, Trade_margins_rates, pC, Energy_Tax_rate_FC, OtherIndirTax_rate, Carbon_Tax_rate_C, Emission_Coef_C, p, VA_Tax_rate);
+//    SpeMarg_rates_C = SpeMarg_rates_C_const_1( Transp_margins_rates, Trade_margins_rates, pC, Energy_Tax_rate_FC, OtherIndirTax_rate, Carbon_Tax_rate_C, Emission_Coef_C, p, VA_Tax_rate);
     
-    SpeMarg_rates_G = SpeMarg_rates_G_const_1( Transp_margins_rates, Trade_margins_rates, pG, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate) ;
-    SpeMarg_rates_I = SpeMarg_rates_I_const_1(  Transp_margins_rates, Trade_margins_rates,pI, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate);
-    SpeMarg_rates_X(pX, Transp_margins_rates, Trade_margins_rates, p)
+//    SpeMarg_rates_G = SpeMarg_rates_G_const_1( Transp_margins_rates, Trade_margins_rates, pG, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate) ;
+//    SpeMarg_rates_I = SpeMarg_rates_I_const_1(  Transp_margins_rates, Trade_margins_rates,pI, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate);
+//    SpeMarg_rates_X(pX, Transp_margins_rates, Trade_margins_rates, p)
 
-end function 
+// end function 
 
 // Purchase price (Intermediate consumptions) after trade, transport and energy margins, indirect tax and tax on consumption (Brazil)
 function pIC = pIC_price_Const_3( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_IC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p, Cons_Tax_rate)
