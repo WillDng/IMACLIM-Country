@@ -59,10 +59,10 @@ M;nb_Sectors;1;Var_interm;-%inf;%inf
 X;nb_Commodities;1;Var_interm;-%inf;%inf
 Capital_consumption;1;nb_Sectors;Var;0;%inf
 p;1;nb_Commodities;Var_interm;-%inf;%inf
-pIC;nb_Commodities;nb_Sectors;Var_interm;-%inf;%inf
-pC;nb_Commodities;nb_Households;Var_interm;-%inf;%inf
-pG;nb_Commodities;nb_Government;Var_interm;-%inf;%inf
-pI;nb_Commodities;1;Var_interm;-%inf;%inf
+SpeMarg_rates_IC;nb_Commodities;nb_Sectors;Var_interm;-%inf;%inf
+SpeMarg_rates_C;nb_Commodities;nb_Households;Var_interm;-%inf;%inf
+SpeMarg_rates_G;nb_Commodities;nb_Government;Var_interm;-%inf;%inf
+SpeMarg_rates_I;nb_Commodities;1;Var_interm;-%inf;%inf
 CPI;1;1;Var_interm;-%inf;%inf
 pX;nb_Commodities;1;Var;-%inf;%inf
 Labour;1;nb_Sectors;Var;-%inf;%inf

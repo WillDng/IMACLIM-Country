@@ -1,0 +1,161 @@
+-->SAVEDIR_IOA = OUTPUT+Country_ISO+"_"+runName + filesep()+ "outputs_IOA"+filesep();
+-->mkdir(SAVEDIR_IOA);
+-->// Save Dashbord.csv in output
+-->copyfile(STUDY_Country + "Dashboard_" + Country_ISO + ".csv", SAVEDIR);
+-->end
+ 
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp(" ======= IMACLIM-"+Country+" is running=============================");
+ 
+  ======= IMACLIM-Saudi_Arabia is running=============================   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+ 
+-->disp(" ======= for resolving the system: "+System_Resol)
+ 
+  ======= for resolving the system: Systeme_Static   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp(" ======= using the study file: "+study)
+ 
+  ======= using the study file: Recursive_RunChoices   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= with various class of households: "+H_DISAGG)
+ 
+ ======= with various class of households: HH1   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= at aggregated level: "+AGG_type)
+ 
+ ======= at aggregated level: AGG_EnComp   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= with the resolution mode: "+Resol_Mode)
+ 
+ ======= with the resolution mode: Static_comparative   
+ 
+-->printf("===============================================\n")
+===============================================
+ 
+-->disp("======= using various iterations:"+Nb_Iter)
+ 
+ ======= using various iterations:1   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= under the scenario nammed:"+Scenario)
+ 
+ ======= under the scenario nammed:   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->if Output_files=='False'
+-->disp("=======You choose not to print outputs in external files")
+-->printf("===============================================\n");
+-->end
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 1: LOADING DATA
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-->disp("STEP 1: DATA...");
+ 
+ STEP 1: DATA...   
+ 
+-->exec("Loading_data.sce");
+ 
+ 
+-->exec("IOT_DecompImpDom.sce");
+ 
+ Warning : unbalanced IOT of IMPORTS   
+ 
+ 
+-->//Execute Households_Disagg.sce file if Index_HouseholdsDISAGG is defined
+ 
+-->if	H_DISAGG <> "HH1"
+-->	exec("Households_Desag.sce");
+-->end
+ 
+ 
+-->//Execute agreagation.sce file if Index_SectorsAGG is defined
+ 
+-->if AGG_type <> ""
+-->    exec("Aggregation.sce");
+ 
+ Substep 2: AGGREGATION of DATA...   
+ 
+ Warning : unbalanced IOT of IMPORTS AGG   
+-->    exec("Hybridisation.sce" );
+-->else
+-->    exec("Hybridisation.sce" );
+-->end
+ 
+ 
+-->exec("Loading_params.sce");
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 2: CHECKING BENCHMARK DATA
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->disp("STEP 2: CHECKING CONSISTENCY of BENCHMARK DATA...")
+ 
+ STEP 2: CHECKING CONSISTENCY of BENCHMARK DATA...   
+ 
+-->exec("Checks_loads.sce");
+WARNING: Checks_loads is empty... check consistency of param list regarding the resolution features choosen in the Dashboad?
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 3: CALIBRATION
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-->disp("STEP 3: CODE CALIBRATION...");
+ 
+ STEP 3: CODE CALIBRATION...   
+ 
+-->exec("Check_CalibSyst.sce");
+ 
+ The system is well defined   
+ 
+-->exec("Calibration.sce");
+ !--error 4 
+Undefined variable: Unemployment_Const_1
+at line       3 of function  called by :  
+ Labour_force, Index_Imaclim_VarCalib))
+at line     140 of exec file called by :    
+exec("Calibration.sce");
+at line     121 of exec file called by :    
+exec ImaclimS.sce
+ 
+ 
+-->u
+ u  =
+ 
+    1.  
+ 

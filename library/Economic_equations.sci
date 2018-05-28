@@ -1,4 +1,3 @@
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // ECONOMIC EQUATIONS
 //
@@ -1933,12 +1932,15 @@ function y = pIC_price_Const_1(pIC, Transp_margins_rates, Trade_margins_rates, S
     y =matrix(y1, -1 , 1);
 endfunction
 
-//--------------------------
-//previous
-//--------------------------
 
 // Purchase price (Intermediate consumptions) after trade, transport and energy margins, and indirect tax
-function pIC = pIC_price_Const_2( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_IC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p)
+
+//At this stage, choose to compute Prices or SpeMarg by uncommenting one oprtion
+// Compute Prices
+function pIC = pIC_price_Const_2( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_IC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p);
+
+// Compute SpecMarg
+function SpeMarg_rates_IC = pIC_price_Const_2( Transp_margins_rates, Trade_margins_rates, pIC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p);
 
     //  Trade, transport and specific margins for energy
     // margins_rates = repmat(Transp_margins_rates' + Trade_margins_rates', 1, nb_Sectors) + SpeMarg_rates_IC' ;
@@ -1953,19 +1955,6 @@ function pIC = pIC_price_Const_2( Transp_margins_rates, Trade_margins_rates, Spe
 
 endfunction
 
-//--------------------------
-//new
-//--------------------------
-
-// function SpeMarg_rates_IC = SpeMarg_rates_IC_const_1(Transp_margins_rates, Trade_margins_rates, pIC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p);
-    
-//    SpeMarg_rates_C = SpeMarg_rates_C_const_1( Transp_margins_rates, Trade_margins_rates, pC, Energy_Tax_rate_FC, OtherIndirTax_rate, Carbon_Tax_rate_C, Emission_Coef_C, p, VA_Tax_rate);
-    
-//    SpeMarg_rates_G = SpeMarg_rates_G_const_1( Transp_margins_rates, Trade_margins_rates, pG, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate) ;
-//    SpeMarg_rates_I = SpeMarg_rates_I_const_1(  Transp_margins_rates, Trade_margins_rates,pI, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate);
-//    SpeMarg_rates_X(pX, Transp_margins_rates, Trade_margins_rates, p)
-
-// end function 
 
 // Purchase price (Intermediate consumptions) after trade, transport and energy margins, indirect tax and tax on consumption (Brazil)
 function pIC = pIC_price_Const_3( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_IC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p, Cons_Tax_rate)
@@ -2006,8 +1995,13 @@ function [y] = pC_price_Const_1(pC, Transp_margins_rates, Trade_margins_rates, S
 endfunction
 
 // Purchase price (Households Final consumptions) after trade, transport and energy margins, and indirect tax
+
+//At this stage, choose to compute Prices or SpeMarg by uncommenting one oprtion
+//Compute Price
 function pC = pC_price_Const_2( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_C, Energy_Tax_rate_FC, OtherIndirTax_rate, Carbon_Tax_rate_C, Emission_Coef_C, p, VA_Tax_rate) ;
 
+// Compute SpeMargins
+function SpeMarg_rates_C = pC_price_Const_2( Transp_margins_rates, Trade_margins_rates, pC, Energy_Tax_rate_FC, OtherIndirTax_rate, Carbon_Tax_rate_C, Emission_Coef_C, p, VA_Tax_rate) ;
     // Rq: A modifier si l'on considère des marges ou taxes ou coefficients d'émission différents selon les classes de ménages
 
     //  Trade, transport and specific margins for energy
@@ -2061,8 +2055,14 @@ function [y] = pG_price_Const_1(pG, Transp_margins_rates, Trade_margins_rates, E
 endfunction
 
 // Purchase price (Government Final consumptions) after trade, transport and indirect tax (no final energy consumption by the government)
-function pG = pG_price_Const_2( Transp_margins_rates, Trade_margins_rates, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate) ;
 
+//At this stage, choose to compute Prices or SpeMarg by uncommenting one oprtion
+//Compute Price
+function pG = pG_price_Const_2( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_G, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate) ;
+    
+//Compute SpeMarg
+function SpeMarg_rates_G = pG_price_Const_2( Transp_margins_rates, Trade_margins_rates, pG, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate) ;
+    
     //  Trade and transport
     // margins_rates = repmat(Transp_margins_rates' + Trade_margins_rates', 1, nb_Government) ;
     margins_rates = (Transp_margins_rates' + Trade_margins_rates').*. ones(1, nb_Government) ;
@@ -2109,7 +2109,13 @@ function [y] = pI_price_Const_1(pI, Transp_margins_rates, Trade_margins_rates,Sp
 endfunction
 
 // Purchase price (Investment) after trade, transport and indirect tax (no investment of energy)
-function pI = pI_price_Const_2( Transp_margins_rates, Trade_margins_rates,SpeMarg_rates_I,OtherIndirTax_rate, Energy_Tax_rate_FC, p, VA_Tax_rate) ;
+
+//At this stage, choose to compute Prices or SpeMarg by uncommenting one oprtion
+//Compute Price
+function pI = pI_price_Const_2( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_I, OtherIndirTax_rate, Energy_Tax_rate_FC, p, VA_Tax_rate) ;
+
+//Compute SpeMarg
+function SpeMarg_rates_I = pI_price_Const_2( Transp_margins_rates, Trade_margins_rates, pI, OtherIndirTax_rate, Energy_Tax_rate_FC, p, VA_Tax_rate) ;
 
     //  Trade and transport and specific margins
     margins_rates = Transp_margins_rates' + Trade_margins_rates' + SpeMarg_rates_I'
