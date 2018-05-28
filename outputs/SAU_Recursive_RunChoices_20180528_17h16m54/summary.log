@@ -1,0 +1,604 @@
+-->SAVEDIR_IOA = OUTPUT+Country_ISO+"_"+runName + filesep()+ "outputs_IOA"+filesep();
+-->mkdir(SAVEDIR_IOA);
+-->// Save Dashbord.csv in output
+-->copyfile(STUDY_Country + "Dashboard_" + Country_ISO + ".csv", SAVEDIR);
+-->end
+ 
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp(" ======= IMACLIM-"+Country+" is running=============================");
+ 
+  ======= IMACLIM-Saudi_Arabia is running=============================   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+ 
+-->disp(" ======= for resolving the system: "+System_Resol)
+ 
+  ======= for resolving the system: Systeme_Static   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp(" ======= using the study file: "+study)
+ 
+  ======= using the study file: Recursive_RunChoices   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= with various class of households: "+H_DISAGG)
+ 
+ ======= with various class of households: HH1   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= at aggregated level: "+AGG_type)
+ 
+ ======= at aggregated level: AGG_EnComp   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= with the resolution mode: "+Resol_Mode)
+ 
+ ======= with the resolution mode: Static_comparative   
+ 
+-->printf("===============================================\n")
+===============================================
+ 
+-->disp("======= using various iterations:"+Nb_Iter)
+ 
+ ======= using various iterations:1   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= under the scenario nammed:"+Scenario)
+ 
+ ======= under the scenario nammed:   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->if Output_files=='False'
+-->disp("=======You choose not to print outputs in external files")
+-->printf("===============================================\n");
+-->end
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 1: LOADING DATA
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-->disp("STEP 1: DATA...");
+ 
+ STEP 1: DATA...   
+ 
+-->exec("Loading_data.sce");
+ 
+ 
+-->exec("IOT_DecompImpDom.sce");
+ 
+ Warning : unbalanced IOT of IMPORTS   
+ 
+ 
+-->//Execute Households_Disagg.sce file if Index_HouseholdsDISAGG is defined
+ 
+-->if	H_DISAGG <> "HH1"
+-->	exec("Households_Desag.sce");
+-->end
+ 
+ 
+-->//Execute agreagation.sce file if Index_SectorsAGG is defined
+ 
+-->if AGG_type <> ""
+-->    exec("Aggregation.sce");
+ 
+ Substep 2: AGGREGATION of DATA...   
+ 
+ Warning : unbalanced IOT of IMPORTS AGG   
+-->    exec("Hybridisation.sce" );
+-->else
+-->    exec("Hybridisation.sce" );
+-->end
+ 
+ 
+-->exec("Loading_params.sce");
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 2: CHECKING BENCHMARK DATA
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->disp("STEP 2: CHECKING CONSISTENCY of BENCHMARK DATA...")
+ 
+ STEP 2: CHECKING CONSISTENCY of BENCHMARK DATA...   
+ 
+-->exec("Checks_loads.sce");
+WARNING: Checks_loads is empty... check consistency of param list regarding the resolution features choosen in the Dashboad?
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 3: CALIBRATION
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-->disp("STEP 3: CODE CALIBRATION...");
+ 
+ STEP 3: CODE CALIBRATION...   
+ 
+-->exec("Check_CalibSyst.sce");
+ 
+ The system is well defined   
+ 
+-->exec("Calibration.sce");
+ !--error 4 
+Undefined variable: Unemployment_Const_1
+at line       3 of function  called by :  
+ Labour_force, Index_Imaclim_VarCalib))
+at line     140 of exec file called by :    
+exec("Calibration.sce");
+at line     121 of exec file called by :    
+exec ImaclimS.sce
+ 
+ 
+-->SpeMarg_rates_IC
+ SpeMarg_rates_IC  =
+ 
+    1.    1.  
+    1.    1.  
+ 
+-->pIC_price_Const_2
+  !--error 4 
+Undefined variable: pIC_price_Const_2
+ 
+ 
+-->function SpeMarg_rates_IC = pIC_price_Const_2( Transp_margins_rates, Trade_margins_rates, pIC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p)
+-->    //  Trade, transport and specific margins for energy
+-->    // margins_rates = repmat(Transp_margins_rates' + Trade_margins_rates', 1, nb_Sectors) + SpeMarg_rates_IC' ;
+-->    margins_rates = ones(1,nb_Sectors).*. (Transp_margins_rates' + Trade_margins_rates') + SpeMarg_rates_IC' ;
+-->    // Indirect tax
+-->    // Indirect_tax_rates = repmat (Energy_Tax_rate_IC' + OtherIndirTax_rate', 1, nb_Sectors) + Carbon_Tax_rate_IC .* Emission_Coef_IC ;
+-->    Indirect_tax_rates = ones(1,nb_Sectors).*.(Energy_Tax_rate_IC' + OtherIndirTax_rate') + Carbon_Tax_rate_IC .* Emission_Coef_IC ;
+-->    // Intermediate consumption price: pIC (Sm_index, Sm_index)
+-->    pIC = ( (ones(1, nb_Sectors).*.p') .* ( 1 + margins_rates ) + Indirect_tax_rates ) ;
+-->endfunction
+ 
+-->// Compute SpecMarg
+ 
+-->function SpeMarg_rates_IC = pIC_price_Const_2( Transp_margins_rates, Trade_margins_rates, pIC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p)
+-->    //  Trade, transport and specific margins for energy
+-->    // margins_rates = repmat(Transp_margins_rates' + Trade_margins_rates', 1, nb_Sectors) + SpeMarg_rates_IC' ;
+-->    margins_rates = ones(1,nb_Sectors).*. (Transp_margins_rates' + Trade_margins_rates') + SpeMarg_rates_IC' ;
+-->    // Indirect tax
+-->    // Indirect_tax_rates = repmat (Energy_Tax_rate_IC' + OtherIndirTax_rate', 1, nb_Sectors) + Carbon_Tax_rate_IC .* Emission_Coef_IC ;
+-->    Indirect_tax_rates = ones(1,nb_Sectors).*.(Energy_Tax_rate_IC' + OtherIndirTax_rate') + Carbon_Tax_rate_IC .* Emission_Coef_IC ;
+-->    // Intermediate consumption price: pIC (Sm_index, Sm_index)
+-->    pIC = ( (ones(1, nb_Sectors).*.p') .* ( 1 + margins_rates ) + Indirect_tax_rates ) ;
+-->endfunction
+ 
+-->function SpeMarg_rates_C = pC_price_Const_2( Transp_margins_rates, Trade_margins_rates, pC, Energy_Tax_rate_FC, OtherIndirTax_rate, Carbon_Tax_rate_C, Emission_Coef_C, p, VA_Tax_rate) ;
+-->    // Rq: A modifier si l'on considère des marges ou taxes ou coefficients d'émission différents selon les classes de ménages
+-->    //  Trade, transport and specific margins for energy
+-->    // margins_rates = repmat(Transp_margins_rates' + Trade_margins_rates', 1, nb_Households) + SpeMarg_rates_C' ;
+-->    margins_rates = (ones(nb_Households,1) .*. ( Transp_margins_rates + Trade_margins_rates ) + SpeMarg_rates_C )' ;
+-->    // Indirect tax
+-->    // Indirect_tax_rates = repmat (Energy_Tax_rate_FC' + OtherIndirTax_rate', 1, nb_Households) + Carbon_Tax_rate_C .* Emission_Coef_C ;
+-->    Indirect_tax_rates =  (ones(nb_Households,1) .*. ( Energy_Tax_rate_FC + OtherIndirTax_rate ) )' + Carbon_Tax_rate_C .* Emission_Coef_C  ;
+-->    // Household consumption price: pC (nb_Commodities, nb_Households)
+-->    pC = ( (ones(1, nb_Households).*.p') .* ( 1 + margins_rates ) + Indirect_tax_rates) .* (1 + (ones( 1, nb_Households).*.VA_Tax_rate') ) ;
+-->endfunction
+ 
+-->SpeMarg_rates_C
+ SpeMarg_rates_C  =
+ 
+    1.    1.  
+ 
+-->SpeMarg_rates_C = pC_price_Const_2( Transp_margins_rates, Trade_margins_rates, pC, Energy_Tax_rate_FC, OtherIndirTax_rate, Carbon_Tax_rate_C, Emission_Coef_C, p, VA_Tax_rate)
+ SpeMarg_rates_C  =
+ 
+    1.    1.  
+ 
+--> margins_rates = (ones(nb_Households,1) .*. ( Transp_margins_rates + Trade_margins_rates ) + SpeMarg_rates_C )'
+ margins_rates  =
+ 
+    3.  
+    3.  
+ 
+--> Indirect_tax_rates =  (ones(nb_Households,1) .*. ( Energy_Tax_rate_FC + OtherIndirTax_rate ) )' + Carbon_Tax_rate_C .* Emission_Coef_C  ;
+ 
+--> Indirect_tax_rates =  (ones(nb_Households,1) .*. ( Energy_Tax_rate_FC + OtherIndirTax_rate ) )' + Carbon_Tax_rate_C .* Emission_Coef_C
+ Indirect_tax_rates  =
+ 
+    3.  
+    3.  
+ 
+--> pC = ( (ones(1, nb_Households).*.p') .* ( 1 + margins_rates ) + Indirect_tax_rates) .* (1 + (ones( 1, nb_Households).*.VA_Tax_rate') )
+ pC  =
+ 
+    14.  
+    14.  
+ 
+-->SpeMarg_rates_G = pG_price_Const_2( Transp_margins_rates, Trade_margins_rates, pG, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate)
+                                                               !--error 4 
+Undefined variable: pG_price_Const_2
+ 
+ 
+-->SpeMarg_rates_C = pC_price_Const_2( Transp_margins_rates, Trade_margins_rates, pC, Energy_Tax_rate_FC, OtherIndirTax_rate, Carbon_Tax_rate_C, Emission_Coef_C, p, VA_Tax_rate)
+ SpeMarg_rates_C  =
+ 
+    1.    1.  
+ 
+-->SpeMarg_rates_G
+  !--error 4 
+Undefined variable: SpeMarg_rates_G
+ 
+ 
+-->SpeMarg_rates_I = pI_price_Const_2( Transp_margins_rates, Trade_margins_rates, pI, OtherIndirTax_rate, Energy_Tax_rate_FC, p, VA_Tax_rate)
+                                                               !--error 4 
+Undefined variable: pI_price_Const_2
+ 
+ 
+-->SpeMarg_rates_C = pC_price_Const_2( Transp_margins_rates, Trade_margins_rates, pC, Energy_Tax_rate_FC, OtherIndirTax_rate, Carbon_Tax_rate_C, Emission_Coef_C, p, VA_Tax_rate)
+ SpeMarg_rates_C  =
+ 
+    1.    1.  
+ 
+-->SpeMarg_rates_I = pI_price_Const_2( Transp_margins_rates, Trade_margins_rates, pI, OtherIndirTax_rate, Energy_Tax_rate_FC, p, VA_Tax_rate)
+                                                               !--error 4 
+Undefined variable: pI_price_Const_2
+ 
+ 
+-->function SpeMarg_rates_I = pI_price_Const_2( Transp_margins_rates, Trade_margins_rates, pI, OtherIndirTax_rate, Energy_Tax_rate_FC, p, VA_Tax_rate) ;
+-->    //  Trade and transport and specific margins
+-->    margins_rates = Transp_margins_rates' + Trade_margins_rates' + SpeMarg_rates_I'
+-->    // Indirect tax
+-->    Indirect_tax_rates = OtherIndirTax_rate'+Energy_Tax_rate_FC' ;
+-->    // Investment price: pI (nb_Sectors)
+-->    pI = ( p' .* ( ones(nb_Commodities, 1) + margins_rates) + Indirect_tax_rates) .* (ones(nb_Commodities, 1) + VA_Tax_rate') ;
+-->endfunction
+ 
+-->SpeMarg_rates_I = pI_price_Const_2( Transp_margins_rates, Trade_margins_rates, pI, OtherIndirTax_rate, Energy_Tax_rate_FC, p, VA_Tax_rate)
+ SpeMarg_rates_I  =
+ 
+    1.    1.  
+ 
+-->margins_rates = Transp_margins_rates' + Trade_margins_rates' + SpeMarg_rates_I'
+ margins_rates  =
+ 
+    3.  
+    3.  
+ 
+-->ndirect_tax_rates = OtherIndirTax_rate'+Energy_Tax_rate_FC'
+ ndirect_tax_rates  =
+ 
+    2.  
+    2.  
+ 
+--> pI = ( p' .* ( ones(nb_Commodities, 1) + margins_rates) + Indirect_tax_rates) .* (ones(nb_Commodities, 1) + VA_Tax_rate')
+ pI  =
+ 
+    14.  
+    14.  
+ 
+--> pI = ( p' .* ( ones(nb_Commodities, 1) + margins_rates) + Indirect_tarates) .* (ones(nb_Commodities, 1) + VA_Tax_rate')
+                                                             !--error 4 
+Undefined variable: Indirect_tarates
+ 
+ 
+-->function SpeMarg_rates_G = pG_price_Const_2( Transp_margins_rates, Trade_margins_rates, pG, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate) ;
+-->    //  Trade and transport
+-->    // margins_rates = repmat(Transp_margins_rates' + Trade_margins_rates', 1, nb_Government) ;
+-->    margins_rates = (Transp_margins_rates' + Trade_margins_rates').*. ones(1, nb_Government) ;
+-->    // Indirect tax
+-->    // Indirect_tax_rates = repmat(Energy_Tax_rate_FC' + OtherIndirTax_rate', 1, nb_Government) ;
+-->    Indirect_tax_rates = (Energy_Tax_rate_FC' + OtherIndirTax_rate').*. ones(1, nb_Government) ;
+-->    // Government price: pG (Sm_index)
+-->    // y1 = pG - (repmat(p', 1, nb_Government) .* ( ones(nb_Commodities, nb_Government) + margins_rates ) + Indirect_tax_rates) .* (ones(nb_Commodities, nb_Government) + repmat(VA_Tax_rate', 1, nb_Government) ) ;
+-->    pG = ( (p'.*.ones(1, nb_Government)) .* ( 1 + margins_rates ) + Indirect_tax_rates) .* (1 + (VA_Tax_rate'.*.ones(1, nb_Government)) );
+-->endfunction
+ 
+-->SpeMarg_rates_G = pG_price_Const_2( Transp_margins_rates, Trade_margins_rates, pG, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate)
+ !--error 4 
+Undefined variable: SpeMarg_rates_G
+at line      16 of function pG_price_Const_2 called by :  
+FC, OtherIndirTax_rate, p, VA_Tax_rate
+ 
+ 
+-->clear
+ 
+-->exec ImaclimS.sce
+ 
+-->//////  Copyright or © or Copr. Ecole des Ponts ParisTech / CNRS 2018
+ 
+-->//////  Main Contributor (2017) : Gaëlle Le Treut / letreut[at]centre-cired.fr
+ 
+-->//////  Contributors : Emmanuel Combet, Ruben Bibas, Julien Lefèvre
+ 
+-->//////  
+ 
+-->//////  
+ 
+-->//////  This software is a computer program whose purpose is to centralise all  
+ 
+-->//////  the IMACLIM national versions, a general equilibrium model for energy transition analysis
+ 
+-->//////
+ 
+-->//////  This software is governed by the CeCILL license under French law and
+ 
+-->//////  abiding by the rules of distribution of free software.  You can  use,
+ 
+-->//////  modify and/ or redistribute the software under the terms of the CeCILL
+ 
+-->//////  license as circulated by CEA, CNRS and INRIA at the following URL
+ 
+-->//////  "http://www.cecill.info".
+ 
+-->//////  
+ 
+-->//////  As a counterpart to the access to the source code and  rights to copy,
+ 
+-->//////  modify and redistribute granted by the license, users are provided only
+ 
+-->//////  with a limited warranty  and the software's author,  the holder of the
+ 
+-->//////  economic rights,  and the successive licensors  have only  limited
+ 
+-->//////  liability.
+ 
+-->//////  
+ 
+-->//////  In this respect, the user's attention is drawn to the risks associated
+ 
+-->//////  with loading,  using,  modifying and/or developing or reproducing the
+ 
+-->//////  software by the user in light of its specific status of free software,
+ 
+-->//////  that may mean  that it is complicated to manipulate,  and  that  also
+ 
+-->//////  therefore means  that it is reserved for developers  and  experienced
+ 
+-->//////  professionals having in-depth computer knowledge. Users are therefore
+ 
+-->//////  encouraged to load and test the software's suitability as regards their
+ 
+-->//////  requirements in conditions enabling the security of their systems and/or 
+ 
+-->//////  data to be ensured and,  more generally, to use and operate it in the
+ 
+-->//////  same conditions as regards security.
+ 
+-->//////  
+ 
+-->//////  The fact that you are presently reading this means that you have had
+ 
+-->//////  knowledge of the CeCILL license and that you accept its terms.
+ 
+-->//////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-->// main executable script
+ 
+ 
+-->//PREAMBULE
+ 
+ 
+-->disp("=====IMACLIM-Country Platform========");
+ 
+ =====IMACLIM-Country Platform========   
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 0: SYSTEM DEFINITION & SAVEDIR SETUP
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->disp("STEP 0: loading Dashboard ");
+ 
+ STEP 0: loading Dashboard    
+ 
+-->exec ("preambule.sce");
+ 
+ =====PREAMBLE========   
+Warning : redefining function: %c_f_s                  . Use funcprot(0) to avoid this message
+
+Warning : redefining function: %b_x_b                  . Use funcprot(0) to avoid this message
+
+WARNING: ruben again : H_demand_Const_1: abs(pC)
+WARNING: abs(CPI)
+WARNING:  Manu : G_BudgetBalance_Const_1 and G_ConsumpBudget_Const_1 redundant. See simplifications. But calibration must be modified
+WARNING:  ruben again : Technical_Coef_Const_1: abs(prix)
+WARNING: Technical_Coef_Const_3 : check that it is correct!!!
+WARNING: ruben: pIC = abs(pIC);
+WARNING: Ruben: Check what it is you really want with sum(Trade_margins), in calibration as well
+WARNING: ruben : Exports_Const_1
+Warning : redefining function: Exports_Const_4         . Use funcprot(0) to avoid this message
+
+WARNING: CHECK THIS EQUATION with ybis(Indice_NonSupplierSect) = Y(Indice_NonSupplierSect) - Y_ref(Indice_NonSupplierSect);
+WARNING: ruben: Mean_wage_Const_1, abs(w)&abs(lambda), abs(u_tot)
+Warning : redefining function: %c_f_s                  . Use funcprot(0) to avoid this message
+
+Warning : redefining function: %b_x_b                  . Use funcprot(0) to avoid this message
+
+ 
+-->exec("Dashboard.sce");
+ 
+ 
+-->if Output_files=='True'
+-->runName = study + "_" + mydate();
+-->SAVEDIR = OUTPUT+Country_ISO+"_" +runName + filesep();
+-->mkdir(SAVEDIR);
+-->diary(SAVEDIR+"summary.log");
+-->SAVEDIR_IOA = OUTPUT+Country_ISO+"_"+runName + filesep()+ "outputs_IOA"+filesep();
+-->mkdir(SAVEDIR_IOA);
+-->// Save Dashbord.csv in output
+-->copyfile(STUDY_Country + "Dashboard_" + Country_ISO + ".csv", SAVEDIR);
+-->end
+ 
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp(" ======= IMACLIM-"+Country+" is running=============================");
+ 
+  ======= IMACLIM-Saudi_Arabia is running=============================   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+ 
+-->disp(" ======= for resolving the system: "+System_Resol)
+ 
+  ======= for resolving the system: Systeme_Static   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp(" ======= using the study file: "+study)
+ 
+  ======= using the study file: Recursive_RunChoices   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= with various class of households: "+H_DISAGG)
+ 
+ ======= with various class of households: HH1   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= at aggregated level: "+AGG_type)
+ 
+ ======= at aggregated level: AGG_EnComp   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= with the resolution mode: "+Resol_Mode)
+ 
+ ======= with the resolution mode: Static_comparative   
+ 
+-->printf("===============================================\n")
+===============================================
+ 
+-->disp("======= using various iterations:"+Nb_Iter)
+ 
+ ======= using various iterations:1   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= under the scenario nammed:"+Scenario)
+ 
+ ======= under the scenario nammed:   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->if Output_files=='False'
+-->disp("=======You choose not to print outputs in external files")
+-->printf("===============================================\n");
+-->end
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 1: LOADING DATA
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-->disp("STEP 1: DATA...");
+ 
+ STEP 1: DATA...   
+ 
+-->exec("Loading_data.sce");
+ 
+ 
+-->exec("IOT_DecompImpDom.sce");
+ 
+ Warning : unbalanced IOT of IMPORTS   
+ 
+ 
+-->//Execute Households_Disagg.sce file if Index_HouseholdsDISAGG is defined
+ 
+-->if	H_DISAGG <> "HH1"
+-->	exec("Households_Desag.sce");
+-->end
+ 
+ 
+-->//Execute agreagation.sce file if Index_SectorsAGG is defined
+ 
+-->if AGG_type <> ""
+-->    exec("Aggregation.sce");
+ 
+ Substep 2: AGGREGATION of DATA...   
+ 
+ Warning : unbalanced IOT of IMPORTS AGG   
+-->    exec("Hybridisation.sce" );
+-->else
+-->    exec("Hybridisation.sce" );
+-->end
+ 
+ 
+-->exec("Loading_params.sce");
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 2: CHECKING BENCHMARK DATA
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->disp("STEP 2: CHECKING CONSISTENCY of BENCHMARK DATA...")
+ 
+ STEP 2: CHECKING CONSISTENCY of BENCHMARK DATA...   
+ 
+-->exec("Checks_loads.sce");
+WARNING: Checks_loads is empty... check consistency of param list regarding the resolution features choosen in the Dashboad?
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 3: CALIBRATION
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-->disp("STEP 3: CODE CALIBRATION...");
+ 
+ STEP 3: CODE CALIBRATION...   
+ 
+-->exec("Check_CalibSyst.sce");
+ 
+ The system is well defined   
+ 
+-->exec("Calibration.sce");
+WARNING:  Manu : modification of calibration.sce when we substitute some equations - G_demand_Const_2 and calibration of BudgetShare_GConsump
+ !--error 4 
+Undefined variable: SpeMarg_rates_G
+at line       9 of function GrossOpSurplus_Const_1 called by :  
+at line       3 of function  called by :  
+lpha, Y, C, X, Index_Imaclim_VarCalib))
+at line    1207 of exec file called by :    
+exec("Calibration.sce");
+at line     121 of exec file called by :    
+exec ImaclimS.sce
+ 
+ 
+-->exec('SCI/etc/scilab.quit','errcatch',-1);quit;

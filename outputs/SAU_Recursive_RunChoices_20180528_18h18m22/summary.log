@@ -1,0 +1,2250 @@
+-->SAVEDIR_IOA = OUTPUT+Country_ISO+"_"+runName + filesep()+ "outputs_IOA"+filesep();
+-->mkdir(SAVEDIR_IOA);
+-->// Save Dashbord.csv in output
+-->copyfile(STUDY_Country + "Dashboard_" + Country_ISO + ".csv", SAVEDIR);
+-->end
+ 
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp(" ======= IMACLIM-"+Country+" is running=============================");
+ 
+  ======= IMACLIM-Saudi_Arabia is running=============================   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+ 
+-->disp(" ======= for resolving the system: "+System_Resol)
+ 
+  ======= for resolving the system: Systeme_Static   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp(" ======= using the study file: "+study)
+ 
+  ======= using the study file: Recursive_RunChoices   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= with various class of households: "+H_DISAGG)
+ 
+ ======= with various class of households: HH1   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= at aggregated level: "+AGG_type)
+ 
+ ======= at aggregated level: AGG_EnComp   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= with the resolution mode: "+Resol_Mode)
+ 
+ ======= with the resolution mode: Static_comparative   
+ 
+-->printf("===============================================\n")
+===============================================
+ 
+-->disp("======= using various iterations:"+Nb_Iter)
+ 
+ ======= using various iterations:1   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= under the scenario nammed:"+Scenario)
+ 
+ ======= under the scenario nammed:   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->if Output_files=='False'
+-->disp("=======You choose not to print outputs in external files")
+-->printf("===============================================\n");
+-->end
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 1: LOADING DATA
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-->disp("STEP 1: DATA...");
+ 
+ STEP 1: DATA...   
+ 
+-->exec("Loading_data.sce");
+ 
+ 
+-->exec("IOT_DecompImpDom.sce");
+ 
+ Warning : unbalanced IOT of IMPORTS   
+ 
+ 
+-->//Execute Households_Disagg.sce file if Index_HouseholdsDISAGG is defined
+ 
+-->if	H_DISAGG <> "HH1"
+-->	exec("Households_Desag.sce");
+-->end
+ 
+ 
+-->//Execute agreagation.sce file if Index_SectorsAGG is defined
+ 
+-->if AGG_type <> ""
+-->    exec("Aggregation.sce");
+ 
+ Substep 2: AGGREGATION of DATA...   
+ 
+ Warning : unbalanced IOT of IMPORTS AGG   
+-->    exec("Hybridisation.sce" );
+-->else
+-->    exec("Hybridisation.sce" );
+-->end
+ 
+ 
+-->exec("Loading_params.sce");
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 2: CHECKING BENCHMARK DATA
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->disp("STEP 2: CHECKING CONSISTENCY of BENCHMARK DATA...")
+ 
+ STEP 2: CHECKING CONSISTENCY of BENCHMARK DATA...   
+ 
+-->exec("Checks_loads.sce");
+WARNING: Checks_loads is empty... check consistency of param list regarding the resolution features choosen in the Dashboad?
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 3: CALIBRATION
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-->disp("STEP 3: CODE CALIBRATION...");
+ 
+ STEP 3: CODE CALIBRATION...   
+ 
+-->exec("Check_CalibSyst.sce");
+ 
+ The system is well defined   
+ 
+-->exec("Calibration.sce");
+WARNING:  Manu : modification of calibration.sce when we substitute some equations - G_demand_Const_2 and calibration of BudgetShare_GConsump
+ 
+-->pause
+ 
+Type 'resume' or 'abort' to return to standard level prompt.
+
+-1->resume
+ 
+-->////////////////////////////////////////////////////////////
+ 
+-->// 	STEP 4: INPUT OUTPUT ANALYSIS BY
+ 
+-->////////////////////////////////////////////////////////////
+ 
+-->disp("STEP 4: INPUT OUTPUT ANALYSIS FOR EMBODIED EMISSIONS AT BASE YEAR");
+ 
+ STEP 4: INPUT OUTPUT ANALYSIS FOR EMBODIED EMISSIONS AT BASE YEAR   
+ 
+-->if Country =="France"
+-->exec(CODE+"IOA_BY.sce");
+-->else
+-->disp("Not executed for the IMACLIM-"+Country+" version")
+ 
+ Not executed for the IMACLIM-Saudi_Arabia version   
+-->end
+ 
+ 
+-->////////////////////////////////////////////////////////////
+ 
+-->// 	STEP 5: RESOLUTION - EQUILIBRIUM
+ 
+-->////////////////////////////////////////////////////////////
+ 
+ 
+-->disp("STEP 5: RESOLUTION AND EQUILIBRIUM...");
+ 
+ STEP 5: RESOLUTION AND EQUILIBRIUM...   
+ 
+ 
+-->// Loop initialisation for various time step calculation
+ 
+-->for time_step=1:Nb_Iter
+-->// Creation of a new output subdirectory for each time step in case of several time steps calculation
+-->if Nb_Iter<>1
+-->if Output_files=='True'
+-->SAVEDIR = OUTPUT+Country_ISO+"_" +runName + filesep() + time_step + filesep();
+-->mkdir(SAVEDIR);
+-->end
+-->end
+-->//// Defining matrix with dimension of each variable for Resolution file
+-->// if  System_Resol=="Projection_homothetic"
+-->// VarDimMat_resol = eval(Index_Imaclim_VarProHom(2:$,2:3));
+-->// else
+-->// VarDimMat_resol = eval(Index_Imaclim_VarResol(2:$,2:3));
+-->// end
+-->// Loading study changes
+-->exec(STUDY_Country+study+".sce");
+-->exec(System_Resol+".sce");
+-->////////////////////////////////////////////////////////////
+-->// 	STEP 6: OUTPUT EXTRACTION AND RESULTS DISPLAY
+-->////////////////////////////////////////////////////////////
+-->if Output_files=='True'
+-->disp("STEP 6: OUTPUT EXTRACTION AND RESULTS DISPLAY...");
+-->warning("Antoine : il faudra bien penser à actualiser les outputs (table_param)");
+-->exec(CODE+"outputs.sce");
+-->exec(CODE+"outputs_indic.sce");
+-->	if System_Resol == "Projection_ECOPA"
+-->	exec(CODE+"outputs_indic_ECOPA.sce");
+-->	end
+-->end
+-->////////////////////////////////////////////////////////////
+-->// 	STEP 7: INPUT OUTPUT ANALYSIS AFTER RUN
+-->////////////////////////////////////////////////////////////
+-->disp("STEP 7: INPUT OUTPUT ANALYSIS FOR EMBODIED EMISSIONS...");
+-->warning('IOA_Run to generalize for several time steps')
+-->if [Country =="France"] & [time_step==1]
+-->exec(CODE+"IOA_Run.sce");
+-->else
+-->disp("Not executed for the IMACLIM-"+Country+" version and/or because time_step = "+ time_step +" > 1")
+-->end
+-->////////////////////////////////////////////////////////////
+-->// 	STEP 8: VARIABLE STORAGE FOR RECURSIVE VERSION
+-->////////////////////////////////////////////////////////////
+-->if Nb_Iter <> 1
+-->exec(CODE+"Variable_Storage.sce");
+-->else
+-->disp("Not executed for the Nb_Iter = "+Nb_Iter)
+-->end
+-->// Loop ending for for various time step calculation
+-->end
+WARNING: Antoine : Dans la wage curve on garde u_tot_ref ou on passe sur un u_param comme au Brésil ?
+WARNING: Antoine: nécessite de pouvoir implémenter Mu et phi_L à la main à l extérieur (study frame)
+WARNING: ruben: created sigmaM here, instead of Technical_Coef_Const_1, maybe change?
+ !--error 4 
+Undefined variable: PI
+at line      10 of function f_resol_interm called by :  
+at line      11 of function f_resolution called by :  
+, Deriv_variablesStart , listDeriv_Var)
+at line     285 of exec file called by :    
+exec(System_Resol+".sce");
+at line     196 of exec file called by :    
+exec ImaclimS.sce
+ 
+ 
+-->Deriv_variablesStart.
+                      !--error 7 
+Dot cannot be used as modifier for this operator.
+ 
+ 
+-->Deriv_variablesStart
+ Deriv_variablesStart  =
+ 
+   H_disposable_income: 5.660D+08
+   Pensions: 45311000
+   Unemployment_transfers: 2234000
+   Other_social_transfers: 3264000
+   Property_income: [-32291788,43445880,8891963.9,-20046056]
+   Household_savings: -2.352D+08
+   Corporations_savings: 9.387D+08
+   Government_savings: 5.391D+08
+   GFCF_byAgent: [3.252D+08,2.497D+08,87547000]
+   NetLending: [6.135D+08,2.894D+08,-3.228D+08,-5.801D+08]
+   NetFinancialDebt: [1.076D+09,-1.448D+09,-2.964D+08,6.682D+08]
+   Consumption_budget: 8.012D+08
+   C: [2x1 constant]
+   Corp_disposable_income: 9.387D+08
+   G_disposable_income: 1.168D+09
+   Income_Tax: 21938821
+   Corporate_Tax: 37890316
+   Production_Tax: [1047985.3,7515078.3]
+   Labour_Tax: [7206464,40053405]
+   Energy_Tax_IC: [-34500000,0]
+   Energy_Tax_FC: [-1.155D+08,0]
+   OtherIndirTax: [267000,20908000]
+   VA_Tax: [0,0]
+   Carbon_Tax_IC: [2x2 constant]
+   Carbon_Tax_C: [2x1 constant]
+   Pension_Benefits: 39711.448
+   UnemployBenefits: 3251.7722
+   Other_SocioBenef: 111.09549
+   Carbon_Tax_rate_IC: [2x2 constant]
+   Carbon_Tax_rate_C: [2x1 constant]
+   ClimPolCompensbySect: [0,0]
+   Labour_Tax_Cut: 0
+   Labour_Tax_rate: [0.2273876,0.0850701]
+   G_Consumption_budget: 6.285D+08
+   G: [2x1 constant]
+   Phi: [1,1]
+   Theta: [1,1]
+   pY: [2x1 constant]
+   delta_TranspMargins_rate: 1
+   Transp_margins_rates: [0.0142957,-0.0059579]
+   Transp_margins: [20479000,-20479000]
+   delta_TradeMargins_rate: 1
+   Trade_margins_rates: [0.0238858,-0.0099547]
+   Trade_margins: [34217000,-34217000]
+   SpeMarg_IC: [2x2 constant]
+   SpeMarg_C: [73355468,0]
+   SpeMarg_X: [3.454D+08,0]
+   SpeMarg_I: [0,0]
+   I: [2x1 constant]
+   pK: [990.58894,990.58894]
+   Y: [2x1 constant]
+   IC: [2x2 constant]
+   Capital_consumption: [203623.63,632396.75]
+   pX: [2x1 constant]
+   Labour: [154.75851,10749.697]
+   u_tot: 0.0592686
+   NetWage_variation: 1
+   w: [204786.27,43799.205]
+   u: 0.0592686
+   Unemployed: 687.01
+   pL: [251352.13,47525.208]
+   delta_interest_rate: 1
+   interest_rate: [0.03,0.03,0.03,0.03]
+   GDP: 2.773D+09
+   Labour_income: [31692417,4.708D+08]
+   Profit_margin: [1.050D+09,4.658D+08]
+   Capital_income: [2.017D+08,6.264D+08]
+   Distribution_Shares: [3x4 constant]
+   NetCompWages_byAgent: [0,0,5.025D+08,0]
+   GOS_byAgent: [1.009D+09,1.181D+09,1.535D+08,0]
+   Other_Transfers: [-245250,6987600,-1.278D+08,1.210D+08]
+ 
+-->listDeriv_Var
+ listDeriv_Var  =
+ 
+ 
+       listDeriv_Var(1)
+ 
+ H_disposable_income   
+ 
+       listDeriv_Var(2)
+ 
+ Pensions   
+ 
+       listDeriv_Var(3)
+ 
+ Unemployment_transfers   
+ 
+       listDeriv_Var(4)
+ 
+ Other_social_transfers   
+ 
+       listDeriv_Var(5)
+ 
+ Property_income   
+ 
+       listDeriv_Var(6)
+ 
+ Household_savings   
+ 
+       listDeriv_Var(7)
+ 
+ Corporations_savings   
+ 
+       listDeriv_Var(8)
+ 
+ Government_savings   
+ 
+       listDeriv_Var(9)
+ 
+ GFCF_byAgent   
+ 
+       listDeriv_Var(10)
+ 
+ NetLending   
+ 
+       listDeriv_Var(11)
+ 
+ NetFinancialDebt   
+ 
+       listDeriv_Var(12)
+ 
+ Consumption_budget   
+ 
+       listDeriv_Var(13)
+ 
+ C   
+ 
+       listDeriv_Var(14)
+ 
+ Corp_disposable_income   
+ 
+       listDeriv_Var(15)
+ 
+ G_disposable_income   
+ 
+       listDeriv_Var(16)
+ 
+ Income_Tax   
+ 
+       listDeriv_Var(17)
+ 
+ Corporate_Tax   
+ 
+       listDeriv_Var(18)
+ 
+ Production_Tax   
+ 
+       listDeriv_Var(19)
+ 
+ Labour_Tax   
+ 
+       listDeriv_Var(20)
+ 
+ Energy_Tax_IC   
+ 
+       listDeriv_Var(21)
+ 
+ Energy_Tax_FC   
+ 
+       listDeriv_Var(22)
+ 
+ OtherIndirTax   
+ 
+       listDeriv_Var(23)
+ 
+ VA_Tax   
+ 
+       listDeriv_Var(24)
+ 
+ Carbon_Tax_IC   
+ 
+       listDeriv_Var(25)
+ 
+ Carbon_Tax_C   
+ 
+       listDeriv_Var(26)
+ 
+ Pension_Benefits   
+ 
+       listDeriv_Var(27)
+ 
+ UnemployBenefits   
+ 
+       listDeriv_Var(28)
+ 
+ Other_SocioBenef   
+ 
+       listDeriv_Var(29)
+ 
+ Carbon_Tax_rate_IC   
+ 
+       listDeriv_Var(30)
+ 
+ Carbon_Tax_rate_C   
+ 
+       listDeriv_Var(31)
+ 
+ ClimPolCompensbySect   
+ 
+       listDeriv_Var(32)
+ 
+ Labour_Tax_Cut   
+ 
+       listDeriv_Var(33)
+ 
+ Labour_Tax_rate   
+ 
+       listDeriv_Var(34)
+ 
+ G_Consumption_budget   
+ 
+       listDeriv_Var(35)
+ 
+ G   
+ 
+       listDeriv_Var(36)
+ 
+ Phi   
+ 
+       listDeriv_Var(37)
+ 
+ Theta   
+ 
+       listDeriv_Var(38)
+ 
+ pY   
+ 
+       listDeriv_Var(39)
+ 
+ delta_TranspMargins_rate   
+ 
+       listDeriv_Var(40)
+ 
+ Transp_margins_rates   
+ 
+       listDeriv_Var(41)
+ 
+ Transp_margins   
+ 
+       listDeriv_Var(42)
+ 
+ delta_TradeMargins_rate   
+ 
+       listDeriv_Var(43)
+ 
+ Trade_margins_rates   
+ 
+       listDeriv_Var(44)
+ 
+ Trade_margins   
+ 
+       listDeriv_Var(45)
+ 
+ SpeMarg_IC   
+ 
+       listDeriv_Var(46)
+ 
+ SpeMarg_C   
+ 
+       listDeriv_Var(47)
+ 
+ SpeMarg_X   
+ 
+       listDeriv_Var(48)
+ 
+ SpeMarg_I   
+ 
+       listDeriv_Var(49)
+ 
+ I   
+ 
+       listDeriv_Var(50)
+ 
+ pK   
+ 
+       listDeriv_Var(51)
+ 
+ Y   
+ 
+       listDeriv_Var(52)
+ 
+ IC   
+ 
+       listDeriv_Var(53)
+ 
+ Capital_consumption   
+ 
+       listDeriv_Var(54)
+ 
+ pX   
+ 
+       listDeriv_Var(55)
+ 
+ Labour   
+ 
+       listDeriv_Var(56)
+ 
+ u_tot   
+ 
+       listDeriv_Var(57)
+ 
+ NetWage_variation   
+ 
+       listDeriv_Var(58)
+ 
+ w   
+ 
+       listDeriv_Var(59)
+ 
+ u   
+ 
+       listDeriv_Var(60)
+ 
+ Unemployed   
+ 
+       listDeriv_Var(61)
+ 
+ pL   
+ 
+       listDeriv_Var(62)
+ 
+ delta_interest_rate   
+ 
+       listDeriv_Var(63)
+ 
+ interest_rate   
+ 
+       listDeriv_Var(64)
+ 
+ GDP   
+ 
+       listDeriv_Var(65)
+ 
+ Labour_income   
+ 
+       listDeriv_Var(66)
+ 
+ Profit_margin   
+ 
+       listDeriv_Var(67)
+ 
+ Capital_income   
+ 
+       listDeriv_Var(68)
+ 
+ Distribution_Shares   
+ 
+       listDeriv_Var(69)
+ 
+ NetCompWages_byAgent   
+ 
+       listDeriv_Var(70)
+ 
+ GOS_byAgent   
+ 
+       listDeriv_Var(71)
+ 
+ Other_Transfers   
+ 
+-->System_Resol
+ System_Resol  =
+ 
+ Systeme_Static   
+ 
+-->pI
+ pI  =
+ 
+  - 1644.6     
+    990.58894  
+ 
+-->PI
+  !--error 4 
+Undefined variable: PI
+ 
+ 
+-->pi
+  !--error 4 
+Undefined variable: pi
+ 
+ 
+-->f_resolution
+ !--error 4 
+Undefined variable: VarDimMat
+at line       4 of function f_resolution called by :  
+f_resolution
+ 
+ 
+-->interest_rate
+ interest_rate  =
+ 
+    0.03    0.03    0.03    0.03  
+ 
+-->clear
+ 
+-->clc
+ 
+-->exec ImaclimS.sce
+ 
+-->//////  Copyright or © or Copr. Ecole des Ponts ParisTech / CNRS 2018
+ 
+-->//////  Main Contributor (2017) : Gaëlle Le Treut / letreut[at]centre-cired.fr
+ 
+-->//////  Contributors : Emmanuel Combet, Ruben Bibas, Julien Lefèvre
+ 
+-->//////  
+ 
+-->//////  
+ 
+-->//////  This software is a computer program whose purpose is to centralise all  
+ 
+-->//////  the IMACLIM national versions, a general equilibrium model for energy transition analysis
+ 
+-->//////
+ 
+-->//////  This software is governed by the CeCILL license under French law and
+ 
+-->//////  abiding by the rules of distribution of free software.  You can  use,
+ 
+-->//////  modify and/ or redistribute the software under the terms of the CeCILL
+ 
+-->//////  license as circulated by CEA, CNRS and INRIA at the following URL
+ 
+-->//////  "http://www.cecill.info".
+ 
+-->//////  
+ 
+-->//////  As a counterpart to the access to the source code and  rights to copy,
+ 
+-->//////  modify and redistribute granted by the license, users are provided only
+ 
+-->//////  with a limited warranty  and the software's author,  the holder of the
+ 
+-->//////  economic rights,  and the successive licensors  have only  limited
+ 
+-->//////  liability.
+ 
+-->//////  
+ 
+-->//////  In this respect, the user's attention is drawn to the risks associated
+ 
+-->//////  with loading,  using,  modifying and/or developing or reproducing the
+ 
+-->//////  software by the user in light of its specific status of free software,
+ 
+-->//////  that may mean  that it is complicated to manipulate,  and  that  also
+ 
+-->//////  therefore means  that it is reserved for developers  and  experienced
+ 
+-->//////  professionals having in-depth computer knowledge. Users are therefore
+ 
+-->//////  encouraged to load and test the software's suitability as regards their
+ 
+-->//////  requirements in conditions enabling the security of their systems and/or 
+ 
+-->//////  data to be ensured and,  more generally, to use and operate it in the
+ 
+-->//////  same conditions as regards security.
+ 
+-->//////  
+ 
+-->//////  The fact that you are presently reading this means that you have had
+ 
+-->//////  knowledge of the CeCILL license and that you accept its terms.
+ 
+-->//////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-->// main executable script
+ 
+ 
+-->//PREAMBULE
+ 
+ 
+-->disp("=====IMACLIM-Country Platform========");
+ 
+ =====IMACLIM-Country Platform========   
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 0: SYSTEM DEFINITION & SAVEDIR SETUP
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->disp("STEP 0: loading Dashboard ");
+ 
+ STEP 0: loading Dashboard    
+ 
+-->exec ("preambule.sce");
+ 
+ =====PREAMBLE========   
+Warning : redefining function: %c_f_s                  . Use funcprot(0) to avoid this message
+
+Warning : redefining function: %b_x_b                  . Use funcprot(0) to avoid this message
+
+WARNING: ruben again : H_demand_Const_1: abs(pC)
+WARNING: abs(CPI)
+WARNING:  Manu : G_BudgetBalance_Const_1 and G_ConsumpBudget_Const_1 redundant. See simplifications. But calibration must be modified
+WARNING:  ruben again : Technical_Coef_Const_1: abs(prix)
+WARNING: Technical_Coef_Const_3 : check that it is correct!!!
+WARNING: ruben: pIC = abs(pIC);
+WARNING: Ruben: Check what it is you really want with sum(Trade_margins), in calibration as well
+WARNING: ruben : Exports_Const_1
+Warning : redefining function: Exports_Const_4         . Use funcprot(0) to avoid this message
+
+WARNING: CHECK THIS EQUATION with ybis(Indice_NonSupplierSect) = Y(Indice_NonSupplierSect) - Y_ref(Indice_NonSupplierSect);
+WARNING: ruben: Mean_wage_Const_1, abs(w)&abs(lambda), abs(u_tot)
+Warning : redefining function: %c_f_s                  . Use funcprot(0) to avoid this message
+
+Warning : redefining function: %b_x_b                  . Use funcprot(0) to avoid this message
+
+ 
+-->exec("Dashboard.sce");
+ 
+ 
+-->if Output_files=='True'
+-->runName = study + "_" + mydate();
+-->SAVEDIR = OUTPUT+Country_ISO+"_" +runName + filesep();
+-->mkdir(SAVEDIR);
+-->diary(SAVEDIR+"summary.log");
+-->SAVEDIR_IOA = OUTPUT+Country_ISO+"_"+runName + filesep()+ "outputs_IOA"+filesep();
+-->mkdir(SAVEDIR_IOA);
+-->// Save Dashbord.csv in output
+-->copyfile(STUDY_Country + "Dashboard_" + Country_ISO + ".csv", SAVEDIR);
+-->end
+ 
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp(" ======= IMACLIM-"+Country+" is running=============================");
+ 
+  ======= IMACLIM-Saudi_Arabia is running=============================   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+ 
+-->disp(" ======= for resolving the system: "+System_Resol)
+ 
+  ======= for resolving the system: Systeme_Static   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp(" ======= using the study file: "+study)
+ 
+  ======= using the study file: Recursive_RunChoices   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= with various class of households: "+H_DISAGG)
+ 
+ ======= with various class of households: HH1   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= at aggregated level: "+AGG_type)
+ 
+ ======= at aggregated level: AGG_EnComp   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= with the resolution mode: "+Resol_Mode)
+ 
+ ======= with the resolution mode: Static_comparative   
+ 
+-->printf("===============================================\n")
+===============================================
+ 
+-->disp("======= using various iterations:"+Nb_Iter)
+ 
+ ======= using various iterations:1   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->disp("======= under the scenario nammed:"+Scenario)
+ 
+ ======= under the scenario nammed:   
+ 
+-->printf("===============================================\n");
+===============================================
+ 
+-->if Output_files=='False'
+-->disp("=======You choose not to print outputs in external files")
+-->printf("===============================================\n");
+-->end
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 1: LOADING DATA
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-->disp("STEP 1: DATA...");
+ 
+ STEP 1: DATA...   
+ 
+-->exec("Loading_data.sce");
+ 
+ 
+-->exec("IOT_DecompImpDom.sce");
+ 
+ Warning : unbalanced IOT of IMPORTS   
+ 
+ 
+-->//Execute Households_Disagg.sce file if Index_HouseholdsDISAGG is defined
+ 
+-->if	H_DISAGG <> "HH1"
+-->	exec("Households_Desag.sce");
+-->end
+ 
+ 
+-->//Execute agreagation.sce file if Index_SectorsAGG is defined
+ 
+-->if AGG_type <> ""
+-->    exec("Aggregation.sce");
+ 
+ Substep 2: AGGREGATION of DATA...   
+ 
+ Warning : unbalanced IOT of IMPORTS AGG   
+-->    exec("Hybridisation.sce" );
+-->else
+-->    exec("Hybridisation.sce" );
+-->end
+ 
+ 
+-->exec("Loading_params.sce");
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 2: CHECKING BENCHMARK DATA
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->disp("STEP 2: CHECKING CONSISTENCY of BENCHMARK DATA...")
+ 
+ STEP 2: CHECKING CONSISTENCY of BENCHMARK DATA...   
+ 
+-->exec("Checks_loads.sce");
+WARNING: Checks_loads is empty... check consistency of param list regarding the resolution features choosen in the Dashboad?
+ 
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+-->//	STEP 3: CALIBRATION
+ 
+-->/////////////////////////////////////////////////////////////////////////////////////////////
+ 
+ 
+-->disp("STEP 3: CODE CALIBRATION...");
+ 
+ STEP 3: CODE CALIBRATION...   
+ 
+-->exec("Check_CalibSyst.sce");
+ 
+ The system is well defined   
+ 
+-->exec("Calibration.sce");
+WARNING:  Manu : modification of calibration.sce when we substitute some equations - G_demand_Const_2 and calibration of BudgetShare_GConsump
+ 
+-->pause
+ 
+-1->resume
+ 
+-->////////////////////////////////////////////////////////////
+ 
+-->// 	STEP 4: INPUT OUTPUT ANALYSIS BY
+ 
+-->////////////////////////////////////////////////////////////
+ 
+-->disp("STEP 4: INPUT OUTPUT ANALYSIS FOR EMBODIED EMISSIONS AT BASE YEAR");
+ 
+ STEP 4: INPUT OUTPUT ANALYSIS FOR EMBODIED EMISSIONS AT BASE YEAR   
+ 
+-->if Country =="France"
+-->exec(CODE+"IOA_BY.sce");
+-->else
+-->disp("Not executed for the IMACLIM-"+Country+" version")
+ 
+ Not executed for the IMACLIM-Saudi_Arabia version   
+-->end
+ 
+ 
+-->////////////////////////////////////////////////////////////
+ 
+-->// 	STEP 5: RESOLUTION - EQUILIBRIUM
+ 
+-->////////////////////////////////////////////////////////////
+ 
+ 
+-->disp("STEP 5: RESOLUTION AND EQUILIBRIUM...");
+ 
+ STEP 5: RESOLUTION AND EQUILIBRIUM...   
+ 
+ 
+-->// Loop initialisation for various time step calculation
+ 
+-->for time_step=1:Nb_Iter
+-->// Creation of a new output subdirectory for each time step in case of several time steps calculation
+-->if Nb_Iter<>1
+-->if Output_files=='True'
+-->SAVEDIR = OUTPUT+Country_ISO+"_" +runName + filesep() + time_step + filesep();
+-->mkdir(SAVEDIR);
+-->end
+-->end
+-->//// Defining matrix with dimension of each variable for Resolution file
+-->// if  System_Resol=="Projection_homothetic"
+-->// VarDimMat_resol = eval(Index_Imaclim_VarProHom(2:$,2:3));
+-->// else
+-->// VarDimMat_resol = eval(Index_Imaclim_VarResol(2:$,2:3));
+-->// end
+-->// Loading study changes
+-->exec(STUDY_Country+study+".sce");
+-->exec(System_Resol+".sce");
+-->////////////////////////////////////////////////////////////
+-->// 	STEP 6: OUTPUT EXTRACTION AND RESULTS DISPLAY
+-->////////////////////////////////////////////////////////////
+-->if Output_files=='True'
+-->disp("STEP 6: OUTPUT EXTRACTION AND RESULTS DISPLAY...");
+-->warning("Antoine : il faudra bien penser à actualiser les outputs (table_param)");
+-->exec(CODE+"outputs.sce");
+-->exec(CODE+"outputs_indic.sce");
+-->	if System_Resol == "Projection_ECOPA"
+-->	exec(CODE+"outputs_indic_ECOPA.sce");
+-->	end
+-->end
+-->////////////////////////////////////////////////////////////
+-->// 	STEP 7: INPUT OUTPUT ANALYSIS AFTER RUN
+-->////////////////////////////////////////////////////////////
+-->disp("STEP 7: INPUT OUTPUT ANALYSIS FOR EMBODIED EMISSIONS...");
+-->warning('IOA_Run to generalize for several time steps')
+-->if [Country =="France"] & [time_step==1]
+-->exec(CODE+"IOA_Run.sce");
+-->else
+-->disp("Not executed for the IMACLIM-"+Country+" version and/or because time_step = "+ time_step +" > 1")
+-->end
+-->////////////////////////////////////////////////////////////
+-->// 	STEP 8: VARIABLE STORAGE FOR RECURSIVE VERSION
+-->////////////////////////////////////////////////////////////
+-->if Nb_Iter <> 1
+-->exec(CODE+"Variable_Storage.sce");
+-->else
+-->disp("Not executed for the Nb_Iter = "+Nb_Iter)
+-->end
+-->// Loop ending for for various time step calculation
+-->end
+WARNING: Antoine : Dans la wage curve on garde u_tot_ref ou on passe sur un u_param comme au Brésil ?
+WARNING: Antoine: nécessite de pouvoir implémenter Mu et phi_L à la main à l extérieur (study frame)
+WARNING: ruben: created sigmaM here, instead of Technical_Coef_Const_1, maybe change?
+
+
+   count      vBest   info       toc
+       1   3.96e-07      3   4.8e-02
+ 
+ equilibrium FOUND with vBest = 0.0000004   
+ 
+ Time for solving=2.985seconds   
+ 
+ STEP 6: OUTPUT EXTRACTION AND RESULTS DISPLAY...   
+WARNING: Antoine : il faudra bien penser à actualiser les outputs (table_param)
+===============================================
+===== OUTPUTS =================================
+===============================================
+ 
+     
+ 
+ ==========================================   
+ 
+ ============ PARAMETERS ================   
+ 
+ ==========================================   
+ 
+ == Households consumption variation ===========   
+ 
+!Sector     Initial Value  Run        Growth  !
+!                                             !
+!AllEnergy  30735.904      29519.968  -4      !
+!                                             !
+!AllComp    785789.91      707514.84  -10     !
+ 
+ ===== Households ==============================   
+ 
+!Items                Initial Value  Run        !
+!                                               !
+!H_disposable_income  5.660e+08      5.106e+08  !
+!                                               !
+!Other_Direct_Tax     0              0          !
+ 
+ ===== Firms ===================================   
+ 
+!Items                   Initial Value  Run        !
+!                                                  !
+!Corp_disposable_income  9.387e+08      9.173e+08  !
+!                                                  !
+!Corporate_Tax           37890316       36699641   !
+ 
+ ===== pY    ===================================   
+ 
+!Sector     Initial Value  Run   Growth  !
+!                                        !
+!AllEnergy  2094           2074  -1      !
+!                                        !
+!AllComp    1000           979   -2      !
+ 
+ ===== Trade margins ===========================   
+ 
+ 
+         column 1 to 5
+ 
+!Sectors    Initial value  Run        Rate Initial Value  Rate Run    !
+!                                                                     !
+!AllEnergy  34217000       33596284   0.0238858           0.0238858   !
+!                                                                     !
+!AllComp    -34217000      -33596284  -0.0099547          -0.0104780  !
+ 
+         column 6
+ 
+!Rate ratio  !
+!            !
+!1           !
+!            !
+!0.9500568   !
+ 
+ ===== Transp margins ==========================   
+ 
+ 
+         column 1 to 5
+ 
+!Sectors    Initial value  Run        Rate Initial Value  Rate Run    !
+!                                                                     !
+!AllEnergy  20479000       20107499   0.0142957           0.0142957   !
+!                                                                     !
+!AllComp    -20479000      -20107499  -0.0059579          -0.0062711  !
+ 
+         column 6
+ 
+!Rate ratio  !
+!            !
+!1           !
+!            !
+!0.9500568   !
+ 
+ ===== Decomposition pY - Initial Value ========================   
+ 
+!Sector     pY    IC   L    K    Prod tax  Markup  !
+!                                                  !
+!AllEnergy  2094  196  57   296  2         1543    !
+!                                                  !
+!AllComp    1000  392  193  236  3         176     !
+ 
+ ===== Decomposition pY Run ========================   
+ 
+!Sector     pY    IC   L    K    Prod tax  Markup  !
+!                                                  !
+!AllEnergy  2074  195  53   296  2         1529    !
+!                                                  !
+!AllComp    979   390  179  235  3         172     !
+ 
+ ===== Decomposition pY Ratio ========================   
+ 
+ 
+         column 1 to 6
+ 
+!Sector     pY         IC         L          K          Prod tax   !
+!                                                                  !
+!AllEnergy  0.9905810  0.9976499  0.9297417  0.9976499  0.9905810  !
+!                                                                  !
+!AllComp    0.9788840  0.9947694  0.9271077  0.9947694  0.9788840  !
+ 
+         column 7
+ 
+!Markup     !
+!           !
+!0.9905810  !
+!           !
+!0.9788840  !
+ 
+     
+ 
+ ==========================================   
+ 
+ ============ UNITARY PRICE ====================   
+ 
+ ==========================================   
+ 
+  * Initial table - Unitary prices   
+ 
+ 
+         column 1 to 6
+ 
+!IC prices CO2  AllEn                AllCo    C      G        I        !
+!                                                                      !
+!AllEn          118.3                344.2    742    -1644.6  -1644.6  !
+!                                                                      !
+!AllCo          990.6                990.6    990.6  990.6    990.6    !
+!                                                                      !
+!                                                                      !
+!                                                                      !
+!w              204786.3             43799.2                           !
+!                                                                      !
+!pL             251352.1             47525.2                           !
+!                                                                      !
+!pK             990.6                990.6                             !
+!                                                                      !
+!pY             2093.9               1000                              !
+!                                                                      !
+!pM             334.4                1000                              !
+!                                                                      !
+!p              2034.6               1000                              !
+!                                                                      !
+!                                                                      !
+!                                                                      !
+!Units          1 €/tep, €/tons                                    !
+ 
+         column 7 to 8
+ 
+!X         !
+!          !
+!2910.8    !
+!          !
+!984.1     !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+ 
+  * Run table - Unitary prices   
+ 
+ 
+         column 1 to 6
+ 
+!IC prices CO2  AllEn                AllCo    C      G        I        !
+!                                                                      !
+!AllEn          118.3                344.2    742    -1663.8  -1644.6  !
+!                                                                      !
+!AllCo          990.6                990.6    990.6  973.7    990.6    !
+!                                                                      !
+!                                                                      !
+!                                                                      !
+!w              195784.6             41874                             !
+!                                                                      !
+!pL             241107.4             45608.1                           !
+!                                                                      !
+!pK             990.6                990.6                             !
+!                                                                      !
+!pY             2074.2               978.9                             !
+!                                                                      !
+!pM             334.4                1000                              !
+!                                                                      !
+!p              2016                 983.6                             !
+!                                                                      !
+!                                                                      !
+!                                                                      !
+!Units          1 €/tep, €/tons                                    !
+ 
+         column 7 to 8
+ 
+!X         !
+!          !
+!2884.3    !
+!          !
+!967.2     !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+ 
+  * Evolution table - Unitary prices   
+ 
+!IC prices CO2  AllEn                   AllCo  C  G     I  X       !
+!                                                                  !
+!AllEn          0                       0      0  1.2   0  -0.9    !
+!                                                                  !
+!AllCo          0                       0      0  -1.7  0  -1.7    !
+!                                                                  !
+!                                                                  !
+!                                                                  !
+!w              -4.4                    -4.4                       !
+!                                                                  !
+!pL             -4.1                    -4                         !
+!                                                                  !
+!pK             0                       0                          !
+!                                                                  !
+!pY             -0.9                    -2.1                       !
+!                                                                  !
+!pM             0                       0                          !
+!                                                                  !
+!p              -0.9                    -1.6                       !
+!                                                                  !
+!                                                                  !
+!                                                                  !
+!Units          0.01 €/tep, €/tons                             !
+ 
+     
+ 
+ ==========================================   
+ 
+ ============ TECHNICAL COEFFICIENT ====================   
+ 
+ ==========================================   
+ 
+  * Initial table - Technical Coefficient   
+ 
+!alpha   AllEn  AllCo  !
+!                      !
+!AllEn   0.2    0      !
+!                      !
+!AllCo   0.2    0.4    !
+!                      !
+!                      !
+!                      !
+!lambda  0      0      !
+!                      !
+!kappa   0.3    0.2    !
+!                      !
+!                      !
+!                      !
+!Units   nan           !
+ 
+  * Run table - Technical Coefficient   
+ 
+!alpha   AllEn  AllCo  !
+!                      !
+!AllEn   0.2    0      !
+!                      !
+!AllCo   0.2    0.4    !
+!                      !
+!                      !
+!                      !
+!lambda  0      0      !
+!                      !
+!kappa   0.3    0.2    !
+!                      !
+!                      !
+!                      !
+!Units   nan           !
+ 
+  * Evolution table - Technical Coefficient   
+ 
+!alpha   AllEn  AllCo  !
+!                      !
+!AllEn   -0.2   -0.5   !
+!                      !
+!AllCo   -0.2   -0.5   !
+!                      !
+!                      !
+!                      !
+!lambda  -3.1   -3.4   !
+!                      !
+!kappa   -0.2   -0.5   !
+!                      !
+!                      !
+!                      !
+!Units   nan           !
+ 
+     
+ 
+ ==========================================   
+ 
+ ============ CO2 EMISSIONS ====================   
+ 
+ ==========================================   
+ 
+  * Initial table - CO2 Emissions   
+ 
+!Emission CO2    AllEn    AllCo  CO2Emis_C  CO2Emis_X  !
+!                                                      !
+!AllEn           309      170    63         1261       !
+!                                                      !
+!AllCo           0        0      0          0          !
+!                                                      !
+!CO2Emis_Sec     309      170                          !
+!                                                      !
+!Tot_CO2Emis_IC  479                                   !
+!                                                      !
+!Tot_CO2Emis_C   63                                    !
+!                                                      !
+!DOM_CO2         542                                   !
+!                                                      !
+!Units           1 MtCO2                               !
+ 
+  * Run table - CO2 Emissions   
+ 
+!Emission CO2    AllEn    AllCo  CO2Emis_C  CO2Emis_X  !
+!                                                      !
+!AllEn           305.6    161.2  60.5       1261       !
+!                                                      !
+!AllCo           0        0      0          0          !
+!                                                      !
+!CO2Emis_Sec     305.6    161.2                        !
+!                                                      !
+!Tot_CO2Emis_IC  466.7                                 !
+!                                                      !
+!Tot_CO2Emis_C   60.5                                  !
+!                                                      !
+!DOM_CO2         527.2                                 !
+!                                                      !
+!Units           1 MtCO2                               !
+ 
+  * Evolution table - CO2 Emissions   
+ 
+!Emission CO2    AllEn       AllCo  CO2Emis_C  CO2Emis_X  !
+!                                                         !
+!AllEn           -1.1        -5.2   -4         0          !
+!                                                         !
+!AllCo           0           0      0          0          !
+!                                                         !
+!CO2Emis_Sec     -1.1        -5.2                         !
+!                                                         !
+!Tot_CO2Emis_IC  -2.6                                     !
+!                                                         !
+!Tot_CO2Emis_C   -4                                       !
+!                                                         !
+!DOM_CO2         -2.7                                     !
+!                                                         !
+!Units           0.01 MtCO2                               !
+ 
+     
+ 
+ ==========================================   
+ 
+ ============ IO TABLE VALUE ====================   
+ 
+ ==========================================   
+ 
+  * Initial table   
+ 
+ 
+         column 1 to 7
+ 
+!IC_value              AllEn        AllCo   C      G      I      X       !
+!                                                                        !
+!AllEn                 14.3         41.3    22.8   0      0      1259.1  !
+!                                                                        !
+!AllCo                 118.8        997.4   778.4  628.5  662.5  217.9   !
+!                                                                        !
+!Labour_income         31.7         470.8                                !
+!                                                                        !
+!Labour_Tax            7.2          40.1                                 !
+!                                                                        !
+!Capital_income        201.7        626.4                                !
+!                                                                        !
+!Production_Tax        1            7.5                                  !
+!                                                                        !
+!Profit_margin         1049.8       465.8                                !
+!                                                                        !
+!M_value               7.9          788                                  !
+!                                                                        !
+!Trade_margins         34.2         -34.2                                !
+!                                                                        !
+!Transp_margins        20.5         -20.5                                !
+!                                                                        !
+!SpeMarg_AllEnergy     -223.9       0                                    !
+!                                                                        !
+!SpeMarg_AllComp       -194.9       0                                    !
+!                                                                        !
+!SpeMarg_C             73.4         0                                    !
+!                                                                        !
+!SpeMarg_G             0            0                                    !
+!                                                                        !
+!SpeMarg_I             0            0                                    !
+!                                                                        !
+!SpeMarg_X             345.4        0                                    !
+!                                                                        !
+!VA_Tax                0            0                                    !
+!                                                                        !
+!Energy_Tax_IC         -34.5        0                                    !
+!                                                                        !
+!Energy_Tax_FC         -115.5       0                                    !
+!                                                                        !
+!ClimPolCompensbySect  0            0                                    !
+!                                                                        !
+!OtherIndirTax         0.3          20.9                                 !
+!                                                                        !
+!Carbon_Tax            0            0                                    !
+!                                                                        !
+!Supply                1337.5       3403.5                               !
+!                                                                        !
+!                                                                        !
+!                                                                        !
+!                                                                        !
+!                                                                        !
+!Units                 1000000k€                                       !
+ 
+         column 8 to 9
+ 
+!Uses      !
+!          !
+!1337.5    !
+!          !
+!3403.5    !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+ 
+  * Run table   
+ 
+ 
+         column 1 to 7
+ 
+!IC_value              AllEn        AllCo   C      G      I      X       !
+!                                                                        !
+!AllEn                 14.1         39.1    21.9   0      0      1254.5  !
+!                                                                        !
+!AllCo                 117.5        945.5   700.9  598.5  634.6  216.4   !
+!                                                                        !
+!Labour_income         29.1         414.4                                !
+!                                                                        !
+!Labour_Tax            6.7          37                                   !
+!                                                                        !
+!Capital_income        199.5        593.8                                !
+!                                                                        !
+!Production_Tax        1            7                                    !
+!                                                                        !
+!Profit_margin         1030.8       434.5                                !
+!                                                                        !
+!M_value               7.8          735                                  !
+!                                                                        !
+!Trade_margins         33.6         -33.6                                !
+!                                                                        !
+!Transp_margins        20.1         -20.1                                !
+!                                                                        !
+!SpeMarg_AllEnergy     -219.3       0                                    !
+!                                                                        !
+!SpeMarg_AllComp       -183.1       0                                    !
+!                                                                        !
+!SpeMarg_C             69.8         0                                    !
+!                                                                        !
+!SpeMarg_G             0            0                                    !
+!                                                                        !
+!SpeMarg_I             0            0                                    !
+!                                                                        !
+!SpeMarg_X             344.2        0                                    !
+!                                                                        !
+!VA_Tax                0            0                                    !
+!                                                                        !
+!Energy_Tax_IC         -33.4        0                                    !
+!                                                                        !
+!Energy_Tax_FC         -110.9       0                                    !
+!                                                                        !
+!ClimPolCompensbySect  0            0                                    !
+!                                                                        !
+!OtherIndirTax         0.3          19.7                                 !
+!                                                                        !
+!Carbon_Tax            0            0                                    !
+!                                                                        !
+!Supply                1327.7       3172.4                               !
+!                                                                        !
+!                                                                        !
+!                                                                        !
+!                                                                        !
+!                                                                        !
+!Units                 1000000k€                                       !
+ 
+         column 8 to 9
+ 
+!Uses      !
+!          !
+!1329.7    !
+!          !
+!3213.4    !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+!          !
+ 
+  * Evolution table   
+ 
+!IC_value              AllEn     AllCo  C    G     I     X     Uses    !
+!                                                                      !
+!AllEn                 -1.1      -5.2   -4   0     0     -0.4  -0.6    !
+!                                                                      !
+!AllCo                 -1.1      -5.2   -10  -4.8  -4.2  -0.7  -5.6    !
+!                                                                      !
+!Labour_income         -8.2      -12                                   !
+!                                                                      !
+!Labour_Tax            -6.5      -7.7                                  !
+!                                                                      !
+!Capital_income        -1.1      -5.2                                  !
+!                                                                      !
+!Production_Tax        -1.8      -6.7                                  !
+!                                                                      !
+!Profit_margin         -1.8      -6.7                                  !
+!                                                                      !
+!M_value               -1.8      -6.7                                  !
+!                                                                      !
+!Trade_margins         -1.8      -1.8                                  !
+!                                                                      !
+!Transp_margins        -1.8      -1.8                                  !
+!                                                                      !
+!SpeMarg_AllEnergy     -2        0                                     !
+!                                                                      !
+!SpeMarg_AllComp       -6.1      0                                     !
+!                                                                      !
+!SpeMarg_C             -4.8      0                                     !
+!                                                                      !
+!SpeMarg_G             0         0                                     !
+!                                                                      !
+!SpeMarg_I             0         0                                     !
+!                                                                      !
+!SpeMarg_X             -0.4      0                                     !
+!                                                                      !
+!VA_Tax                0         0                                     !
+!                                                                      !
+!Energy_Tax_IC         -3.2      0                                     !
+!                                                                      !
+!Energy_Tax_FC         -4        0                                     !
+!                                                                      !
+!ClimPolCompensbySect  0         0                                     !
+!                                                                      !
+!OtherIndirTax         -3.2      -5.6                                  !
+!                                                                      !
+!Carbon_Tax            Nan       Nan                                   !
+!                                                                      !
+!Supply                -0.7      -6.8                                  !
+!                                                                      !
+!                                                                      !
+!                                                                      !
+!                                                                      !
+!                                                                      !
+!Units                 0.01k€                                        !
+ 
+     
+ 
+ ==========================================   
+ 
+ ============ IO TABLE QUANTITIES ====================   
+ 
+ ==========================================   
+ 
+  * Initial table - QUANTITIES   
+ 
+ 
+         column 1 to 6
+ 
+!IC_Q                 AllEn           AllCo      FC_Q   C         G         !
+!                                                                           !
+!AllEn                120894.2        119895.5   AllEn  30735.9   0         !
+!                                                                           !
+!AllCo                119910.6        1006924.9  AllCo  785789.9  634492.2  !
+!                                                                           !
+!OthQ                 AllEn           AllCo                                 !
+!                                                                           !
+!Y                    680333.4        2649324.6                             !
+!                                                                           !
+!M                    23764           787958                                !
+!                                                                           !
+!Labour               154.8           10749.7                               !
+!                                                                           !
+!Capital_consumption  203623.6        632396.8                              !
+!                                                                           !
+!                                                                           !
+!                                                                           !
+!Units                1 ktoe / ktons                                        !
+ 
+         column 7 to 8
+ 
+!I         X         !
+!                    !
+!0         432571.9  !
+!                    !
+!668748.6  221416.3  !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+ 
+  * Run table - QUANTITIES   
+ 
+ 
+         column 1 to 6
+ 
+!IC_Q                 AllEn           AllCo      FC_Q   C         G         !
+!                                                                           !
+!AllEn                119548.2        113656.1   AllEn  29520     0         !
+!                                                                           !
+!AllCo                118575.5        954524.6   AllCo  707514.8  614727.5  !
+!                                                                           !
+!OthQ                 AllEn           AllCo                                 !
+!                                                                           !
+!Y                    674343.4        2524659.6                             !
+!                                                                           !
+!M                    23332.9         735024.8                              !
+!                                                                           !
+!Labour               148.7           9896.4                                !
+!                                                                           !
+!Capital_consumption  201356.5        599486.9                              !
+!                                                                           !
+!                                                                           !
+!                                                                           !
+!Units                1 ktoe / ktons                                        !
+ 
+         column 7 to 8
+ 
+!I         X         !
+!                    !
+!0         434952.1  !
+!                    !
+!640609.9  223732    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+!                    !
+ 
+  * Evolution table - QUANTITIES   
+ 
+!IC_Q                 AllEn              AllCo  FC_Q   C    G     I     X    !
+!                                                                            !
+!AllEn                -1.1               -5.2   AllEn  -4   -100  -100  0.6  !
+!                                                                            !
+!AllCo                -1.1               -5.2   AllCo  -10  -3.1  -4.2  1    !
+!                                                                            !
+!OthQ                 AllEn              AllCo                               !
+!                                                                            !
+!Y                    -0.9               -4.7                                !
+!                                                                            !
+!M                    -1.8               -6.7                                !
+!                                                                            !
+!Labour               -3.9               -7.9                                !
+!                                                                            !
+!Capital_consumption  -1.1               -5.2                                !
+!                                                                            !
+!                                                                            !
+!                                                                            !
+!Units                0.01 ktoe / ktons                                      !
+ 
+     
+ 
+ ==========================================   
+ 
+ ============ ECONOMIC ACCOUNT TABLE================   
+ 
+ ==========================================   
+ 
+  * Initial table - Economic Account table   
+ 
+ 
+         column 1 to 4
+ 
+!Economic Table            Corporations  Government  Households  !
+!                                                                !
+!Trade_Balance             0             0           0           !
+!                                                                !
+!GOS_byAgent               1009.1        1181.2      153.5       !
+!                                                                !
+!NetCompWages_byAgent      0             0           502.5       !
+!                                                                !
+!InsuranceContrib_byAgent  0             47.3        0           !
+!                                                                !
+!Production_Tax_byAgent    0             8.6         0           !
+!                                                                !
+!Energ_Tax_byAgent         0             -150        0           !
+!                                                                !
+!OtherIndirTax_byAgent     0             21.2        0           !
+!                                                                !
+!VA_Tax_byAgent            0             0           0           !
+!                                                                !
+!Property_income           -32.3         43.4        8.9         !
+!                                                                !
+!Unemployment_transfers    0             -2.2        2.2         !
+!                                                                !
+!Pensions                  0             -45.3       45.3        !
+!                                                                !
+!Other_social_transfers    0             -3.3        3.3         !
+!                                                                !
+!ClimPolicyCompens         0             0           0           !
+!                                                                !
+!Other_Transfers           -0.2          7           -127.8      !
+!                                                                !
+!Income_Tax                0             21.9        -21.9       !
+!                                                                !
+!Corporate_Tax             -37.9         37.9        0           !
+!                                                                !
+!Other_Direct_Tax          0             0           0           !
+!                                                                !
+!Disposable_Income         938.7         1167.6      566         !
+!                                                                !
+!FC_byAgent                0             628.5       801.2       !
+!                                                                !
+!GFCF_byAgent              325.2         249.7       87.5        !
+!                                                                !
+!Tot_FC_byAgent            325.2         878.2       888.7       !
+!                                                                !
+!NetLending                613.5         289.4       -322.8      !
+!                                                                !
+!NetFinancialDebt          1076.4        -1448.2     -296.4      !
+!                                                                !
+!                                                                !
+!                                                                !
+!Units                     1000000 k€                          !
+ 
+         column 5
+ 
+!RestOfWorld  !
+!             !
+!-681.1       !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!-20          !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!121          !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!-580.1       !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!-580.1       !
+!             !
+!668.2        !
+!             !
+!             !
+!             !
+!             !
+ 
+  * Run table - Economic Account table   
+ 
+ 
+         column 1 to 4
+ 
+!Economic Table            Corporations  Government  Households  !
+!                                                                !
+!Trade_Balance             0             0           0           !
+!                                                                !
+!GOS_byAgent               977.4         1144.1      148.6       !
+!                                                                !
+!NetCompWages_byAgent      0             0           443.5       !
+!                                                                !
+!InsuranceContrib_byAgent  0             43.7        0           !
+!                                                                !
+!Production_Tax_byAgent    0             8           0           !
+!                                                                !
+!Energ_Tax_byAgent         0             -144.3      0           !
+!                                                                !
+!OtherIndirTax_byAgent     0             20          0           !
+!                                                                !
+!VA_Tax_byAgent            0             0           0           !
+!                                                                !
+!Property_income           -23.1         29.4        7.8         !
+!                                                                !
+!Unemployment_transfers    0             -5.8        5.8         !
+!                                                                !
+!Pensions                  0             -43.1       43.1        !
+!                                                                !
+!Other_social_transfers    0             -3.1        3.1         !
+!                                                                !
+!ClimPolicyCompens         0             0           0           !
+!                                                                !
+!Other_Transfers           -0.2          6.7         -121.7      !
+!                                                                !
+!Income_Tax                0             19.8        -19.8       !
+!                                                                !
+!Corporate_Tax             -36.7         36.7        0           !
+!                                                                !
+!Other_Direct_Tax          0             0           0           !
+!                                                                !
+!Disposable_Income         917.3         1111.9      510.6       !
+!                                                                !
+!FC_byAgent                0             598.5       722.8       !
+!                                                                !
+!GFCF_byAgent              317.8         237.8       79          !
+!                                                                !
+!Tot_FC_byAgent            317.8         836.3       801.7       !
+!                                                                !
+!NetLending                599.5         275.6       -291.2      !
+!                                                                !
+!NetFinancialDebt          1111.3        -1413.7     -375.4      !
+!                                                                !
+!                                                                !
+!                                                                !
+!Units                     1000000 k€                          !
+ 
+         column 5
+ 
+!RestOfWorld  !
+!             !
+!-728.1       !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!-14.1        !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!115.3        !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!-626.9       !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!-626.9       !
+!             !
+!785.2        !
+!             !
+!             !
+!             !
+!             !
+ 
+  * Evolution table - Economic Account table   
+ 
+ 
+         column 1 to 4
+ 
+!Economic Table            Corporations  Government  Households  !
+!                                                                !
+!Trade_Balance             0             0           0           !
+!                                                                !
+!GOS_byAgent               -3.1          -3.1        -3.1        !
+!                                                                !
+!NetCompWages_byAgent      0             0           -11.7       !
+!                                                                !
+!InsuranceContrib_byAgent  0             -7.5        0           !
+!                                                                !
+!Production_Tax_byAgent    0             -6.1        0           !
+!                                                                !
+!Energ_Tax_byAgent         0             -3.8        0           !
+!                                                                !
+!OtherIndirTax_byAgent     0             -5.6        0           !
+!                                                                !
+!VA_Tax_byAgent            0             0           0           !
+!                                                                !
+!Property_income           -28.4         -32.3       -12.1       !
+!                                                                !
+!Unemployment_transfers    0              160.1       160.1      !
+!                                                                !
+!Pensions                  0             -4.8        -4.8        !
+!                                                                !
+!Other_social_transfers    0             -4.8        -4.8        !
+!                                                                !
+!ClimPolicyCompens         0             0           0           !
+!                                                                !
+!Other_Transfers           -4.8          -4.8        -4.8        !
+!                                                                !
+!Income_Tax                0             -9.8        -9.8        !
+!                                                                !
+!Corporate_Tax             -3.1          -3.1        0           !
+!                                                                !
+!Other_Direct_Tax          0             0           0           !
+!                                                                !
+!Disposable_Income         -2.3          -4.8        -9.8        !
+!                                                                !
+!FC_byAgent                0             -4.8        -9.8        !
+!                                                                !
+!GFCF_byAgent              -2.3          -4.8        -9.8        !
+!                                                                !
+!Tot_FC_byAgent            -2.3          -4.8        -9.8        !
+!                                                                !
+!NetLending                -2.3          -4.8        -9.8        !
+!                                                                !
+!NetFinancialDebt           3.2          -2.4         26.7       !
+!                                                                !
+!                                                                !
+!                                                                !
+!Units                     0.01 k€                             !
+ 
+         column 5
+ 
+!RestOfWorld  !
+!             !
+! 6.9         !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!-29.6        !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!-4.8         !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+! 8.1         !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+!0            !
+!             !
+! 8.1         !
+!             !
+! 17.5        !
+!             !
+!             !
+!             !
+!             !
+ 
+ ===== MAIN MACRO OUTPUT ==============================   
+ 
+!Macro results                                  in %                  !
+!                                                                     !
+!Carbon Tax rate                                0 euro/tCO2           !
+!                                                                     !
+!Labour Tax cut                                 Labour tax reduction  !
+!                                                                     !
+!Real GDP (Laspeyres)                           -2.29363              !
+!                                                                     !
+!Households consumption in GDP                  -2.8284408            !
+!                                                                     !
+!Public consumption in GDP                      -0.7059759            !
+!                                                                     !
+!Investment in GDP                              -1.0050875            !
+!                                                                     !
+!Exports in GDP                                 0.3319924             !
+!                                                                     !
+!Imports in GDP                                 -1.9138819            !
+!                                                                     !
+!Imports/Domestic production ratio              -2.0900624            !
+!                                                                     !
+!Imports of Non Energy goods in volume          -6.7177726            !
+!                                                                     !
+!Exports of Non Energy goods in volume          1.0458389             !
+!                                                                     !
+!Total Employment                               -7.8811657            !
+!                                                                     !
+!Unemployment rate (% points)                   0.0973485             !
+!                                                                     !
+!Net-of-tax wages                               -4.1922519            !
+!                                                                     !
+!Labour Intensity (Laspeyres)                   -3.3876512            !
+!                                                                     !
+!Labour tax rate (% points)                     0.0041052             !
+!                                                                     !
+!Energy Input Price (Laspeyres)                 0                     !
+!                                                                     !
+!Energy Intensity (Laspeyres)                   -2.7850616            !
+!                                                                     !
+!Energy cost share for non-energetic sector     1.6227985             !
+!                                                                     !
+!Production Price (Laspeyres)                   -1.7025716            !
+!                                                                     !
+!Production Price Energy goods (Laspeyres)      -0.9418991            !
+!                                                                     !
+!Production Price Non Energy goods (Laspeyres)  -2.1115957            !
+!                                                                     !
+!Real Households consumption (Laspeyres)        -9.790376             !
+!                                                                     !
+! Energy in Households consumption              -0.1126147            !
+!                                                                     !
+! Non Energy goods in Households consumption    -9.6777613            !
+!                                                                     !
+!Public Deficits                                -4.7696301            !
+!                                                                     !
+!Total Emissions                                -2.7268433            !
+!                                                                     !
+!                                                                     !
+!                                                                     !
+!Most sensitif import Elasticity for NonEner    1                     !
+!                                                                     !
+! Most sensitif export Elasticity for NonEner   0.6000000             !
+!                                                                     !
+! Global mean wage/Unemployment Elasticity      -0.1                  !
+ 
+ STEP 7: INPUT OUTPUT ANALYSIS FOR EMBODIED EMISSIONS...   
+WARNING: IOA_Run to generalize for several time steps
+ 
+ Not executed for the IMACLIM-Saudi_Arabia version and/or because time_step = 
+       1 > 1                                                                  
+ 
+ Not executed for the Nb_Iter = 1   
+ 
+ 
+-->//shut down the diary
+ 
+-->if Output_files=='True'
+-->diary(0)

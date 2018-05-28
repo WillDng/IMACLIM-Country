@@ -1937,10 +1937,10 @@ endfunction
 
 //At this stage, choose to compute Prices or SpeMarg by uncommenting one oprtion
 // Compute Prices
-function pIC = pIC_price_Const_2( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_IC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p);
+//function pIC = pIC_price_Const_2( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_IC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p);
 
 // Compute SpecMarg
-function SpeMarg_rates_IC = pIC_price_Const_2( Transp_margins_rates, Trade_margins_rates, pIC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p);
+function SpeMarg_rates_IC = pIC_price_Const_2( Transp_margins_rates, Trade_margins_rates, pIC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p)
 
     //  Trade, transport and specific margins for energy
     // margins_rates = repmat(Transp_margins_rates' + Trade_margins_rates', 1, nb_Sectors) + SpeMarg_rates_IC' ;
@@ -1998,7 +1998,7 @@ endfunction
 
 //At this stage, choose to compute Prices or SpeMarg by uncommenting one oprtion
 //Compute Price
-function pC = pC_price_Const_2( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_C, Energy_Tax_rate_FC, OtherIndirTax_rate, Carbon_Tax_rate_C, Emission_Coef_C, p, VA_Tax_rate) ;
+//function pC = pC_price_Const_2( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_C, Energy_Tax_rate_FC, OtherIndirTax_rate, Carbon_Tax_rate_C, Emission_Coef_C, p, VA_Tax_rate) ;
 
 // Compute SpeMargins
 function SpeMarg_rates_C = pC_price_Const_2( Transp_margins_rates, Trade_margins_rates, pC, Energy_Tax_rate_FC, OtherIndirTax_rate, Carbon_Tax_rate_C, Emission_Coef_C, p, VA_Tax_rate) ;
@@ -2007,7 +2007,7 @@ function SpeMarg_rates_C = pC_price_Const_2( Transp_margins_rates, Trade_margins
     //  Trade, transport and specific margins for energy
     // margins_rates = repmat(Transp_margins_rates' + Trade_margins_rates', 1, nb_Households) + SpeMarg_rates_C' ;
     margins_rates = (ones(nb_Households,1) .*. ( Transp_margins_rates + Trade_margins_rates ) + SpeMarg_rates_C )' ;
-
+    
     // Indirect tax
     // Indirect_tax_rates = repmat (Energy_Tax_rate_FC' + OtherIndirTax_rate', 1, nb_Households) + Carbon_Tax_rate_C .* Emission_Coef_C ;
     Indirect_tax_rates =  (ones(nb_Households,1) .*. ( Energy_Tax_rate_FC + OtherIndirTax_rate ) )' + Carbon_Tax_rate_C .* Emission_Coef_C  ;
@@ -2061,7 +2061,7 @@ endfunction
 function pG = pG_price_Const_2( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_G, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate) ;
     
 //Compute SpeMarg
-function SpeMarg_rates_G = pG_price_Const_2( Transp_margins_rates, Trade_margins_rates, pG, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate) ;
+// function SpeMarg_rates_G = pG_price_Const_2( Transp_margins_rates, Trade_margins_rates, pG, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate) ;
     
     //  Trade and transport
     // margins_rates = repmat(Transp_margins_rates' + Trade_margins_rates', 1, nb_Government) ;
@@ -2112,7 +2112,7 @@ endfunction
 
 //At this stage, choose to compute Prices or SpeMarg by uncommenting one oprtion
 //Compute Price
-function pI = pI_price_Const_2( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_I, OtherIndirTax_rate, Energy_Tax_rate_FC, p, VA_Tax_rate) ;
+// function pI = pI_price_Const_2( Transp_margins_rates, Trade_margins_rates, SpeMarg_rates_I, OtherIndirTax_rate, Energy_Tax_rate_FC, p, VA_Tax_rate) ;
 
 //Compute SpeMarg
 function SpeMarg_rates_I = pI_price_Const_2( Transp_margins_rates, Trade_margins_rates, pI, OtherIndirTax_rate, Energy_Tax_rate_FC, p, VA_Tax_rate) ;
@@ -2625,7 +2625,6 @@ function [y] =  GrossOpSurplus_Const_1(GrossOpSurplus, Capital_income, Profit_ma
     SpeMarg_X = SpeMarg_rates_X .* ( p' .* X )';
     SpeMarg_I= SpeMarg_rates_I .* ( p' .* I)';
 
-
     y1 = GrossOpSurplus - ( Capital_income + Profit_margin + Trade_margins + Transp_margins + sum(SpeMarg_IC, "r") + sum(SpeMarg_C, "r") + SpeMarg_X + SpeMarg_I ) ;
 
     y  = y1';
@@ -2658,6 +2657,7 @@ function [y] = Labour_income_Const_1(Labour_income, Labour, w) ;
 
     y  = y1';
 endfunction
+
 
 // For calibration
 // Net profit margins by sector (Net from the valuation of fixed capital consumption)

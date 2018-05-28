@@ -103,8 +103,8 @@ function [M,p,X,pIC,pC,pG,pI,pM,CPI,alpha, lambda, kappa,GrossOpSurplus,Other_Di
     X = Exports_Const_2( pM, pX, sigma_X, delta_X_parameter);
 	SpeMarg_rates_IC = pIC_price_Const_2( Transp_margins_rates, Trade_margins_rates, pIC, Energy_Tax_rate_IC, OtherIndirTax_rate, Carbon_Tax_rate_IC, Emission_Coef_IC, p);
 	SpeMarg_rates_C = pC_price_Const_2( Transp_margins_rates, Trade_margins_rates, pC, Energy_Tax_rate_FC, OtherIndirTax_rate, Carbon_Tax_rate_C, Emission_Coef_C, p, VA_Tax_rate) ;
-	SpeMarg_rates_G = pG_price_Const_2( Transp_margins_rates, Trade_margins_rates, pG, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate) ;
-	SpeMarg_rates_I = pI_price_Const_2( Transp_margins_rates, Trade_margins_rates, pI, PI,OtherIndirTax_rate, Energy_Tax_rate_FC, p, VA_Tax_rate) ;
+	pG = pG_price_Const_2( Transp_margins_rates, Trade_margins_rates, pG, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate) ;
+	SpeMarg_rates_I = pI_price_Const_2( Transp_margins_rates, Trade_margins_rates, pI, Energy_Tax_rate_FC, OtherIndirTax_rate, p, VA_Tax_rate) ;
 	CPI = CPI_Const_2( pC, C);
 	// 	Specific to any projection in relation to BY
 	[alpha, lambda, kappa] =Technical_Coef_Const_7(Theta, Phi, aIC, sigma, pIC, aL, pL, aK, pK, phi_IC, phi_K, phi_L, ConstrainedShare_IC, ConstrainedShare_Labour, ConstrainedShare_Capital);

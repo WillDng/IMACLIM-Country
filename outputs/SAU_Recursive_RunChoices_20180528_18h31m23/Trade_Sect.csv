@@ -1,0 +1,21 @@
+Variable/Sectoral value;AllEnergy;AllComp
+Households consumption Nominal 0;22.8;778.4
+Households consumption Nominal 1;21.9;700.9
+HPrice Index (Paasche);1;1
+Households consumption Real 1 (G€);21.9;700.9
+Government consumption Nominal 0;0;628.5
+Government consumption Nominal 1;0;598.5
+G Price Index (Paasche);1.0116927;0.9829222
+Government consumption Real 1 (G€);0;608.9
+Investment Nominal 0;0;662.5
+Investment Nominal 1;0;634.6
+I Price Index (Paasche);0;1
+Investment Real 1 (G€);0;634.6
+Exports Nominal 0;1259.1;217.9
+Exports Nominal 1;1254.5;216.4
+X Price Index (Paasche);0.9908960;0.9828093
+Exports Real 1 (G€);1266;220.2
+Imports Nominal 0;7.9;788
+Imports Nominal 1;7.8;735
+M Price Index (Paasche);1;1
+Imports Real 1 (G€);7.8;735

@@ -1,0 +1,10 @@
+IC_Q,AllEn,AllCo,FC_Q,C,G,I,X
+AllEn,-1.1,-5.2,AllEn,-4,-100,-100,0.6
+AllCo,-1.1,-5.2,AllCo,-10,-3.1,-4.2,1
+OthQ,AllEn,AllCo,,,,,
+Y,-0.9,-4.7,,,,,
+M,-1.8,-6.7,,,,,
+Labour,-3.9,-7.9,,,,,
+Capital_consumption,-1.1,-5.2,,,,,
+,,,,,,,
+Units,0.01 ktoe / ktons,,,,,,

@@ -1,0 +1,18 @@
+setting,,,AllEnergy,AllComp
+$t_{CARB_{IC}}$, $\euro/tCO_2$,AllEnergy,0,0
+$t_{CARB_{IC}}$, $\euro/tCO_2$,AllComp,0,0
+$t_{CARB_{C}}$,$\euro/tCO_2$ ,Households,0,0
+$\beta_{IC_{ji}}$, ,AllEnergy,0.8,0.8
+$\beta_{IC_{ji}}$, ,AllComp,0.8,0.8
+$\beta_{K_{i}}$, , ,0.8,0.8
+$\beta_{L_{i}}$, , ,0.8,0.8
+$\beta_{i_h}$, , ,0.5,Nan
+$\sigma$, , ,1.2,1.2
+$\sigma_{M_{p_{i}}}$, , ,1,1
+$\sigma_{X_{p_{i}}}$, , ,0.6000000,0.6000000
+$\sigma_{CP_i}$, , ,-0.3,Nan
+$\sigma_{CR_i}$, , ,0.8,0.8
+$\sigma_{w_u}$, , ,-0.1,-0.1
+$\beta_{w_{CPI}}$, , ,0,0
+$t_{period}$, , ,5,
+$t_{REF}$, , ,5,

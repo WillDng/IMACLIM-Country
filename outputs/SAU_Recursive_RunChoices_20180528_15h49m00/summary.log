@@ -147,36 +147,26 @@ WARNING: Checks_loads is empty... check consistency of param list regarding the 
  !--error 4 
 Undefined variable: Unemployment_Const_1
 at line       3 of function  called by :  
- Labour_force, Index_Imaclim_VarCalib))
+Labour_force, Index_Imaclim_VarCalib))
 at line     140 of exec file called by :    
 exec("Calibration.sce");
 at line     121 of exec file called by :    
 exec ImaclimS.sce
  
  
--->u
- u  =
- 
-    1.  
- 
--->Unemployment_Const_1
-  !--error 4 
-Undefined variable: Unemployment_Const_1
- 
- 
--->u_tot
- u_tot  =
- 
-    1.  
- 
--->Unemployed
- Unemployed  =
- 
-    687.01  
- 
 -->Labour_force
  Labour_force  =
  
     11591.466  
+ 
+-->UnemployBenefits
+ UnemployBenefits  =
+ 
+    1.  
+ 
+-->Unemploy_Transf_Const_1
+ ans  =
+ 
+    2233313.  
  
 -->exec('SCI/etc/scilab.quit','errcatch',-1);quit;
