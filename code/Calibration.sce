@@ -282,6 +282,11 @@ end
  p = Mean_price_Const_1(pY, pM, Y, M, p);
  p = (abs(p) > %eps).*p;
 
+if NetFinancialDebt == zeros(NetFinancialDebt)
+	interest_rate = zeros(NetFinancialDebt);
+	warning("Antoine : calibration for interest_rate doesn''t work in case NetFinancialDebt == zeros(NetFinancialDebt)... test for China")
+else
+
 function [const_interest_rate] =fcalib_PropTranf_Const_1(x_interest_rate, Property_income, NetFinancialDebt, Imaclim_VarCalib)
     interest_rate= indiv_x2variable(Imaclim_VarCalib, "x_interest_rate");
     const_interest_rate = [
@@ -297,6 +302,8 @@ if norm(const_interest_rate) > sensib
     error("review calib_interest_rate")
 else
     interest_rate = indiv_x2variable (Index_Imaclim_VarCalib, "x_interest_rate");
+end
+
 end
 
 /////////////////////////////////////////////////////
@@ -748,7 +755,10 @@ endfunction
 const_VA_Tax_rate = 10^5;
 while norm(const_VA_Tax_rate) > sensib
     if  (count>=countMax)
-        error("review calib_VA_Tax_rate")
+//        error("review calib_VA_Tax_rate")
+	  warning("Antoine: bug for China (same as SNBC2 for France) to calibrate the value added... direct calculation here in case ''count>=countMax''")
+          VA_Tax_rate = VA_Tax./(sum( pC .* C, "c")' + sum(pG .* G, "c")' + (pI .* I)'-VA_Tax);
+	  break
     end
     count = count + 1;
     [x_VA_Tax_rate, const_VA_Tax_rate, info_calib_VA_Tax_rate] = fsolve(x_VA_Tax_rate, list(fcalib_VA_Tax_Const_1,VA_Tax, pC, C, pG, G, pI,I,Index_Imaclim_VarCalib));
