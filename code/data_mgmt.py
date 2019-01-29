@@ -38,4 +38,4 @@ def slice_(IOT, field_headers):
 	sliced_IOT = IOT.loc[field_headers]
 	if sliced_IOT.isnull().values.any():
 		sys.stderr.write("Warning : IOT headers might be ill informed informed"+linebreaker)
-	return 
+	return sliced_IOT
