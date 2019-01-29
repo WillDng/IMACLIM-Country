@@ -5,7 +5,8 @@ import pandas
 from code import data_mgmt
 from code.data_mgmt import linebreaker, dir_separator
 
-good_IOT_path = 'tests/mock_data/IOT_Val.csv'
+mock_data_dir = 'tests/mock_data/'
+good_IOT_path = mock_data_dir+'IOT_part.csv'
 IOT_delimiter = ';'
 
 @pytest.fixture()
@@ -40,3 +41,13 @@ def test_get_IOT_header_from(good_IOT):
 	header = data_mgmt.get_IOT_header_from(good_IOT)
 	IOT_header = next(open(good_IOT_path)).rstrip(linebreaker).split(IOT_delimiter)[1:]
 	assert header == IOT_header
+
+def test_read_classification_from():
+	classification_file_path = mock_data_dir+'IOT_classification_part.csv'
+	expected_dictionnary = {u'Commodities':set([u'Crude_oil', u'Natural_gas', u'Coking_coal']),
+							u'OthPart_IOT':set([u'Labour_income', u'Labour_Tax']),
+							u'Sectors':set([u'Crude_oil', u'Natural_gas', u'Coking_coal']),
+							u'FC':set([u'I', u'X'])}
+	IOT_classification = data_mgmt.read_classification_from(classification_file_path, 
+															delimiter=';')
+	assert IOT_classification == expected_dictionnary

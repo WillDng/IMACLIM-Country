@@ -2,6 +2,7 @@
 
 import sys
 import os
+import csv
 import pandas
 
 linebreaker = '\n'
@@ -21,3 +22,16 @@ def get_IOT_header_from(IOT):
 
 def get_filename_from(path):
 	return path.split(dir_separator)[-1]
+
+def read_classification_from(IOT_classification_path, delimiter='|'):
+	reader = csv.reader(open(IOT_classification_path), 
+						delimiter=delimiter)
+	IOT_classification = dict()
+	for row in reader:
+		group = row[1]
+		if group not in IOT_classification:
+			IOT_classification[group] = set()
+		IOT_classification[group].add(row[0])
+	# for group, group_set in IOT_classification.items():
+	# 	IOT_classification[group] = list(group_set)
+	return IOT_classification
