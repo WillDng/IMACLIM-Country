@@ -32,6 +32,10 @@ def read_classification_from(IOT_classification_path, delimiter='|'):
 		if group not in IOT_classification:
 			IOT_classification[group] = set()
 		IOT_classification[group].add(row[0])
-	# for group, group_set in IOT_classification.items():
-	# 	IOT_classification[group] = list(group_set)
 	return IOT_classification
+
+def slice_(IOT, field_headers):
+	sliced_IOT = IOT.loc[field_headers]
+	if sliced_IOT.isnull().values.any():
+		sys.stderr.write("Warning : IOT headers might be ill informed informed"+linebreaker)
+	return 

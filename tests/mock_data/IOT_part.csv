@@ -1,11 +1,6 @@
-Values;Crude_oil;Natural_gas;Coking_coal
-Crude_oil;0;0;0
-Natural_gas;3225.1956440299;0;0
-Coking_coal;0;0;0
-Bituminous_coal;0;0;0
-Coke;0;0;0
-Other_coal;0;0;0
-Gasoline;0;0;0
-LPG;0;0;0
-Jetfuel;0;0;0
-Fuel;0;0;0
+Values|Coking_coal|Crude_oil|Natural_gas|I|X
+Coking_coal|0.0|0.0|0.0|0.0|19609.6137069463
+Crude_oil|0.0|0.0|0.0|0.0|24190.373179088998
+Natural_gas|0.0|3225.1956440299|0.0|0.0|513333.191039173
+Labour_Tax|0.0|9044.4595087653|556606.983339506|0.0|0.0
+Labour_income|0.0|20587.9176094617|1267005.36419441|0.0|0.0
