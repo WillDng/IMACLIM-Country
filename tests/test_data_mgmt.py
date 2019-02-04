@@ -65,4 +65,4 @@ def test_slice_warning_when_bad_headers(full_IOT, part_IOT, capsys):
 	wrong_headers = (['Coking_coal', 'I'], ['Natural_gas', 'Labour_Tax'])
 	data_mgmt.slice_(full_IOT, wrong_headers)
 	captured = capsys.readouterr()
-	assert captured.err == "Warning : IOT headers might be ill informed informed"+linebreaker
+	assert captured.err == "Warning : IOT headers might be ill informed"+linebreaker
