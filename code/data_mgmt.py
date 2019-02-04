@@ -24,18 +24,34 @@ def get_filename_from(path):
 	return path.split(dir_separator)[-1]
 
 def read_classification_from(IOT_classification_path, delimiter='|'):
-	reader = csv.reader(open(IOT_classification_path), 
-						delimiter=delimiter)
+	reader = _get_reader_from(IOT_classification_path, delimiter)
 	IOT_classification = dict()
 	for row in reader:
-		group = row[1]
-		if group not in IOT_classification:
-			IOT_classification[group] = set()
-		IOT_classification[group].add(row[0])
+		try:
+			group = row[1]
+			if group not in IOT_classification:
+				IOT_classification[group] = set()
+			IOT_classification[group].add(row[0])
+		except IndexError:
+			sys.stderr.write("Warning : delimiter might not be correctly informed in function")
+			return None
 	return IOT_classification
+
+def _get_reader_from(path, delimiter):
+	return csv.reader(open(path), delimiter=delimiter)
 
 def slice_(IOT, field_headers):
 	sliced_IOT = IOT.loc[field_headers]
 	if sliced_IOT.isnull().values.any():
 		sys.stderr.write("Warning : IOT headers might be ill informed"+linebreaker)
 	return sliced_IOT
+
+def read_grouping_from(path, delimiter='|'):
+	reader = _get_reader_from(path, delimiter)
+	grouping = dict()
+	for row in reader:
+		group = row[0]
+		if group not in grouping:
+			grouping[group] = list()
+		grouping[group] = row[1:]
+	return grouping

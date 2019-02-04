@@ -50,8 +50,9 @@ def test_get_IOT_header_from(part_IOT):
 	IOT_header = next(open(part_IOT_path)).rstrip(linebreaker).split(IOT_delimiter)[1:]
 	assert header == IOT_header
 
+classification_file_path = mock_data_dir+'IOT_classification_part.csv'
+
 def test_read_classification_from():
-	classification_file_path = mock_data_dir+'IOT_classification_part.csv'
 	expected_dictionnary = {u'Commodities':set([u'Crude_oil', u'Natural_gas', u'Coking_coal']),
 							u'OthPart_IOT':set([u'Labour_income', u'Labour_Tax']),
 							u'Sectors':set([u'Crude_oil', u'Natural_gas', u'Coking_coal']),
@@ -60,9 +61,22 @@ def test_read_classification_from():
 															delimiter=';')
 	assert IOT_classification == expected_dictionnary
 
+def test_read_classification_raise_delimiter_warning(capsys):
+	data_mgmt.read_classification_from(classification_file_path)
+	captured = capsys.readouterr()
+	assert captured.err == "Warning : delimiter might not be correctly informed in function"
+
 #FIXME might need to inform type of slice e.g:IC
 def test_slice_warning_when_bad_headers(full_IOT, part_IOT, capsys):
 	wrong_headers = (['Coking_coal', 'I'], ['Natural_gas', 'Labour_Tax'])
 	data_mgmt.slice_(full_IOT, wrong_headers)
 	captured = capsys.readouterr()
 	assert captured.err == "Warning : IOT headers might be ill informed"+linebreaker
+
+def test_read_grouping_from():
+	grouping_file_path = mock_data_dir + 'IOT_grouping.csv'
+	read_grouping = data_mgmt.read_grouping_from(grouping_file_path)
+	expected_grouping = {'IC':['Commodities','Sectors'],
+						 'FC':['Commodities', 'FC'],
+						 'OthPart_IOT':['OthPart_IOT', 'Sectors']}
+	assert read_grouping == expected_grouping
