@@ -1,0 +1,10 @@
+Crude_oil;Commodities;EnerSect
+Natural_gas;Commodities;EnerSect
+Coking_coal;Commodities;EnerSect
+Labour_income;OthPart_IOT;Value_Added
+Labour_Tax;OthPart_IOT;Value_Added
+Crude_oil;Sectors;NonSupplierSect
+Natural_gas;Sectors;NonSupplierSect
+Coking_coal;Sectors;NonSupplierSect
+I;FC
+X;FC
