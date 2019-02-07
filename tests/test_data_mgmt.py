@@ -89,6 +89,24 @@ def test_read_grouping_from():
                          'OthPart_IOT':['OthPart_IOT', 'Sectors']}
     assert read_grouping == expected_grouping
 
+@pytest.fixture()
+def ill_ordered_aggregates():
+    return ('Natural_gas', 'Coking_coal', 'Crude_oil')
+
+@pytest.fixture()
+def correct_header():
+    return ('Coking_coal', 'Crude_oil', 'Natural_gas', 'I', 'X')
+
+def test_get_correct_header(part_IOT, ill_ordered_aggregates, correct_header):
+    headers = [part_IOT.columns.values, part_IOT.index.values]
+    chose_header = data_mgmt._get_correct_header(ill_ordered_aggregates, headers)
+    assert chose_header == correct_header
+
+def test_change_order_of(ill_ordered_aggregates, correct_header):
+    reordered_iterable = data_mgmt._change_order_of(ill_ordered_aggregates, correct_header)
+    expected_iterable = ('Coking_coal', 'Crude_oil', 'Natural_gas')
+    assert reordered_iterable == expected_iterable
+    
 # def test_change_individuals_order_in(expected_IOT_aggregation, part_IOT):
 #     ill_ordered_IOT_aggregation = {'Commodities':('Natural_gas', 'Coking_coal', 'Crude_oil'),
 #                                    'OthPart_IOT':('Labour_Tax', 'Labour_income'),
@@ -99,10 +117,3 @@ def test_read_grouping_from():
 #                                    'NonSupplierSect':('Natural_gas', 'Coking_coal', 'Crude_oil')}
 #     headers = 
 #     modified_classification = data_mgmt.change_classification_order(ill_ordered_IOT_aggregation, headers)
-
-def test_get_correct_header(part_IOT):
-    reference_header = ('Natural_gas', 'Coking_coal', 'Crude_oil')
-    headers = [part_IOT.columns.values, part_IOT.index.values]
-    chose_header = data_mgmt._get_correct_header(reference_header, headers)
-    expected_header = ('Coking_coal', 'Crude_oil', 'Natural_gas', 'I', 'X')
-    assert chose_header == expected_header

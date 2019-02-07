@@ -66,8 +66,19 @@ def read_grouping_from(path, delimiter='|'):
         grouping[group] = row[1:]
     return grouping
 
-def _get_correct_header(reference_header, headers):
-    original_type = type(reference_header)
-    reference_array = np.array(reference_header)
+def return_original_type(function):
+    def wrapper_original_type(reference_object, other_object):
+        reference_type = type(reference_object)
+        function_result = function(reference_object, other_object)
+        return reference_type(function_result)
+    return wrapper_original_type
+
+@return_original_type
+def _get_correct_header(reference_array, headers):
     chose_array = max(headers, key=lambda header: len(np.intersect1d(reference_array, header)))
-    return original_type(chose_array)
+    return chose_array
+
+@return_original_type
+def _change_order_of(iterable, reference_array):
+    reordered_array = np.intersect1d(reference_array, np.array(iterable))
+    return reordered_array
