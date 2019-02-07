@@ -4,6 +4,7 @@ import sys
 import os
 import csv
 import pandas
+import numpy as np
 
 linebreaker = '\n'
 dir_separator = os.sep
@@ -23,7 +24,7 @@ def get_IOT_header_from(IOT):
 def get_filename_from(path):
     return path.split(dir_separator)[-1]
 
-def read_IOT_aggregation_from(IOT_aggregation_path, delimiter='|'):
+def read_IOT_aggregation_from(IOT_aggregation_path, delimiter='|', headers=None):
     """ Hypothesis : in first column are the names of the individuals and in columns aggregates names """
     reader = _get_reader_from(IOT_aggregation_path, delimiter)
     IOT_aggregation = dict()
@@ -41,8 +42,9 @@ def read_IOT_aggregation_from(IOT_aggregation_path, delimiter='|'):
             else:
                 pass
                 #FIXME should raise warning ?
-    for aggregate, individuals in IOT_aggregation.items():
-        IOT_aggregation[aggregate] = tuple(individuals)
+    if not headers:
+        IOT_aggregation = {aggregate:tuple(individuals) for aggregate, individuals in IOT_aggregation.items()}
+    # else:
     return IOT_aggregation
 
 def _get_reader_from(path, delimiter):
@@ -63,3 +65,9 @@ def read_grouping_from(path, delimiter='|'):
             grouping[group] = list()
         grouping[group] = row[1:]
     return grouping
+
+def _get_correct_header(reference_header, headers):
+    original_type = type(reference_header)
+    reference_array = np.array(reference_header)
+    chose_array = max(headers, key=lambda header: len(np.intersect1d(reference_array, header)))
+    return original_type(chose_array)
