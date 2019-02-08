@@ -48,21 +48,10 @@ def read_IOT_aggregation_from(IOT_aggregation_path, delimiter='|', headers=None)
 def _get_reader_from(path, delimiter):
     return csv.reader(open(path), delimiter=delimiter)
 
-def slice_(IOT, field_headers):
-    sliced_IOT = IOT.loc[field_headers]
-    if sliced_IOT.isnull().values.any():
-        sys.stderr.write("Warning : IOT headers might be ill informed"+linebreaker)
-    return sliced_IOT
-
-def read_grouping_from(path, delimiter='|'):
-    reader = _get_reader_from(path, delimiter)
-    grouping = dict()
-    for row in reader:
-        group = row[0]
-        if group not in grouping:
-            grouping[group] = list()
-        grouping[group] = row[1:]
-    return grouping
+def _change_individuals_order_in(aggregation, reference_headers):
+    for aggregate, individuals in aggregation.items():
+        reference_header = _get_correct_header(individuals, reference_headers)
+        aggregation[aggregate] = _change_order_of(individuals, reference_header)
 
 def return_original_type(function):
     def wrapper_original_type(reference_object, other_object):
@@ -81,7 +70,29 @@ def _change_order_of(iterable, reference_array):
     reordered_array = np.intersect1d(reference_array, np.array(iterable))
     return reordered_array
 
-def _change_individuals_order_in(aggregation, reference_headers):
-    for aggregate, individuals in aggregation.items():
-        reference_header = _get_correct_header(individuals, reference_headers)
-        aggregation[aggregate] = _change_order_of(individuals, reference_header)
+def read_grouping_from(path, delimiter='|'):
+    reader = _get_reader_from(path, delimiter)
+    grouping = dict()
+    for row in reader:
+        key = row[0]
+        if key not in grouping:
+            grouping[row[0]] = row[1:]
+        else:
+            sys.stderr.write("Warning : "+key+" already in grouping, check grouping file at "+path+linebreaker)
+    return grouping
+
+def extract_IOTs_from(IOT, field_headers):
+    out_IOT = dict()
+    for var_name, field_header in field_headers.items():
+        out_IOT[var_name] = _slice_(IOT, field_header)
+    return out_IOT
+
+def _translate_grouping_to_individuals(grouping, aggregation):
+    for group_name, groups in grouping.items():
+        grouping[group_name] = list(map(lambda aggregate:aggregation[aggregate], groups))
+
+def _slice_(IOT, field_headers):
+    sliced_IOT = IOT.loc[field_headers]
+    if sliced_IOT.isnull().values.any():
+        sys.stderr.write("Warning : IOT headers might be ill informed"+linebreaker)
+    return sliced_IOT
