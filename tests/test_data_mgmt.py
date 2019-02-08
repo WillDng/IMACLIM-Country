@@ -2,7 +2,6 @@
 
 import pytest
 import pandas
-import numpy as np
 from code import data_mgmt
 from code.data_mgmt import linebreaker, dir_separator
 
@@ -26,7 +25,6 @@ def full_IOT():
     return pandas.read_csv(full_IOT_path, 
                            delimiter=IOT_delimiter,
                            index_col=0)
-
 
 def test_import_IOT(part_IOT):
     read_IOT = data_mgmt.import_IOT(part_IOT_path, delimiter=';')
@@ -54,20 +52,19 @@ def test_get_IOT_header_from(part_IOT):
 IOT_aggregation_file_path = mock_data_dir+'IOT_aggregation_part.csv'
 
 @pytest.fixture()
-def expected_IOT_aggregation():
-    mock_IOT_aggregation = {'Commodities':('Crude_oil', 'Natural_gas', 'Coking_coal'),
-                            'OthPart_IOT':('Labour_income', 'Labour_Tax'),
-                            'Sectors':('Crude_oil', 'Natural_gas', 'Coking_coal'),
-                            'FC':('I', 'X'),
-                            'EnerSect':('Crude_oil', 'Natural_gas', 'Coking_coal'),
-                            'Value_Added':('Labour_income', 'Labour_Tax'),
-                            'NonSupplierSect':('Crude_oil', 'Natural_gas', 'Coking_coal')}
-    return mock_IOT_aggregation
+def IOT_aggregation_mock_part():
+    return {'Commodities':['Crude_oil', 'Natural_gas', 'Coking_coal'],
+            'OthPart_IOT':['Labour_income', 'Labour_Tax'],
+            'Sectors':['Crude_oil', 'Natural_gas', 'Coking_coal'],
+            'FC':['I', 'X'],
+            'EnerSect':['Crude_oil', 'Natural_gas', 'Coking_coal'],
+            'Value_Added':['Labour_income', 'Labour_Tax'],
+            'NonSupplierSect':['Crude_oil', 'Natural_gas', 'Coking_coal']}
 
-def test_read_IOT_aggregation_from(expected_IOT_aggregation):
+def test_read_IOT_aggregation_from(IOT_aggregation_mock_part):
     IOT_aggregation = data_mgmt.read_IOT_aggregation_from(IOT_aggregation_file_path, 
                                                           delimiter=';')
-    assert IOT_aggregation == expected_IOT_aggregation
+    assert IOT_aggregation == IOT_aggregation_mock_part
 
 def test_read_IOT_aggregation_raise_delimiter_warning(capsys):
     data_mgmt.read_IOT_aggregation_from(IOT_aggregation_file_path)
@@ -91,29 +88,29 @@ def test_read_grouping_from():
 
 @pytest.fixture()
 def ill_ordered_aggregates():
-    return ('Natural_gas', 'Coking_coal', 'Crude_oil')
+    return ['Natural_gas', 'Coking_coal', 'Crude_oil']
 
 @pytest.fixture()
 def correct_header():
-    return ('Coking_coal', 'Crude_oil', 'Natural_gas', 'I', 'X')
+    return ['Coking_coal', 'Crude_oil', 'Natural_gas', 'I', 'X']
 
-def test_get_correct_header(part_IOT, ill_ordered_aggregates, correct_header):
-    headers = [part_IOT.columns.values, part_IOT.index.values]
-    chose_header = data_mgmt._get_correct_header(ill_ordered_aggregates, headers)
-    assert chose_header == correct_header
+@pytest.fixture()
+def part_IOT_headers(part_IOT):
+    return [part_IOT.columns.values, part_IOT.index.values]
+
+def test_get_correct_header(part_IOT_headers, ill_ordered_aggregates, correct_header):
+    assert data_mgmt._get_correct_header(ill_ordered_aggregates, part_IOT_headers) == correct_header
 
 def test_change_order_of(ill_ordered_aggregates, correct_header):
-    reordered_iterable = data_mgmt._change_order_of(ill_ordered_aggregates, correct_header)
-    expected_iterable = ('Coking_coal', 'Crude_oil', 'Natural_gas')
-    assert reordered_iterable == expected_iterable
-    
-# def test_change_individuals_order_in(expected_IOT_aggregation, part_IOT):
-#     ill_ordered_IOT_aggregation = {'Commodities':('Natural_gas', 'Coking_coal', 'Crude_oil'),
-#                                    'OthPart_IOT':('Labour_Tax', 'Labour_income'),
-#                                    'Sectors':('Crude_oil', 'Natural_gas', 'Coking_coal'),
-#                                    'FC':('X', 'I'),
-#                                    'EnerSect':('Crude_oil', 'Natural_gas', 'Coking_coal'),
-#                                    'Value_Added':('Labour_income', 'Labour_Tax'),
-#                                    'NonSupplierSect':('Natural_gas', 'Coking_coal', 'Crude_oil')}
-#     headers = 
-#     modified_classification = data_mgmt.change_classification_order(ill_ordered_IOT_aggregation, headers)
+    assert data_mgmt._change_order_of(ill_ordered_aggregates, correct_header) == ['Coking_coal', 'Crude_oil', 'Natural_gas']
+
+def test_change_individuals_order_in(IOT_aggregation_mock_part, part_IOT_headers):
+    IOT_aggregation_expected = {'Commodities':['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                                'OthPart_IOT':['Labour_Tax', 'Labour_income'],
+                                'Sectors':['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                                'FC':['I', 'X'],
+                                'EnerSect':['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                                'Value_Added':['Labour_Tax', 'Labour_income'],
+                                'NonSupplierSect':['Coking_coal', 'Crude_oil', 'Natural_gas']}
+    data_mgmt._change_individuals_order_in(IOT_aggregation_mock_part, part_IOT_headers)
+    assert IOT_aggregation_mock_part == IOT_aggregation_expected

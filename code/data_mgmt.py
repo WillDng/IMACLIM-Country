@@ -5,6 +5,7 @@ import os
 import csv
 import pandas
 import numpy as np
+import collections
 
 linebreaker = '\n'
 dir_separator = os.sep
@@ -27,7 +28,7 @@ def get_filename_from(path):
 def read_IOT_aggregation_from(IOT_aggregation_path, delimiter='|', headers=None):
     """ Hypothesis : in first column are the names of the individuals and in columns aggregates names """
     reader = _get_reader_from(IOT_aggregation_path, delimiter)
-    IOT_aggregation = dict()
+    IOT_aggregation = collections.defaultdict(list)
     for individual_description in reader:
         individual = individual_description[0]
         aggregates = individual_description[1:]
@@ -35,16 +36,13 @@ def read_IOT_aggregation_from(IOT_aggregation_path, delimiter='|', headers=None)
             sys.stderr.write("Warning : delimiter might not be correctly informed in function")
             return            
         for aggregate in aggregates:
-            if aggregate not in IOT_aggregation:
-                IOT_aggregation[aggregate] = list()
             if individual not in IOT_aggregation[aggregate]:
                 IOT_aggregation[aggregate].append(individual)
             else:
                 pass
                 #FIXME should raise warning ?
-    if not headers:
-        IOT_aggregation = {aggregate:tuple(individuals) for aggregate, individuals in IOT_aggregation.items()}
-    # else:
+    if headers:
+        _change_individuals_order_in(IOT_aggregation, headers)
     return IOT_aggregation
 
 def _get_reader_from(path, delimiter):
@@ -82,3 +80,8 @@ def _get_correct_header(reference_array, headers):
 def _change_order_of(iterable, reference_array):
     reordered_array = np.intersect1d(reference_array, np.array(iterable))
     return reordered_array
+
+def _change_individuals_order_in(aggregation, reference_headers):
+    for aggregate, individuals in aggregation.items():
+        reference_header = _get_correct_header(individuals, reference_headers)
+        aggregation[aggregate] = _change_order_of(individuals, reference_header)
