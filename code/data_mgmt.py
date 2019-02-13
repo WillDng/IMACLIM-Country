@@ -1,11 +1,12 @@
 # coding : utf-8
 
-import sys
 import os
-import csv
-import pandas
-import numpy as np
+import sys
 import collections
+import copy
+import csv
+import numpy as np
+import pandas
 
 linebreaker = '\n'
 dir_separator = os.sep
@@ -96,3 +97,25 @@ def _slice_(IOT, field_headers):
     if sliced_IOT.isnull().values.any():
         sys.stderr.write("Warning : IOT headers might be ill informed"+linebreaker)
     return sliced_IOT
+
+to_expand_variables = ['FC', 'OthPart_IOT']
+reference_variable = 'IC'
+
+def add_individuals_in_expanded_grouping(expanded_grouping):
+    for to_expand_variable in to_expand_variables:
+        new_grouping = _generate_individuals_in_expanded_grouping(expanded_grouping[to_expand_variable], expanded_grouping[reference_variable])
+        expanded_grouping.update(new_grouping)
+
+def _generate_individuals_in_expanded_grouping(to_expand_headers, reference_headers):
+    different_index = _get_different_list_index(to_expand_headers, reference_headers)
+    output_grouping = dict()
+    for individual in to_expand_headers[different_index]:
+        new_nested_headers = copy.deepcopy(reference_headers)
+        new_nested_headers[different_index] = [individual]
+        output_grouping[individual] = new_nested_headers
+    return output_grouping
+
+def _get_different_list_index(work_list, reference_list):
+    for index, positional_list in enumerate(reference_list):
+        if work_list[index] != positional_list:
+            return index

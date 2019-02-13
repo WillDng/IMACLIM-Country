@@ -137,3 +137,24 @@ def test_translate_grouping_to_individuals(expected_IOT_grouping, expected_IOT_a
 def test_extract_IOTs_from(part_IOT, expected_expanded_grouping, capsys):
     initial_value = data_mgmt.extract_IOTs_from(part_IOT, expected_expanded_grouping)
     assert ((len(initial_value) == 3) & (not capsys.readouterr().err))
+    #FIXME test too weak, might not be able to distinguish which assertions fails
+
+def test_add_individuals_in_expanded_grouping(expected_IOT_grouping, expected_IOT_aggregation, expected_expanded_grouping):
+    expected_expanded_grouping_with_individuals = {'IC':[['Coking_coal', 'Crude_oil', 'Natural_gas'],['Coking_coal', 'Crude_oil', 'Natural_gas']],
+                                                   'FC':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['I', 'X']],
+                                                   'I':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['I']],
+                                                   'X':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['X']],
+                                                   'OthPart_IOT':[['Labour_Tax', 'Labour_income'], ['Coking_coal', 'Crude_oil', 'Natural_gas']],
+                                                   'Labour_Tax':[['Labour_Tax'], ['Coking_coal', 'Crude_oil', 'Natural_gas']],
+                                                   'Labour_income':[['Labour_income'], ['Coking_coal', 'Crude_oil', 'Natural_gas']]}
+    data_mgmt.add_individuals_in_expanded_grouping(expected_expanded_grouping)
+    assert expected_expanded_grouping == expected_expanded_grouping_with_individuals
+
+def test_generate_individuals_in_expanded_grouping(expected_expanded_grouping):
+    expected_expanded_individuals_grouping = {'I':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['I']],
+                                              'X':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['X']]}
+    generated_expanded_individuals_grouping = data_mgmt._generate_individuals_in_expanded_grouping(expected_expanded_grouping['FC'], expected_expanded_grouping['IC'])
+    assert generated_expanded_individuals_grouping == expected_expanded_individuals_grouping
+
+def test_get_different_list_index(expected_expanded_grouping):
+    assert data_mgmt._get_different_list_index(expected_expanded_grouping['FC'], expected_expanded_grouping['IC']) == 1
