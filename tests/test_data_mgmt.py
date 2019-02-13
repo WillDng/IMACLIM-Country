@@ -123,13 +123,17 @@ def test_change_individuals_order_in(IOT_aggregation_mock_part, part_IOT_headers
     data_mgmt._change_individuals_order_in(IOT_aggregation_mock_part, part_IOT_headers)
     assert IOT_aggregation_mock_part == expected_IOT_aggregation
 
-def test_translate_grouping_to_individuals(expected_IOT_grouping, expected_IOT_aggregation):
-    data_mgmt._translate_grouping_to_individuals(expected_IOT_grouping, expected_IOT_aggregation)
-    expected_grouping = {'IC':[['Coking_coal', 'Crude_oil', 'Natural_gas'],['Coking_coal', 'Crude_oil', 'Natural_gas']],
-                         'FC':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['I', 'X']],
-                         'OthPart_IOT':[['Labour_Tax', 'Labour_income'], ['Coking_coal', 'Crude_oil', 'Natural_gas']]}
-    assert expected_IOT_grouping == expected_grouping
+@pytest.fixture()
+def expected_expanded_grouping():
+    expected_expanded_grouping = {'IC':[['Coking_coal', 'Crude_oil', 'Natural_gas'],['Coking_coal', 'Crude_oil', 'Natural_gas']],
+                                  'FC':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['I', 'X']],
+                                  'OthPart_IOT':[['Labour_Tax', 'Labour_income'], ['Coking_coal', 'Crude_oil', 'Natural_gas']]}
+    return expected_expanded_grouping
+    
+def test_translate_grouping_to_individuals(expected_IOT_grouping, expected_IOT_aggregation, expected_expanded_grouping):
+    data_mgmt.translate_grouping_to_individuals(expected_IOT_grouping, expected_IOT_aggregation)
+    assert expected_IOT_grouping == expected_expanded_grouping
 
-# def test_extract_IOTs_from(part_IOT, expected_IOT_grouping):
-#     breakpoint()
-#     initial_value = data_mgmt.extract_IOTs_from(part_IOT, expected_IOT_grouping)
+def test_extract_IOTs_from(part_IOT, expected_expanded_grouping, capsys):
+    initial_value = data_mgmt.extract_IOTs_from(part_IOT, expected_expanded_grouping)
+    assert ((len(initial_value) == 3) & (not capsys.readouterr().err))

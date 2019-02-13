@@ -87,12 +87,12 @@ def extract_IOTs_from(IOT, field_headers):
         out_IOT[var_name] = _slice_(IOT, field_header)
     return out_IOT
 
-def _translate_grouping_to_individuals(grouping, aggregation):
+def translate_grouping_to_individuals(grouping, aggregation):
     for group_name, groups in grouping.items():
         grouping[group_name] = list(map(lambda aggregate:aggregation[aggregate], groups))
 
 def _slice_(IOT, field_headers):
-    sliced_IOT = IOT.loc[field_headers]
+    sliced_IOT = IOT.loc[tuple(field_headers)]
     if sliced_IOT.isnull().values.any():
         sys.stderr.write("Warning : IOT headers might be ill informed"+linebreaker)
     return sliced_IOT
