@@ -1,9 +1,10 @@
 # coding: utf-8
 
+import numpy as np
 import pytest
 import pandas as pd
 from code import data_mgmt
-from code.data_mgmt import linebreaker, dir_separator
+from code.data_mgmt import linebreaker
 
 mock_data_dir = 'tests/mock_data/'
 part_IOT_path = mock_data_dir+'IOT_part.csv'
@@ -12,13 +13,14 @@ IOT_delimiter = ';'
 
 @pytest.fixture()
 def part_IOT():
-    return pd.read_csv(part_IOT_path, 
-                           delimiter=IOT_delimiter,
-                           index_col=0)
-
-@pytest.fixture()
-def bad_delimiter_IOT():
-    return pd.read_csv(part_IOT_path)
+    IOT_header = ['Coking_coal', 'Crude_oil', 'Natural_gas', 'I', 'X']
+    IOT_col_header = ['Coking_coal', 'Crude_oil', 'Natural_gas', 'Labour_Tax', 'Labour_income']
+    IOT_data = np.array([[0, 0, 0, 0, 19609.61370695],
+                         [0, 0, 0, 0, 24190.37317909],
+                         [0, 3225.19564403, 0, 0, 513333.19103917],
+                         [0, 9044.45950877, 556606.98333951, 0, 0], 
+                         [0, 20587.91760946, 1267005.36419441, 0, 0]])
+    return pd.DataFrame(IOT_data, index=IOT_col_header, columns=IOT_header)
 
 @pytest.fixture()
 def full_IOT():
@@ -26,28 +28,15 @@ def full_IOT():
                            delimiter=IOT_delimiter,
                            index_col=0)
 
-def test_import_IOT(part_IOT):
-    read_IOT = data_mgmt.import_IOT(part_IOT_path, delimiter=';')
-    assert read_IOT.equals(part_IOT)
-
 def test_import_IOT_non_correct_column_header():
     read_IOT = data_mgmt.import_IOT(part_IOT_path)
     assert all([isinstance(header, str) for header in read_IOT.index])
-
-def test_get_filename_from_path():
-    filename = data_mgmt.get_filename_from(part_IOT_path)
-    assert filename == part_IOT_path.split(dir_separator)[-1]
 
 def test_import_bad_delimiter_IOT(capsys):
     data_mgmt.import_IOT(part_IOT_path)
     IOT_name = data_mgmt.get_filename_from(part_IOT_path)
     captured = capsys.readouterr()
     assert captured.err == "Warning : IOT delimiter might not be correctly informed in "+IOT_name+linebreaker
-
-def test_get_IOT_header_from(part_IOT):
-    header = data_mgmt.get_IOT_header_from(part_IOT)
-    IOT_header = next(open(part_IOT_path)).rstrip(linebreaker).split(IOT_delimiter)[1:]
-    assert header == IOT_header
 
 IOT_aggregation_file_path = mock_data_dir+'IOT_aggregation_part.csv'
 
@@ -72,7 +61,7 @@ def test_read_IOT_aggregation_raise_delimiter_warning(capsys):
     assert captured.err == "Warning : delimiter might not be correctly informed in function"
 
 #FIXME might need to inform type of slice e.g:IC
-def test_slice_warning_when_bad_headers(full_IOT, part_IOT, capsys):
+def test_slice_warning_when_bad_headers(full_IOT, capsys):
     wrong_headers = (['Coking_coal', 'I'], ['Natural_gas', 'Labour_Tax'])
     data_mgmt._slice_(full_IOT, wrong_headers)
     captured = capsys.readouterr()
