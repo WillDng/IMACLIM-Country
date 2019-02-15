@@ -1,7 +1,7 @@
 # coding: utf-8
 
 import pytest
-import pandas
+import pandas as pd
 from code import data_mgmt
 from code.data_mgmt import linebreaker, dir_separator
 
@@ -12,17 +12,17 @@ IOT_delimiter = ';'
 
 @pytest.fixture()
 def part_IOT():
-    return pandas.read_csv(part_IOT_path, 
+    return pd.read_csv(part_IOT_path, 
                            delimiter=IOT_delimiter,
                            index_col=0)
 
 @pytest.fixture()
 def bad_delimiter_IOT():
-    return pandas.read_csv(part_IOT_path)
+    return pd.read_csv(part_IOT_path)
 
 @pytest.fixture()
 def full_IOT():
-    return pandas.read_csv(full_IOT_path, 
+    return pd.read_csv(full_IOT_path, 
                            delimiter=IOT_delimiter,
                            index_col=0)
 
@@ -91,22 +91,21 @@ def test_read_grouping_from(expected_IOT_grouping):
     assert read_grouping == expected_IOT_grouping
 
 @pytest.fixture()
-def ill_ordered_aggregates():
-    return ['Natural_gas', 'Coking_coal', 'Crude_oil']
+def ill_ordered_individuals():
+    return ['Natural_gas', 'Coking_coal', 'X', 'Crude_oil']
 
 @pytest.fixture()
-def correct_header():
-    return ['Coking_coal', 'Crude_oil', 'Natural_gas', 'I', 'X']
+def part_IOT_headers():
+    return [pd.Index(['Coking_coal', 'Crude_oil', 'Natural_gas', 'Labour_Tax', 'Labour_income'],
+            dtype='object', name='Values'),
+            pd.Index(['Coking_coal', 'Crude_oil', 'Natural_gas', 'I', 'X'], 
+            dtype='object')]
 
-@pytest.fixture()
-def part_IOT_headers(part_IOT):
-    return [part_IOT.columns.values, part_IOT.index.values]
+def test_get_correct_header(ill_ordered_individuals, part_IOT_headers):
+    assert data_mgmt._get_correct_header(ill_ordered_individuals, part_IOT_headers).equals(part_IOT_headers[1])
 
-def test_get_correct_header(part_IOT_headers, ill_ordered_aggregates, correct_header):
-    assert data_mgmt._get_correct_header(ill_ordered_aggregates, part_IOT_headers) == correct_header
-
-def test_change_order_of(ill_ordered_aggregates, correct_header):
-    assert data_mgmt._change_order_of(ill_ordered_aggregates, correct_header) == ['Coking_coal', 'Crude_oil', 'Natural_gas']
+def test_change_order_of(ill_ordered_individuals, part_IOT_headers):
+    assert data_mgmt._change_order_of(ill_ordered_individuals, part_IOT_headers[1]) == ['Coking_coal', 'Crude_oil', 'Natural_gas', 'X']
 
 @pytest.fixture()
 def expected_IOT_aggregation():
@@ -158,3 +157,16 @@ def test_generate_individuals_in_expanded_grouping(expected_expanded_grouping):
 
 def test_get_different_list_index(expected_expanded_grouping):
     assert data_mgmt._get_different_list_index(expected_expanded_grouping['FC'], expected_expanded_grouping['IC']) == 1
+
+# def test_check_use_ressource(part_IOT, expected_expanded_grouping, capsys):
+#     # data_mgmt.check_use_ressource(IOT, tol)
+#     use_headers = ['IC', 'OthPart_IOT']
+#     ressources_headers = ['IC', 'FC']
+#     data_mgmt.check_use_ressource(part_IOT, expected_expanded_grouping, use_headers, ressources_headers)
+#     captured = capsys.readouterr()
+#     assert captured.err == "Warning : unbalanced IOT"+linebreaker
+
+# def test_consolidate_headers(expected_expanded_grouping, part_IOT_headers):
+#     expected_consolidated_headers = [['Coking_coal', 'Crude_oil', 'Natural_gas', 'Labour_Tax', 'Labour_income'],['Coking_coal', 'Crude_oil', 'Natural_gas']]
+#     consolidated_headers = data_mgmt._consolidate_headers(['IC', 'OthPart_IOT'], expected_expanded_grouping, part_IOT_headers)
+#     assert consolidated_headers == expected_consolidated_headers

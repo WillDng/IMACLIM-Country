@@ -5,6 +5,7 @@ import sys
 import collections
 import copy
 import csv
+import itertools
 import numpy as np
 import pandas
 
@@ -51,25 +52,17 @@ def _get_reader_from(path, delimiter):
 
 def _change_individuals_order_in(aggregation, reference_headers):
     for aggregate, individuals in aggregation.items():
-        reference_header = _get_correct_header(individuals, reference_headers)
-        aggregation[aggregate] = _change_order_of(individuals, reference_header)
+        aggregation[aggregate] = _get_and_change_order_of(individuals, reference_headers)
 
-def return_original_type(function):
-    def wrapper_original_type(reference_object, other_object):
-        reference_type = type(reference_object)
-        function_result = function(reference_object, other_object)
-        return reference_type(function_result)
-    return wrapper_original_type
+def _get_and_change_order_of(individuals, reference_headers):
+    reference_header = _get_correct_header(individuals, reference_headers)
+    return _change_order_of(individuals, reference_header)
 
-@return_original_type
-def _get_correct_header(reference_array, headers):
-    chose_array = max(headers, key=lambda header: len(np.intersect1d(reference_array, header)))
-    return chose_array
+def _get_correct_header(unordered_individuals, headers):
+    return max(headers, key=lambda header: len(np.intersect1d(unordered_individuals, header)))
 
-@return_original_type
-def _change_order_of(iterable, reference_array):
-    reordered_array = np.intersect1d(reference_array, np.array(iterable))
-    return reordered_array
+def _change_order_of(unordered_individuals, header):
+    return list(np.intersect1d(header, np.array(unordered_individuals)))
 
 def read_grouping_from(path, delimiter='|'):
     reader = _get_reader_from(path, delimiter)
@@ -119,3 +112,17 @@ def _get_different_list_index(work_list, reference_list):
     for index, positional_list in enumerate(reference_list):
         if work_list[index] != positional_list:
             return index
+
+balance_tolerance = 1E-2
+
+# def check_use_ressource(IOT, headers_grouping, use_headers, ressource_headers, tolerance=balance_tolerance):
+#     use_headers = _consolidate_headers
+
+def _consolidate_headers(headers_names, headers_grouping, reference_headers):
+    # return map(lambda header_list: _change_order_of(), headers_names)
+    unpacked_headers = list(map(lambda k:headers_grouping[k], headers_names))
+
+    # breakpoint()
+    flatten_headers = list(itertools.chain.from_iterable())
+    flatten_unique_headers = list(set())
+    return _get_and_change_order_of(flatten_unique_headers, reference_headers)
