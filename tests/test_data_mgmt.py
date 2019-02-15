@@ -155,7 +155,8 @@ def test_get_different_list_index(expected_expanded_grouping):
 #     captured = capsys.readouterr()
 #     assert captured.err == "Warning : unbalanced IOT"+linebreaker
 
-# def test_consolidate_headers(expected_expanded_grouping, part_IOT_headers):
-#     expected_consolidated_headers = [['Coking_coal', 'Crude_oil', 'Natural_gas', 'Labour_Tax', 'Labour_income'],['Coking_coal', 'Crude_oil', 'Natural_gas']]
-#     consolidated_headers = data_mgmt._consolidate_headers(['IC', 'OthPart_IOT'], expected_expanded_grouping, part_IOT_headers)
-#     assert consolidated_headers == expected_consolidated_headers
+def test_consolidate_headers(expected_expanded_grouping, part_IOT_headers):
+    expected_consolidated_headers = [['Coking_coal', 'Crude_oil', 'Natural_gas', 'Labour_Tax', 'Labour_income'],
+                                     ['Coking_coal', 'Crude_oil', 'Natural_gas']]
+    consolidated_headers = data_mgmt._consolidate_headers(['IC', 'OthPart_IOT'], expected_expanded_grouping, part_IOT_headers)
+    assert consolidated_headers == expected_consolidated_headers

@@ -5,7 +5,7 @@ import sys
 import collections
 import copy
 import csv
-import itertools
+import functools
 import numpy as np
 import pandas
 
@@ -62,7 +62,7 @@ def _get_correct_header(unordered_individuals, headers):
     return max(headers, key=lambda header: len(np.intersect1d(unordered_individuals, header)))
 
 def _change_order_of(unordered_individuals, header):
-    return list(np.intersect1d(header, np.array(unordered_individuals)))
+    return sorted(unordered_individuals, key=lambda individual:list(header).index(individual))
 
 def read_grouping_from(path, delimiter='|'):
     reader = _get_reader_from(path, delimiter)
@@ -83,7 +83,10 @@ def extract_IOTs_from(IOT, field_headers):
 
 def translate_grouping_to_individuals(grouping, aggregation):
     for group_name, groups in grouping.items():
-        grouping[group_name] = list(map(lambda aggregate:aggregation[aggregate], groups))
+        grouping[group_name] = _map_aggregate_to_individuals(groups, aggregation)
+
+def _map_aggregate_to_individuals(groups, aggregation):
+    return list(map(lambda aggregate:aggregation[aggregate], groups))    
 
 def _slice_(IOT, field_headers):
     sliced_IOT = IOT.loc[tuple(field_headers)]
@@ -119,10 +122,12 @@ balance_tolerance = 1E-2
 #     use_headers = _consolidate_headers
 
 def _consolidate_headers(headers_names, headers_grouping, reference_headers):
-    # return map(lambda header_list: _change_order_of(), headers_names)
-    unpacked_headers = list(map(lambda k:headers_grouping[k], headers_names))
+    expanded_headers = _map_aggregate_to_individuals(headers_names, headers_grouping)
+    expanded_merged_headers = functools.reduce(_merge_headers, expanded_headers)
+    return list(map(lambda positional_header: _get_and_change_order_of(positional_header, reference_headers), expanded_merged_headers))
 
-    # breakpoint()
-    flatten_headers = list(itertools.chain.from_iterable())
-    flatten_unique_headers = list(set())
-    return _get_and_change_order_of(flatten_unique_headers, reference_headers)
+def _merge_headers(first_header, second_header):
+    merged_headers = list()
+    for first_positional_header, second_positional_header in zip(first_header, second_header):
+        merged_headers.append(list(set(first_positional_header+second_positional_header)))
+    return merged_headers
