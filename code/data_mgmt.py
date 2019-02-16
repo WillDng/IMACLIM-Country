@@ -118,8 +118,16 @@ def _get_different_list_index(work_list, reference_list):
 
 balance_tolerance = 1E-2
 
-# def check_use_ressource(IOT, headers_grouping, use_headers, ressource_headers, tolerance=balance_tolerance):
-#     use_headers = _consolidate_headers
+def check_use_ressource(IOT, headers_grouping, use_headers, ressource_headers, tolerance=balance_tolerance):
+    IOT_headers = [IOT.index, IOT.columns]
+    use_headers = _consolidate_headers(use_headers, headers_grouping, IOT_headers)
+    ressource_headers = _consolidate_headers(ressource_headers, headers_grouping, IOT_headers)
+    uses = _slice_(IOT, use_headers).sum()
+    ressources = _slice_(IOT, ressource_headers).sum(axis=1)
+    balances = uses - ressources < tolerance
+    if not all(balances):
+        sys.stderr.write("Warning : unbalanced IOT"+linebreaker)
+        sys.stderr.write(', '.join([individuals for individuals, balanced in zip(use_headers[0], balances) if not balanced])+linebreaker)
 
 def _consolidate_headers(headers_names, headers_grouping, reference_headers):
     expanded_headers = _map_aggregate_to_individuals(headers_names, headers_grouping)

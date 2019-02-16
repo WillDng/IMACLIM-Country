@@ -147,13 +147,12 @@ def test_generate_individuals_in_expanded_grouping(expected_expanded_grouping):
 def test_get_different_list_index(expected_expanded_grouping):
     assert data_mgmt._get_different_list_index(expected_expanded_grouping['FC'], expected_expanded_grouping['IC']) == 1
 
-# def test_check_use_ressource(part_IOT, expected_expanded_grouping, capsys):
-#     # data_mgmt.check_use_ressource(IOT, tol)
-#     use_headers = ['IC', 'OthPart_IOT']
-#     ressources_headers = ['IC', 'FC']
-#     data_mgmt.check_use_ressource(part_IOT, expected_expanded_grouping, use_headers, ressources_headers)
-#     captured = capsys.readouterr()
-#     assert captured.err == "Warning : unbalanced IOT"+linebreaker
+def test_check_use_ressource_warning_when_unbalanced(part_IOT, expected_expanded_grouping, capsys):
+    use_headers = ['IC', 'OthPart_IOT']
+    ressources_headers = ['IC', 'FC']
+    data_mgmt.check_use_ressource(part_IOT, expected_expanded_grouping, use_headers, ressources_headers)
+    captured = capsys.readouterr()
+    assert captured.err == "Warning : unbalanced IOT"+linebreaker+"Crude_oil, Natural_gas"+linebreaker
 
 def test_consolidate_headers(expected_expanded_grouping, part_IOT_headers):
     expected_consolidated_headers = [['Coking_coal', 'Crude_oil', 'Natural_gas', 'Labour_Tax', 'Labour_income'],
