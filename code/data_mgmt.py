@@ -38,7 +38,7 @@ def read_IOT_aggregation_from(IOT_aggregation_path, delimiter='|', headers=None)
         individual = individual_description[0]
         aggregates = individual_description[1:]
         if not aggregates:
-            sys.stderr.write("Warning : delimiter might not be correctly informed in function")
+            sys.stderr.write("Warning : delimiter might not be correctly informed in read_IOT_aggregation_from()"+linebreaker)
             return            
         for aggregate in aggregates:
             if individual not in IOT_aggregation[aggregate]:

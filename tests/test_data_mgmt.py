@@ -38,7 +38,7 @@ def test_import_bad_delimiter_IOT(capsys):
     captured = capsys.readouterr()
     assert captured.err == "Warning : IOT delimiter might not be correctly informed in "+IOT_name+linebreaker
 
-IOT_aggregation_file_path = mock_data_dir+'IOT_aggregation_part.csv'
+IOT_aggregation_part_file_path = mock_data_dir+'IOT_aggregation_part.csv'
 
 @pytest.fixture()
 def IOT_aggregation_part():
@@ -51,14 +51,14 @@ def IOT_aggregation_part():
             'NonSupplierSect':['Crude_oil', 'Natural_gas', 'Coking_coal']}
 
 def test_read_IOT_aggregation_from(IOT_aggregation_part):
-    IOT_aggregation = data_mgmt.read_IOT_aggregation_from(IOT_aggregation_file_path, 
+    IOT_aggregation = data_mgmt.read_IOT_aggregation_from(IOT_aggregation_part_file_path, 
                                                           delimiter=';')
     assert IOT_aggregation == IOT_aggregation_part
 
 def test_read_IOT_aggregation_raise_delimiter_warning(capsys):
-    data_mgmt.read_IOT_aggregation_from(IOT_aggregation_file_path)
+    data_mgmt.read_IOT_aggregation_from(IOT_aggregation_part_file_path)
     captured = capsys.readouterr()
-    assert captured.err == "Warning : delimiter might not be correctly informed in function"
+    assert captured.err == "Warning : delimiter might not be correctly informed in read_IOT_aggregation_from()"+linebreaker
 
 #FIXME might need to inform type of slice e.g:IC
 def test_slice_warning_when_bad_headers(full_IOT, capsys):
@@ -160,9 +160,12 @@ def test_consolidate_headers(expected_expanded_grouping, part_IOT_headers):
     consolidated_headers = data_mgmt._consolidate_headers(['IC', 'OthPart_IOT'], expected_expanded_grouping, part_IOT_headers)
     assert consolidated_headers == expected_consolidated_headers
 
-# def test_check_use_ressource_balance(full_IOT, expected_IOT_grouping, capsys):
+IOT_aggregation_full_file_path = mock_data_dir+'IOT_aggregation.csv'
 
-#     ressources = ['IC', 'OthPart_IOT']
-#     uses = ['IC', 'FC']
-#     data_mgmt.check_use_ressource(full_IOT, expected_expanded_grouping, uses, ressources)
-#     assert not capsys.readouterr().err
+def test_check_use_ressource_balance(full_IOT, expected_IOT_grouping, capsys):
+    IOT_full_aggregation = data_mgmt.read_IOT_aggregation_from(IOT_aggregation_full_file_path, delimiter=';')
+    expanded_grouping = data_mgmt.translate_grouping_to_individuals(expected_IOT_grouping, IOT_full_aggregation)
+    ressources = ['IC', 'FC']
+    uses = ['IC', 'OthPart_IOT']
+    data_mgmt.check_use_ressource(full_IOT, expanded_grouping, uses, ressources)
+    assert not capsys.readouterr().err
