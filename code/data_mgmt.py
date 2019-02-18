@@ -29,42 +29,42 @@ def get_headers_from(IOT):
 def get_filename_from(path):
     return path.split(dir_separator)[-1]
 
-def read_IOT_aggregation_from(IOT_aggregation_path, delimiter='|', headers=None):
-    """ Hypothesis : in first column are the names of the individuals and in columns aggregates names """
-    reader = _get_reader_from(IOT_aggregation_path, delimiter)
-    IOT_aggregation = collections.defaultdict(list)
+def read_IOT_activities_mapping_from(IOT_activities_mapping_path, delimiter='|', headers=None):
+    """ Hypothesis : in first column are the names of the activities and in columns aggregates names """
+    reader = _get_reader_from(IOT_activities_mapping_path, delimiter)
+    IOT_activities_mapping = collections.defaultdict(list)
     for individual_description in reader:
         individual = individual_description[0]
         aggregates = individual_description[1:]
         if not aggregates:
-            sys.stderr.write("Warning : delimiter might not be correctly informed in read_IOT_aggregation_from()"+linebreaker)
+            sys.stderr.write("Warning : delimiter might not be correctly informed in read_IOT_activities_mapping_from() for "+get_filename_from(IOT_activities_mapping_path)+linebreaker)
             return            
         for aggregate in aggregates:
-            if individual not in IOT_aggregation[aggregate]:
-                IOT_aggregation[aggregate].append(individual)
+            if individual not in IOT_activities_mapping[aggregate]:
+                IOT_activities_mapping[aggregate].append(individual)
             else:
                 pass
                 #FIXME should raise warning ?
     if headers:
-        _change_individuals_order_in(IOT_aggregation, headers)
-    return IOT_aggregation
+        _change_activities_order_in(IOT_activities_mapping, headers)
+    return IOT_activities_mapping
 
 def _get_reader_from(path, delimiter):
     return csv.reader(open(path), delimiter=delimiter)
 
-def _change_individuals_order_in(aggregation, reference_headers):
-    for aggregate, individuals in aggregation.items():
-        aggregation[aggregate] = _get_and_change_order_of(individuals, reference_headers)
+def _change_activities_order_in(activities_mapping, reference_headers):
+    for aggregate, activities in activities_mapping.items():
+        activities_mapping[aggregate] = _get_and_change_order_of(activities, reference_headers)
 
-def _get_and_change_order_of(individuals, reference_headers):
-    reference_header = _get_correct_header(individuals, reference_headers)
-    return _change_order_of(individuals, reference_header)
+def _get_and_change_order_of(activities, reference_headers):
+    reference_header = _get_matching_header_for(activities, reference_headers)
+    return _change_order_of(activities, reference_header)
 
-def _get_correct_header(unordered_individuals, headers):
-    return max(headers, key=lambda header: len(np.intersect1d(unordered_individuals, header)))
+def _get_matching_header_for(unordered_activities, headers):
+    return max(headers, key=lambda header: len(np.intersect1d(unordered_activities, header)))
 
-def _change_order_of(unordered_individuals, header):
-    return sorted(unordered_individuals, key=lambda individual:list(header).index(individual))
+def _change_order_of(unordered_activities, header):
+    return sorted(unordered_activities, key=lambda individual:list(header).index(individual))
 
 def read_grouping_from(path, delimiter='|'):
     reader = _get_reader_from(path, delimiter)
@@ -83,14 +83,14 @@ def extract_IOTs_from(IOT, field_headers):
         out_IOT[var_name] = _slice_(IOT, field_header)
     return out_IOT
 
-def translate_grouping_to_individuals(grouping, aggregation):
+def translate_grouping_to_activities(grouping, activities_mapping):
     expanded_grouping = dict()
     for group_name, groups in grouping.items():
-        expanded_grouping[group_name] = _map_aggregate_to_individuals(groups, aggregation)
+        expanded_grouping[group_name] = _map_aggregate_to_activities(groups, activities_mapping)
     return expanded_grouping
 
-def _map_aggregate_to_individuals(groups, aggregation):
-    return list(map(lambda aggregate:aggregation[aggregate], groups))    
+def _map_aggregate_to_activities(groups, activities_mapping):
+    return list(map(lambda aggregate:activities_mapping[aggregate], groups))    
 
 def _slice_(IOT, field_headers):
     sliced_IOT = IOT.loc[tuple(field_headers)]
@@ -101,12 +101,12 @@ def _slice_(IOT, field_headers):
 to_expand_variables = ['FC', 'OthPart_IOT']
 reference_variable = 'IC'
 
-def add_individuals_in_expanded_grouping(expanded_grouping):
+def add_activities_in_expanded_grouping(expanded_grouping):
     for to_expand_variable in to_expand_variables:
-        new_grouping = _generate_individuals_in_expanded_grouping(expanded_grouping[to_expand_variable], expanded_grouping[reference_variable])
+        new_grouping = _generate_activities_in_expanded_grouping(expanded_grouping[to_expand_variable], expanded_grouping[reference_variable])
         expanded_grouping.update(new_grouping)
 
-def _generate_individuals_in_expanded_grouping(to_expand_headers, reference_headers):
+def _generate_activities_in_expanded_grouping(to_expand_headers, reference_headers):
     different_index = _get_different_list_index(to_expand_headers, reference_headers)
     output_grouping = dict()
     for individual in to_expand_headers[different_index]:
@@ -130,10 +130,10 @@ def check_use_ressource(IOT, headers_grouping, use_headers, ressource_headers, t
     balances = uses - ressources < tolerance
     if not all(balances):
         sys.stderr.write("Warning : unbalanced IOT"+linebreaker)
-        sys.stderr.write(', '.join([individuals for individuals, balanced in zip(use_headers[0], balances) if not balanced])+linebreaker)
+        sys.stderr.write(', '.join([activities for activities, balanced in zip(use_headers[0], balances) if not balanced])+linebreaker)
 
 def _consolidate_headers(headers_names, headers_grouping, reference_headers):
-    expanded_headers = _map_aggregate_to_individuals(headers_names, headers_grouping)
+    expanded_headers = _map_aggregate_to_activities(headers_names, headers_grouping)
     expanded_merged_headers = functools.reduce(_merge_headers, expanded_headers)
     return list(map(lambda positional_header: _get_and_change_order_of(positional_header, reference_headers), expanded_merged_headers))
 
