@@ -16,13 +16,16 @@ def import_IOT(IOT_file_path, **kwargs):
     read_IOT = pandas.read_csv(IOT_file_path, 
                                index_col=0,
                                **kwargs)
-    if len(get_IOT_header_from(read_IOT)) < 2:
+    if len(get_header_from(read_IOT)) < 2:
         IOT_name = get_filename_from(IOT_file_path)
         sys.stderr.write("Warning : IOT delimiter might not be correctly informed in "+IOT_name+linebreaker)
     return read_IOT
 
-def get_IOT_header_from(IOT):
-    return IOT.columns.tolist()
+def get_header_from(IOT):
+    return IOT.columns
+
+def get_headers_from(IOT):
+    return [IOT.index, IOT.columns]
 
 def get_filename_from(path):
     return path.split(dir_separator)[-1]
@@ -82,8 +85,10 @@ def extract_IOTs_from(IOT, field_headers):
     return out_IOT
 
 def translate_grouping_to_individuals(grouping, aggregation):
+    expanded_grouping = dict()
     for group_name, groups in grouping.items():
-        grouping[group_name] = _map_aggregate_to_individuals(groups, aggregation)
+        expanded_grouping[group_name] = _map_aggregate_to_individuals(groups, aggregation)
+    return expanded_grouping
 
 def _map_aggregate_to_individuals(groups, aggregation):
     return list(map(lambda aggregate:aggregation[aggregate], groups))    
@@ -119,9 +124,8 @@ def _get_different_list_index(work_list, reference_list):
 balance_tolerance = 1E-2
 
 def check_use_ressource(IOT, headers_grouping, use_headers, ressource_headers, tolerance=balance_tolerance):
-    IOT_headers = [IOT.index, IOT.columns]
-    use_headers = _consolidate_headers(use_headers, headers_grouping, IOT_headers)
-    ressource_headers = _consolidate_headers(ressource_headers, headers_grouping, IOT_headers)
+    use_headers = _consolidate_headers(use_headers, headers_grouping, get_headers_from(IOT))
+    ressource_headers = _consolidate_headers(ressource_headers, headers_grouping, get_headers_from(IOT))
     uses = _slice_(IOT, use_headers).sum()
     ressources = _slice_(IOT, ressource_headers).sum(axis=1)
     balances = uses - ressources < tolerance

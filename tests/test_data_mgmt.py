@@ -41,7 +41,7 @@ def test_import_bad_delimiter_IOT(capsys):
 IOT_aggregation_file_path = mock_data_dir+'IOT_aggregation_part.csv'
 
 @pytest.fixture()
-def IOT_aggregation_mock_part():
+def IOT_aggregation_part():
     return {'Commodities':['Crude_oil', 'Natural_gas', 'Coking_coal'],
             'OthPart_IOT':['Labour_income', 'Labour_Tax'],
             'Sectors':['Crude_oil', 'Natural_gas', 'Coking_coal'],
@@ -50,10 +50,10 @@ def IOT_aggregation_mock_part():
             'Value_Added':['Labour_income', 'Labour_Tax'],
             'NonSupplierSect':['Crude_oil', 'Natural_gas', 'Coking_coal']}
 
-def test_read_IOT_aggregation_from(IOT_aggregation_mock_part):
+def test_read_IOT_aggregation_from(IOT_aggregation_part):
     IOT_aggregation = data_mgmt.read_IOT_aggregation_from(IOT_aggregation_file_path, 
                                                           delimiter=';')
-    assert IOT_aggregation == IOT_aggregation_mock_part
+    assert IOT_aggregation == IOT_aggregation_part
 
 def test_read_IOT_aggregation_raise_delimiter_warning(capsys):
     data_mgmt.read_IOT_aggregation_from(IOT_aggregation_file_path)
@@ -107,9 +107,9 @@ def expected_IOT_aggregation():
                                 'NonSupplierSect':['Coking_coal', 'Crude_oil', 'Natural_gas']}
     return expected_IOT_aggregation
 
-def test_change_individuals_order_in(IOT_aggregation_mock_part, part_IOT_headers, expected_IOT_aggregation):
-    data_mgmt._change_individuals_order_in(IOT_aggregation_mock_part, part_IOT_headers)
-    assert IOT_aggregation_mock_part == expected_IOT_aggregation
+def test_change_individuals_order_in(IOT_aggregation_part, part_IOT_headers, expected_IOT_aggregation):
+    data_mgmt._change_individuals_order_in(IOT_aggregation_part, part_IOT_headers)
+    assert IOT_aggregation_part == expected_IOT_aggregation
 
 @pytest.fixture()
 def expected_expanded_grouping():
@@ -119,8 +119,8 @@ def expected_expanded_grouping():
     return expected_expanded_grouping
     
 def test_translate_grouping_to_individuals(expected_IOT_grouping, expected_IOT_aggregation, expected_expanded_grouping):
-    data_mgmt.translate_grouping_to_individuals(expected_IOT_grouping, expected_IOT_aggregation)
-    assert expected_IOT_grouping == expected_expanded_grouping
+    expanded_grouping = data_mgmt.translate_grouping_to_individuals(expected_IOT_grouping, expected_IOT_aggregation)
+    assert expanded_grouping == expected_expanded_grouping
 
 def test_extract_IOTs_from(part_IOT, expected_expanded_grouping, capsys):
     initial_value = data_mgmt.extract_IOTs_from(part_IOT, expected_expanded_grouping)
@@ -159,3 +159,10 @@ def test_consolidate_headers(expected_expanded_grouping, part_IOT_headers):
                                      ['Coking_coal', 'Crude_oil', 'Natural_gas']]
     consolidated_headers = data_mgmt._consolidate_headers(['IC', 'OthPart_IOT'], expected_expanded_grouping, part_IOT_headers)
     assert consolidated_headers == expected_consolidated_headers
+
+# def test_check_use_ressource_balance(full_IOT, expected_IOT_grouping, capsys):
+
+#     ressources = ['IC', 'OthPart_IOT']
+#     uses = ['IC', 'FC']
+#     data_mgmt.check_use_ressource(full_IOT, expected_expanded_grouping, uses, ressources)
+#     assert not capsys.readouterr().err
