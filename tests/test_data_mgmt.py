@@ -28,12 +28,8 @@ def full_IOT():
                            delimiter=IOT_delimiter,
                            index_col=0)
 
-def test_import_IOT_non_correct_column_header():
-    read_IOT = data_mgmt.import_IOT(part_IOT_path)
-    assert all([isinstance(header, str) for header in read_IOT.index])
-
 def test_import_bad_delimiter_IOT(capsys):
-    data_mgmt.import_IOT(part_IOT_path)
+    data_mgmt.read_IOT(part_IOT_path)
     IOT_name = data_mgmt.get_filename_from(part_IOT_path)
     captured = capsys.readouterr()
     assert captured.err == "Warning : IOT delimiter might not be correctly informed in "+IOT_name+linebreaker
