@@ -106,22 +106,22 @@ reference_variable = 'IC'
 def disaggregate_in_coordinates_category_mapping(coordinates_category_mapping):
     new_coordinates_category_mapping = copy.deepcopy(coordinates_category_mapping)
     for to_expand_variable in to_expand_variables:
-        new_coordinates_category_mapping.update(_generate_activities_in_expanded_grouping(coordinates_category_mapping[to_expand_variable], 
+        new_coordinates_category_mapping.update(_disaggregate_coordinates(coordinates_category_mapping[to_expand_variable], 
                                                                                           coordinates_category_mapping[reference_variable]))
     return new_coordinates_category_mapping
 
-def _generate_activities_in_expanded_grouping(to_expand_headers, reference_headers):
-    different_index = _get_different_list_index(to_expand_headers, reference_headers)
+def _disaggregate_coordinates(to_expand_coordinates, reference_coordinates):
+    different_index = _get_dissimilar_coordinates_index(to_expand_coordinates, reference_coordinates)
     output_grouping = dict()
-    for individual in to_expand_headers[different_index]:
-        new_nested_headers = copy.deepcopy(reference_headers)
+    for individual in to_expand_coordinates[different_index]:
+        new_nested_headers = copy.deepcopy(reference_coordinates)
         new_nested_headers[different_index] = [individual]
         output_grouping[individual] = new_nested_headers
     return output_grouping
 
-def _get_different_list_index(work_list, reference_list):
-    for index, positional_list in enumerate(reference_list):
-        if work_list[index] != positional_list:
+def _get_dissimilar_coordinates_index(working_coordinates, reference_coordinates):
+    for index, positional_list in enumerate(reference_coordinates):
+        if working_coordinates[index] != positional_list:
             return index
 
 balance_tolerance = 1E-2

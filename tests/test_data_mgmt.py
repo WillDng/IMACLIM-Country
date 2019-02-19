@@ -131,17 +131,18 @@ def test_disaggregate_in_coordinates_category_mapping(category_coordinates, orde
                                               'OthPart_IOT':[['Labour_Tax', 'Labour_income'], ['Coking_coal', 'Crude_oil', 'Natural_gas']],
                                               'Labour_Tax':[['Labour_Tax'], ['Coking_coal', 'Crude_oil', 'Natural_gas']],
                                               'Labour_income':[['Labour_income'], ['Coking_coal', 'Crude_oil', 'Natural_gas']]}
-    disaggregate_activities_coordinates_category_mapping = data_mgmt.disaggregate_in_coordinates_category_mapping(activities_coordinates_category_mapping)
-    assert disaggregate_activities_coordinates_category_mapping == activities_coordinates_with_activities
+    disaggregated_activities_coordinates_category_mapping = data_mgmt.disaggregate_in_coordinates_category_mapping(activities_coordinates_category_mapping)
+    assert disaggregated_activities_coordinates_category_mapping == activities_coordinates_with_activities
 
-def test_generate_activities_in_expanded_grouping(activities_coordinates_category_mapping):
+def test_disaggregate_coordinates(activities_coordinates_category_mapping):
     expected_expanded_activities_grouping = {'I':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['I']],
                                              'X':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['X']]}
-    generated_expanded_activities_grouping = data_mgmt._generate_activities_in_expanded_grouping(activities_coordinates_category_mapping['FC'], activities_coordinates_category_mapping['IC'])
+    generated_expanded_activities_grouping = data_mgmt._disaggregate_coordinates(activities_coordinates_category_mapping['FC'], 
+                                                                                 activities_coordinates_category_mapping['IC'])
     assert generated_expanded_activities_grouping == expected_expanded_activities_grouping
 
-def test_get_different_list_index(activities_coordinates_category_mapping):
-    assert data_mgmt._get_different_list_index(activities_coordinates_category_mapping['FC'], activities_coordinates_category_mapping['IC']) == 1
+def test_get_dissimilar_coordinates_index(activities_coordinates_category_mapping):
+    assert data_mgmt._get_dissimilar_coordinates_index(activities_coordinates_category_mapping['FC'], activities_coordinates_category_mapping['IC']) == 1
 
 def test_check_use_ressource_warns_when_unbalanced(part_IOT, activities_coordinates_category_mapping, capsys):
     use_headers = ['IC', 'OthPart_IOT']
