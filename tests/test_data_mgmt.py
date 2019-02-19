@@ -66,8 +66,8 @@ def test_slice_warns_when_bad_activities_coordinates(full_IOT, capsys):
 @pytest.fixture()
 def category_coordinates():
     category_coordinates = {'IC':['Commodities','Sectors'],
-                             'FC':['Commodities', 'FC'],
-                             'OthPart_IOT':['OthPart_IOT', 'Sectors']}
+                            'FC':['Commodities', 'FC'],
+                            'OthPart_IOT':['OthPart_IOT', 'Sectors']}
     return category_coordinates
 
 def test_read_category_coordinates_from(category_coordinates):
@@ -95,12 +95,12 @@ def test_change_order_of(ill_ordered_activities, IOT_part_headers):
 @pytest.fixture()
 def ordered_activities_category_mapping():
     ordered_activities_category_mapping = {'Commodities':['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                                'OthPart_IOT':['Labour_Tax', 'Labour_income'],
-                                'Sectors':['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                                'FC':['I', 'X'],
-                                'EnerSect':['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                                'Value_Added':['Labour_Tax', 'Labour_income'],
-                                'NonSupplierSect':['Coking_coal', 'Crude_oil', 'Natural_gas']}
+                                           'OthPart_IOT':['Labour_Tax', 'Labour_income'],
+                                           'Sectors':['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                                           'FC':['I', 'X'],
+                                           'EnerSect':['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                                           'Value_Added':['Labour_Tax', 'Labour_income'],
+                                           'NonSupplierSect':['Coking_coal', 'Crude_oil', 'Natural_gas']}
     return ordered_activities_category_mapping
 
 def test_change_activities_order_in(activities_category_mapping_part, IOT_part_headers, ordered_activities_category_mapping):
@@ -123,7 +123,7 @@ def test_extract_IOTs_from(part_IOT, activities_coordinates_category_mapping, ca
     assert ((len(extracted_IOTs) == 3) & (not capsys.readouterr().err))
     #FIXME test too weak, might not be able to distinguish which assertions fails
 
-def test_add_activities_in_expanded_grouping(category_coordinates, ordered_activities_category_mapping, activities_coordinates_category_mapping):
+def test_disaggregate_in_coordinates_category_mapping(category_coordinates, ordered_activities_category_mapping, activities_coordinates_category_mapping):
     activities_coordinates_with_activities = {'IC':[['Coking_coal', 'Crude_oil', 'Natural_gas'],['Coking_coal', 'Crude_oil', 'Natural_gas']],
                                               'FC':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['I', 'X']],
                                               'I':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['I']],
@@ -131,12 +131,12 @@ def test_add_activities_in_expanded_grouping(category_coordinates, ordered_activ
                                               'OthPart_IOT':[['Labour_Tax', 'Labour_income'], ['Coking_coal', 'Crude_oil', 'Natural_gas']],
                                               'Labour_Tax':[['Labour_Tax'], ['Coking_coal', 'Crude_oil', 'Natural_gas']],
                                               'Labour_income':[['Labour_income'], ['Coking_coal', 'Crude_oil', 'Natural_gas']]}
-    data_mgmt.add_activities_in_expanded_grouping(activities_coordinates_category_mapping)
-    assert activities_coordinates_category_mapping == activities_coordinates_with_activities
+    disaggregate_activities_coordinates_category_mapping = data_mgmt.disaggregate_in_coordinates_category_mapping(activities_coordinates_category_mapping)
+    assert disaggregate_activities_coordinates_category_mapping == activities_coordinates_with_activities
 
 def test_generate_activities_in_expanded_grouping(activities_coordinates_category_mapping):
     expected_expanded_activities_grouping = {'I':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['I']],
-                                              'X':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['X']]}
+                                             'X':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['X']]}
     generated_expanded_activities_grouping = data_mgmt._generate_activities_in_expanded_grouping(activities_coordinates_category_mapping['FC'], activities_coordinates_category_mapping['IC'])
     assert generated_expanded_activities_grouping == expected_expanded_activities_grouping
 

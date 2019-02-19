@@ -103,10 +103,12 @@ def _slice(IOT, field_headers):
 to_expand_variables = ['FC', 'OthPart_IOT']
 reference_variable = 'IC'
 
-def add_activities_in_expanded_grouping(expanded_grouping):
+def disaggregate_in_coordinates_category_mapping(coordinates_category_mapping):
+    new_coordinates_category_mapping = copy.deepcopy(coordinates_category_mapping)
     for to_expand_variable in to_expand_variables:
-        new_grouping = _generate_activities_in_expanded_grouping(expanded_grouping[to_expand_variable], expanded_grouping[reference_variable])
-        expanded_grouping.update(new_grouping)
+        new_coordinates_category_mapping.update(_generate_activities_in_expanded_grouping(coordinates_category_mapping[to_expand_variable], 
+                                                                                          coordinates_category_mapping[reference_variable]))
+    return new_coordinates_category_mapping
 
 def _generate_activities_in_expanded_grouping(to_expand_headers, reference_headers):
     different_index = _get_different_list_index(to_expand_headers, reference_headers)
