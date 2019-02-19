@@ -29,32 +29,34 @@ def get_headers_from(IOT):
 def get_filename_from(path):
     return path.split(dir_separator)[-1]
 
-def read_IOT_activities_mapping_from(IOT_activities_mapping_path, delimiter='|', headers=None):
+def read_activities_category_mapping(activities_mapping_path, delimiter='|', headers=None):
     """ Hypothesis : in first column are the names of the activities and in columns aggregates names """
-    reader = _get_reader_from(IOT_activities_mapping_path, delimiter)
-    IOT_activities_mapping = collections.defaultdict(list)
+    reader = _get_reader_from(activities_mapping_path, delimiter)
+    read_activities_category_mapping = collections.defaultdict(list)
     for individual_description in reader:
         individual = individual_description[0]
         aggregates = individual_description[1:]
         if not aggregates:
-            sys.stderr.write("Warning : delimiter might not be correctly informed in read_IOT_activities_mapping_from() for "+get_filename_from(IOT_activities_mapping_path)+linebreaker)
+            sys.stderr.write("Warning : delimiter might not be correctly informed in read_activities_category_mapping() for "+get_filename_from(activities_mapping_path)+linebreaker)
             return            
         for aggregate in aggregates:
-            if individual not in IOT_activities_mapping[aggregate]:
-                IOT_activities_mapping[aggregate].append(individual)
+            if individual not in read_activities_category_mapping[aggregate]:
+                read_activities_category_mapping[aggregate].append(individual)
             else:
                 pass
                 #FIXME should raise warning ?
     if headers:
-        _change_activities_order_in(IOT_activities_mapping, headers)
-    return IOT_activities_mapping
+        read_activities_category_mapping = _change_activities_order_in(read_activities_category_mapping, headers)
+    return read_activities_category_mapping
 
 def _get_reader_from(path, delimiter):
     return csv.reader(open(path), delimiter=delimiter)
 
-def _change_activities_order_in(activities_mapping, reference_headers):
-    for aggregate, activities in activities_mapping.items():
-        activities_mapping[aggregate] = _get_and_change_order_of(activities, reference_headers)
+def _change_activities_order_in(activities_category_mapping, reference_headers):
+    reordered_activities_category_mapping = dict()
+    for aggregate, activities in activities_category_mapping.items():
+        reordered_activities_category_mapping[aggregate] = _get_and_change_order_of(activities, reference_headers)
+    return reordered_activities_category_mapping
 
 def _get_and_change_order_of(activities, reference_headers):
     reference_header = _get_matching_header_for(activities, reference_headers)
@@ -66,7 +68,7 @@ def _get_matching_header_for(unordered_activities, headers):
 def _change_order_of(unordered_activities, header):
     return sorted(unordered_activities, key=lambda individual:list(header).index(individual))
 
-def read_grouping_from(path, delimiter='|'):
+def read_category_coordinates_from(path, delimiter='|'):
     reader = _get_reader_from(path, delimiter)
     grouping = dict()
     for row in reader:
@@ -80,10 +82,10 @@ def read_grouping_from(path, delimiter='|'):
 def extract_IOTs_from(IOT, field_headers):
     out_IOT = dict()
     for var_name, field_header in field_headers.items():
-        out_IOT[var_name] = _slice_(IOT, field_header)
+        out_IOT[var_name] = _slice(IOT, field_header)
     return out_IOT
 
-def translate_grouping_to_activities(grouping, activities_mapping):
+def map_category_to_activities(grouping, activities_mapping):
     expanded_grouping = dict()
     for group_name, groups in grouping.items():
         expanded_grouping[group_name] = _map_aggregate_to_activities(groups, activities_mapping)
@@ -92,10 +94,10 @@ def translate_grouping_to_activities(grouping, activities_mapping):
 def _map_aggregate_to_activities(groups, activities_mapping):
     return list(map(lambda aggregate:activities_mapping[aggregate], groups))    
 
-def _slice_(IOT, field_headers):
+def _slice(IOT, field_headers):
     sliced_IOT = IOT.loc[tuple(field_headers)]
     if sliced_IOT.isnull().values.any():
-        sys.stderr.write("Warning : IOT headers might be ill informed"+linebreaker)
+        sys.stderr.write("Warning : IOT activities coordinates might be ill informed"+linebreaker)
     return sliced_IOT
 
 to_expand_variables = ['FC', 'OthPart_IOT']
@@ -125,8 +127,8 @@ balance_tolerance = 1E-2
 def check_use_ressource(IOT, headers_grouping, use_headers, ressource_headers, tolerance=balance_tolerance):
     use_headers = _consolidate_headers(use_headers, headers_grouping, get_headers_from(IOT))
     ressource_headers = _consolidate_headers(ressource_headers, headers_grouping, get_headers_from(IOT))
-    uses = _slice_(IOT, use_headers).sum()
-    ressources = _slice_(IOT, ressource_headers).sum(axis=1)
+    uses = _slice(IOT, use_headers).sum()
+    ressources = _slice(IOT, ressource_headers).sum(axis=1)
     balances = uses - ressources < tolerance
     if not all(balances):
         sys.stderr.write("Warning : unbalanced IOT"+linebreaker)
