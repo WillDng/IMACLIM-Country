@@ -46,7 +46,9 @@ def test_read_activities_category_mapping(activities_category_mapping_part):
 def test_read_activities_category_mapping_warns_when_bad_delimiter(capsys):
     data_mgmt.read_activities_category_mapping(IOT_activities_category_mapping_part_file_path)
     captured = capsys.readouterr()
-    assert captured.err == "Warning : delimiter might not be correctly informed in read_activities_category_mapping() for "+data_mgmt.get_filename_from(IOT_activities_category_mapping_part_file_path)+linebreaker
+    assert captured.err == "Warning : delimiter might not be correctly informed in read_activities_category_mapping() for "+\
+                            data_mgmt.get_filename_from(IOT_activities_category_mapping_part_file_path)+\
+                            linebreaker
 
 full_IOT_path = mock_data_dir+'IOT_Val.csv'
 
@@ -58,10 +60,12 @@ def full_IOT():
 
 #FIXME might need to inform type of slice e.g:IC
 def test_slice_warns_when_bad_activities_coordinates(full_IOT, capsys):
-    bad_activities_coordinates = (['Coking_coal', 'I'], ['Natural_gas', 'Labour_Tax'])
+    bad_activities_coordinates = [['Coking_coal', 'I'], ['Natural_gas', 'Labour_Tax']]
     data_mgmt._slice(full_IOT, bad_activities_coordinates)
     captured = capsys.readouterr()
-    assert captured.err == "Warning : IOT activities coordinates might be ill informed"+linebreaker
+    assert captured.err == "Warning : activities coordinates might be ill informed"+\
+                            linebreaker+str(bad_activities_coordinates)+\
+                            ' returned empty values'+linebreaker
 
 @pytest.fixture()
 def categories_coordinates():
@@ -144,10 +148,16 @@ def test_disaggregate_coordinates(activities_coordinates_category_mapping):
 def test_get_dissimilar_coordinates_index(activities_coordinates_category_mapping):
     assert data_mgmt._get_dissimilar_coordinates_index(activities_coordinates_category_mapping['FC'], activities_coordinates_category_mapping['IC']) == 1
 
-def test_check_use_ressource_warns_when_unbalanced(part_IOT, activities_coordinates_category_mapping, capsys):
+@pytest.fixture()
+def balance_tolerance():
+    return 1E-2
+
+def test_check_use_ressource_warns_when_unbalanced(part_IOT, activities_coordinates_category_mapping,
+                                                   balance_tolerance, capsys):
     use_headers = ['IC', 'OthPart_IOT']
     ressources_headers = ['IC', 'FC']
-    data_mgmt.check_use_ressource(part_IOT, activities_coordinates_category_mapping, use_headers, ressources_headers)
+    data_mgmt.check_use_ressource(part_IOT, activities_coordinates_category_mapping,
+                                  use_headers, ressources_headers, balance_tolerance)
     captured = capsys.readouterr()
     assert captured.err == "Warning : unbalanced IOT"+linebreaker+"Crude_oil, Natural_gas"+linebreaker
 
@@ -161,10 +171,14 @@ def test_combine_category_coordinates(activities_coordinates_category_mapping, I
 
 IOT_activities_mapping_full_file_path = mock_data_dir+'ordered_activities_category_mapping.csv'
 
-def test_check_use_ressource_balance(full_IOT, categories_coordinates, capsys):
-    IOT_full_activities_mapping = data_mgmt.read_activities_category_mapping(IOT_activities_mapping_full_file_path, delimiter=';')
-    expanded_grouping = data_mgmt.map_categories_to_activities_coordinates(categories_coordinates, IOT_full_activities_mapping)
+def test_check_use_ressource_balance(full_IOT, categories_coordinates,
+                                     balance_tolerance, capsys):
+    IOT_full_activities_mapping = data_mgmt.read_activities_category_mapping(IOT_activities_mapping_full_file_path, 
+                                                                             delimiter=';')
+    activities_coordinates_mapping = data_mgmt.map_categories_to_activities_coordinates(categories_coordinates, 
+                                                                           IOT_full_activities_mapping)
     ressources = ['IC', 'FC']
     uses = ['IC', 'OthPart_IOT']
-    data_mgmt.check_use_ressource(full_IOT, expanded_grouping, uses, ressources)
+    data_mgmt.check_use_ressource(full_IOT, activities_coordinates_mapping, 
+                                  uses, ressources, balance_tolerance)
     assert not capsys.readouterr().err

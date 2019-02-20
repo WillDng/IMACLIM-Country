@@ -63,10 +63,12 @@ def _get_and_change_order_of(activities, reference_headers):
     return _change_order_of(activities, reference_header)
 
 def _get_matching_header_for(unordered_activities, headers):
-    return max(headers, key=lambda header: len(np.intersect1d(unordered_activities, header)))
+    return max(headers, 
+               key=lambda header: len(np.intersect1d(unordered_activities, header)))
 
 def _change_order_of(unordered_activities, header):
-    return sorted(unordered_activities, key=lambda individual:list(header).index(individual))
+    return sorted(unordered_activities, 
+                  key=lambda individual:list(header).index(individual))
 
 def read_categories_coordinates_mapping(mapping_path, delimiter='|'):
     reader = _get_reader_from(mapping_path, delimiter)
@@ -76,7 +78,9 @@ def read_categories_coordinates_mapping(mapping_path, delimiter='|'):
         if category not in read_mapping:
             read_mapping[row[0]] = row[1:]
         else:
-            sys.stderr.write("Warning : "+category+" already in categories coordinates mapping, check file at "+mapping_path+linebreaker)
+            sys.stderr.write("Warning : "+category+
+                             " already in categories coordinates mapping, \
+                             check file at "+mapping_path+linebreaker)
     return read_mapping
 
 def extract_IOTs_from(IOT, activities_category_mapping):
@@ -85,20 +89,26 @@ def extract_IOTs_from(IOT, activities_category_mapping):
         extracted_IOTs[var_name] = _slice(IOT, field_header)
     return extracted_IOTs
 
-def _slice(IOT, field_headers):
-    sliced_IOT = IOT.loc[tuple(field_headers)]
+def _slice(IOT, activities_coordinates):
+    sliced_IOT = IOT.loc[tuple(activities_coordinates)]
     if sliced_IOT.isnull().values.any():
-        sys.stderr.write("Warning : IOT activities coordinates might be ill informed"+linebreaker)
+        sys.stderr.write("Warning : activities coordinates might be ill informed"+
+                         linebreaker+str(activities_coordinates)+
+                         ' returned empty values'+linebreaker)
     return sliced_IOT
 
-def map_categories_to_activities_coordinates(category_coordinates, activities_category_mapping):
+def map_categories_to_activities_coordinates(category_coordinates, 
+                                             activities_category_mapping):
     activities_coordinates = dict()
     for category, categories_coordinates in category_coordinates.items():
         activities_coordinates[category] = _map_category_to_activities(categories_coordinates, activities_category_mapping)
     return activities_coordinates
 
-def _map_category_to_activities(groups, activities_category_mapping):
-    return list(map(lambda aggregate:activities_category_mapping[aggregate], groups))    
+def _map_category_to_activities(categories_coordinates, activities_category_mapping):
+    activities_coordinates = list()
+    for activity_coordinate in categories_coordinates:
+        activities_coordinates.append(activities_category_mapping[activity_coordinate])
+    return activities_coordinates
 
 to_expand_variables = ['FC', 'OthPart_IOT']
 reference_variable = 'IC'
@@ -120,29 +130,34 @@ def _disaggregate_coordinates(to_expand_coordinates, reference_coordinates):
     return output_grouping
 
 def _get_dissimilar_coordinates_index(working_coordinates, reference_coordinates):
-    for index, positional_list in enumerate(reference_coordinates):
-        if working_coordinates[index] != positional_list:
+    for index, positional_coordinates in enumerate(reference_coordinates):
+        if working_coordinates[index] != positional_coordinates:
             return index
 
-balance_tolerance = 1E-2
-
-def check_use_ressource(IOT, headers_grouping, use_headers, ressource_headers, tolerance=balance_tolerance):
-    use_headers = _combine_category_coordinates(use_headers, headers_grouping, get_headers_from(IOT))
-    ressource_headers = _combine_category_coordinates(ressource_headers, headers_grouping, get_headers_from(IOT))
-    uses = _slice(IOT, use_headers).sum()
-    ressources = _slice(IOT, ressource_headers).sum(axis=1)
-    balances = uses - ressources < tolerance
+def check_use_ressource(IOT, activities_coordinates_mapping, use_categories, 
+                        ressource_categories, balance_tolerance):
+    use_categories = _combine_category_coordinates(use_categories, 
+                                                   activities_coordinates_mapping,
+                                                   get_headers_from(IOT))
+    ressource_categories = _combine_category_coordinates(ressource_categories,
+                                                         activities_coordinates_mapping,
+                                                         get_headers_from(IOT))
+    uses = _slice(IOT, use_categories).sum()
+    ressources = _slice(IOT, ressource_categories).sum(axis=1)
+    balances = uses - ressources < balance_tolerance
     if not all(balances):
         sys.stderr.write("Warning : unbalanced IOT"+linebreaker)
-        sys.stderr.write(', '.join([activities for activities, balanced in zip(use_headers[0], balances) if not balanced])+linebreaker)
+        sys.stderr.write(', '.join([activities for activities, balanced in zip(use_categories[0], balances) if not balanced])+linebreaker)
 
 def _combine_category_coordinates(category_to_combine, activities_coordinates_category_mapping, reference_headers):
-    expanded_headers = _map_category_to_activities(category_to_combine, activities_coordinates_category_mapping)
-    expanded_merged_headers = functools.reduce(_merge_headers, expanded_headers)
+    expanded_headers = _map_category_to_activities(category_to_combine, 
+                                                   activities_coordinates_category_mapping)
+    expanded_merged_headers = functools.reduce(_merge_coordinates,
+                                               expanded_headers)
     return list(map(lambda positional_header: _get_and_change_order_of(positional_header, reference_headers), expanded_merged_headers))
 
-def _merge_headers(first_header, second_header):
-    merged_headers = list()
-    for first_positional_header, second_positional_header in zip(first_header, second_header):
-        merged_headers.append(list(set(first_positional_header+second_positional_header)))
-    return merged_headers
+def _merge_coordinates(first_coordinates, second_coordinates):
+    merged_coordinates = list()
+    for first_positional_coordinate, second_positional_coordinate in zip(first_coordinates, second_coordinates):
+        merged_coordinates.append(list(set(first_positional_coordinate+second_positional_coordinate)))
+    return merged_coordinates
