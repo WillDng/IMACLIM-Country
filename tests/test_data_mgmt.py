@@ -156,7 +156,11 @@ def test_disaggregate_in_coordinates_mapping(categories_coordinates,
                                                             ['Coking_coal', 'Crude_oil', 'Natural_gas']],
                                               'Labour_income':[['Labour_income'], 
                                                                ['Coking_coal', 'Crude_oil', 'Natural_gas']]}
-    disaggregated_activities_coordinates_mapping = data_mgmt.disaggregate_in_coordinates_mapping(activities_coordinates_mapping)
+    to_expand_categories = ['FC', 'OthPart_IOT']
+    reference_category = 'IC'
+    disaggregated_activities_coordinates_mapping = data_mgmt.disaggregate_in_coordinates_mapping(activities_coordinates_mapping,
+                                                                                                 to_expand_categories,
+                                                                                                 reference_category)
     assert disaggregated_activities_coordinates_mapping == activities_coordinates_with_activities
 
 def test_disaggregate_coordinates(activities_coordinates_mapping):
@@ -176,13 +180,22 @@ def test_get_dissimilar_coordinates_index(activities_coordinates_mapping):
 def balance_tolerance():
     return 1E-2
 
+@pytest.fixture()
+def use_categories():
+    return ['IC', 'OthPart_IOT']
+
+@pytest.fixture()
+def ressource_categories():
+    return ['IC', 'FC']
+
 def test_check_use_ressource_warns_when_unbalanced(part_IOT, 
                                                    activities_coordinates_mapping,
+                                                   use_categories,
+                                                   ressource_categories,
                                                    balance_tolerance, capsys):
-    use_headers = ['IC', 'OthPart_IOT']
-    ressources_headers = ['IC', 'FC']
     data_mgmt.check_use_ressource(part_IOT, activities_coordinates_mapping,
-                                  use_headers, ressources_headers, balance_tolerance)
+                                  use_categories, ressource_categories, 
+                                  balance_tolerance)
     captured = capsys.readouterr()
     assert captured.err == "Warning : unbalanced IOT"+linebreaker+\
                            "Crude_oil, Natural_gas"+linebreaker
@@ -198,13 +211,13 @@ def test_combine_category_coordinates(activities_coordinates_mapping, IOT_part_h
 activities_mapping_full_file_path = mock_data_dir+'ordered_activities_mapping.csv'
 
 def test_check_use_ressource_balance(full_IOT, categories_coordinates,
+                                     use_categories, ressource_categories,
                                      balance_tolerance, capsys):
     activities_mapping_full = data_mgmt.read_activities_mapping(activities_mapping_full_file_path, 
                                                                 delimiter=';')
     activities_coordinates_mapping = data_mgmt.map_categories_to_activities_coordinates(categories_coordinates, 
                                                                                         activities_mapping_full)
-    ressources = ['IC', 'FC']
-    uses = ['IC', 'OthPart_IOT']
     data_mgmt.check_use_ressource(full_IOT, activities_coordinates_mapping, 
-                                  uses, ressources, balance_tolerance)
+                                  use_categories, ressource_categories,
+                                  balance_tolerance)
     assert not capsys.readouterr().err

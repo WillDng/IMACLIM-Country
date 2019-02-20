@@ -115,14 +115,11 @@ def _map_values_to_list(input_list, mapping_dictionary):
         output_list.append(mapping_dictionary[element_key])
     return output_list
 
-to_expand_variables = ['FC', 'OthPart_IOT']
-reference_variable = 'IC'
-
-def disaggregate_in_coordinates_mapping(coordinates_mapping):
+def disaggregate_in_coordinates_mapping(coordinates_mapping, to_expand_categories, reference_category):
     new_coordinates_mapping = copy.deepcopy(coordinates_mapping)
-    for to_expand_variable in to_expand_variables:
-        new_coordinates_mapping.update(_disaggregate_coordinates(coordinates_mapping[to_expand_variable], 
-                                                                 coordinates_mapping[reference_variable]))
+    for to_expand_category in to_expand_categories:
+        new_coordinates_mapping.update(_disaggregate_coordinates(coordinates_mapping[to_expand_category], 
+                                                                 coordinates_mapping[reference_category]))
     return new_coordinates_mapping
 
 def _disaggregate_coordinates(to_expand_coordinates, reference_coordinates):
