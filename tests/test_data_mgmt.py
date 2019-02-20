@@ -114,8 +114,8 @@ def activities_coordinates_category_mapping():
                                                'OthPart_IOT':[['Labour_Tax', 'Labour_income'], ['Coking_coal', 'Crude_oil', 'Natural_gas']]}
     return activities_coordinates_category_mapping
     
-def test_map_category_to_activities(categories_coordinates, ordered_activities_category_mapping, activities_coordinates_category_mapping):
-    mapped_activities_coordinates_category_mapping = data_mgmt.map_category_to_activities(categories_coordinates, ordered_activities_category_mapping)
+def test_map_categories_to_activities_coordinates(categories_coordinates, ordered_activities_category_mapping, activities_coordinates_category_mapping):
+    mapped_activities_coordinates_category_mapping = data_mgmt.map_categories_to_activities_coordinates(categories_coordinates, ordered_activities_category_mapping)
     assert mapped_activities_coordinates_category_mapping == activities_coordinates_category_mapping
 
 def test_extract_IOTs_from(part_IOT, activities_coordinates_category_mapping, capsys):
@@ -163,7 +163,7 @@ IOT_activities_mapping_full_file_path = mock_data_dir+'ordered_activities_catego
 
 def test_check_use_ressource_balance(full_IOT, categories_coordinates, capsys):
     IOT_full_activities_mapping = data_mgmt.read_activities_category_mapping(IOT_activities_mapping_full_file_path, delimiter=';')
-    expanded_grouping = data_mgmt.map_category_to_activities(categories_coordinates, IOT_full_activities_mapping)
+    expanded_grouping = data_mgmt.map_categories_to_activities_coordinates(categories_coordinates, IOT_full_activities_mapping)
     ressources = ['IC', 'FC']
     uses = ['IC', 'OthPart_IOT']
     data_mgmt.check_use_ressource(full_IOT, expanded_grouping, uses, ressources)

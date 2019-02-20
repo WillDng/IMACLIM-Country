@@ -85,20 +85,20 @@ def extract_IOTs_from(IOT, activities_category_mapping):
         extracted_IOTs[var_name] = _slice(IOT, field_header)
     return extracted_IOTs
 
-def map_category_to_activities(grouping, activities_mapping):
-    expanded_grouping = dict()
-    for group_name, groups in grouping.items():
-        expanded_grouping[group_name] = _map_aggregate_to_activities(groups, activities_mapping)
-    return expanded_grouping
-
-def _map_aggregate_to_activities(groups, activities_mapping):
-    return list(map(lambda aggregate:activities_mapping[aggregate], groups))    
-
 def _slice(IOT, field_headers):
     sliced_IOT = IOT.loc[tuple(field_headers)]
     if sliced_IOT.isnull().values.any():
         sys.stderr.write("Warning : IOT activities coordinates might be ill informed"+linebreaker)
     return sliced_IOT
+
+def map_categories_to_activities_coordinates(category_coordinates, activities_category_mapping):
+    activities_coordinates = dict()
+    for category, categories_coordinates in category_coordinates.items():
+        activities_coordinates[category] = _map_category_to_activities(categories_coordinates, activities_category_mapping)
+    return activities_coordinates
+
+def _map_category_to_activities(groups, activities_category_mapping):
+    return list(map(lambda aggregate:activities_category_mapping[aggregate], groups))    
 
 to_expand_variables = ['FC', 'OthPart_IOT']
 reference_variable = 'IC'
@@ -137,7 +137,7 @@ def check_use_ressource(IOT, headers_grouping, use_headers, ressource_headers, t
         sys.stderr.write(', '.join([activities for activities, balanced in zip(use_headers[0], balances) if not balanced])+linebreaker)
 
 def _combine_category_coordinates(category_to_combine, activities_coordinates_category_mapping, reference_headers):
-    expanded_headers = _map_aggregate_to_activities(category_to_combine, activities_coordinates_category_mapping)
+    expanded_headers = _map_category_to_activities(category_to_combine, activities_coordinates_category_mapping)
     expanded_merged_headers = functools.reduce(_merge_headers, expanded_headers)
     return list(map(lambda positional_header: _get_and_change_order_of(positional_header, reference_headers), expanded_merged_headers))
 
