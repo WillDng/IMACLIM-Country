@@ -7,6 +7,7 @@ import copy
 import csv
 import functools
 import numpy as np
+import operator
 import pandas
 
 linebreaker = '\n'
@@ -101,14 +102,14 @@ def map_categories_to_activities_coordinates(category_coordinates,
                                              activities_category_mapping):
     activities_coordinates = dict()
     for category, categories_coordinates in category_coordinates.items():
-        activities_coordinates[category] = _map_category_to_activities(categories_coordinates, activities_category_mapping)
+        activities_coordinates[category] = _map_values_to_list(categories_coordinates, activities_category_mapping)
     return activities_coordinates
 
-def _map_category_to_activities(categories_coordinates, activities_category_mapping):
-    activities_coordinates = list()
-    for activity_coordinate in categories_coordinates:
-        activities_coordinates.append(activities_category_mapping[activity_coordinate])
-    return activities_coordinates
+def _map_values_to_list(input_list, mapping_dictionary):
+    output_list = list()
+    for element_key in input_list:
+        output_list.append(mapping_dictionary[element_key])
+    return output_list
 
 to_expand_variables = ['FC', 'OthPart_IOT']
 reference_variable = 'IC'
@@ -136,25 +137,36 @@ def _get_dissimilar_coordinates_index(working_coordinates, reference_coordinates
 
 def check_use_ressource(IOT, activities_coordinates_mapping, use_categories, 
                         ressource_categories, balance_tolerance):
-    use_categories = _combine_category_coordinates(use_categories, 
-                                                   activities_coordinates_mapping,
-                                                   get_headers_from(IOT))
-    ressource_categories = _combine_category_coordinates(ressource_categories,
-                                                         activities_coordinates_mapping,
-                                                         get_headers_from(IOT))
-    uses = _slice(IOT, use_categories).sum()
-    ressources = _slice(IOT, ressource_categories).sum(axis=1)
-    balances = uses - ressources < balance_tolerance
+    use_ressource_activities_coordinates = list(map(lambda categories_list: _combine_category_coordinates(categories_list, 
+                                                                                              activities_coordinates_mapping, 
+                                                                                              get_headers_from(IOT)),
+                                                    [use_categories, ressource_categories]))
+    use_ressource_sum = _slice_and_sum(use_ressource_activities_coordinates, IOT)
+    balances = functools.reduce(operator.sub, use_ressource_sum) < balance_tolerance
     if not all(balances):
-        sys.stderr.write("Warning : unbalanced IOT"+linebreaker)
-        sys.stderr.write(', '.join([activities for activities, balanced in zip(use_categories[0], balances) if not balanced])+linebreaker)
+        sys.stderr.write("Warning : unbalanced IOT"+
+                         linebreaker+
+                         ', '.join([activities for activities, balanced in \
+                                    zip(use_ressource_activities_coordinates[0][0], balances) \
+                                    if not balanced])+
+                         linebreaker)
 
-def _combine_category_coordinates(category_to_combine, activities_coordinates_category_mapping, reference_headers):
-    expanded_headers = _map_category_to_activities(category_to_combine, 
-                                                   activities_coordinates_category_mapping)
-    expanded_merged_headers = functools.reduce(_merge_coordinates,
-                                               expanded_headers)
-    return list(map(lambda positional_header: _get_and_change_order_of(positional_header, reference_headers), expanded_merged_headers))
+def _combine_category_coordinates(category_to_combine, 
+                                  activities_coordinates_mapping, 
+                                  IOT_headers):
+    activities_coordinates_to_combine = _map_values_to_list(category_to_combine, 
+                                                            activities_coordinates_mapping)
+    merged_activities_coordinates = functools.reduce(_merge_coordinates,
+                                                     activities_coordinates_to_combine)
+    return list(map(lambda positional_coordinate: _get_and_change_order_of(positional_coordinate, 
+                                                                           IOT_headers), 
+                    merged_activities_coordinates))
+
+def _slice_and_sum(use_ressource_activities_coordinates, IOT):
+    use_ressource_sum = list()
+    for axis_index, activities_coordinates in enumerate(use_ressource_activities_coordinates):
+        use_ressource_sum.append(_slice(IOT, activities_coordinates).sum(axis=axis_index))
+    return use_ressource_sum
 
 def _merge_coordinates(first_coordinates, second_coordinates):
     merged_coordinates = list()
