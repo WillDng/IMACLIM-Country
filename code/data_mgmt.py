@@ -32,22 +32,22 @@ def get_filename_from(path):
 def read_activities_category_mapping(activities_mapping_path, delimiter='|', headers=None):
     """ Hypothesis : in first column are the names of the activities and in columns aggregates names """
     reader = _get_reader_from(activities_mapping_path, delimiter)
-    read_activities_category_mapping = collections.defaultdict(list)
-    for individual_description in reader:
-        individual = individual_description[0]
-        aggregates = individual_description[1:]
-        if not aggregates:
+    read_mapping = collections.defaultdict(list)
+    for activity_description in reader:
+        activity = activity_description[0]
+        categories = activity_description[1:]
+        if not categories:
             sys.stderr.write("Warning : delimiter might not be correctly informed in read_activities_category_mapping() for "+get_filename_from(activities_mapping_path)+linebreaker)
             return            
-        for aggregate in aggregates:
-            if individual not in read_activities_category_mapping[aggregate]:
-                read_activities_category_mapping[aggregate].append(individual)
+        for category in categories:
+            if activity not in read_mapping[category]:
+                read_mapping[category].append(activity)
             else:
                 pass
                 #FIXME should raise warning ?
     if headers:
-        read_activities_category_mapping = _change_activities_order_in(read_activities_category_mapping, headers)
-    return read_activities_category_mapping
+        read_mapping = _change_activities_order_in(read_mapping, headers)
+    return read_mapping
 
 def _get_reader_from(path, delimiter):
     return csv.reader(open(path), delimiter=delimiter)
@@ -127,8 +127,8 @@ def _get_dissimilar_coordinates_index(working_coordinates, reference_coordinates
 balance_tolerance = 1E-2
 
 def check_use_ressource(IOT, headers_grouping, use_headers, ressource_headers, tolerance=balance_tolerance):
-    use_headers = _consolidate_headers(use_headers, headers_grouping, get_headers_from(IOT))
-    ressource_headers = _consolidate_headers(ressource_headers, headers_grouping, get_headers_from(IOT))
+    use_headers = _combine_category_coordinates(use_headers, headers_grouping, get_headers_from(IOT))
+    ressource_headers = _combine_category_coordinates(ressource_headers, headers_grouping, get_headers_from(IOT))
     uses = _slice(IOT, use_headers).sum()
     ressources = _slice(IOT, ressource_headers).sum(axis=1)
     balances = uses - ressources < tolerance
@@ -136,8 +136,8 @@ def check_use_ressource(IOT, headers_grouping, use_headers, ressource_headers, t
         sys.stderr.write("Warning : unbalanced IOT"+linebreaker)
         sys.stderr.write(', '.join([activities for activities, balanced in zip(use_headers[0], balances) if not balanced])+linebreaker)
 
-def _consolidate_headers(headers_names, headers_grouping, reference_headers):
-    expanded_headers = _map_aggregate_to_activities(headers_names, headers_grouping)
+def _combine_category_coordinates(category_to_combine, activities_coordinates_category_mapping, reference_headers):
+    expanded_headers = _map_aggregate_to_activities(category_to_combine, activities_coordinates_category_mapping)
     expanded_merged_headers = functools.reduce(_merge_headers, expanded_headers)
     return list(map(lambda positional_header: _get_and_change_order_of(positional_header, reference_headers), expanded_merged_headers))
 

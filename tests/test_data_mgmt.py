@@ -135,11 +135,11 @@ def test_disaggregate_in_coordinates_category_mapping(category_coordinates, orde
     assert disaggregated_activities_coordinates_category_mapping == activities_coordinates_with_activities
 
 def test_disaggregate_coordinates(activities_coordinates_category_mapping):
-    expected_expanded_activities_grouping = {'I':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['I']],
-                                             'X':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['X']]}
-    generated_expanded_activities_grouping = data_mgmt._disaggregate_coordinates(activities_coordinates_category_mapping['FC'], 
-                                                                                 activities_coordinates_category_mapping['IC'])
-    assert generated_expanded_activities_grouping == expected_expanded_activities_grouping
+    new_activities_coordinates_category_mapping = {'I':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['I']],
+                                                   'X':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['X']]}
+    disaggregated_activities_coordinates_category_mapping = data_mgmt._disaggregate_coordinates(activities_coordinates_category_mapping['FC'], 
+                                                                                                activities_coordinates_category_mapping['IC'])
+    assert disaggregated_activities_coordinates_category_mapping == new_activities_coordinates_category_mapping
 
 def test_get_dissimilar_coordinates_index(activities_coordinates_category_mapping):
     assert data_mgmt._get_dissimilar_coordinates_index(activities_coordinates_category_mapping['FC'], activities_coordinates_category_mapping['IC']) == 1
@@ -151,11 +151,13 @@ def test_check_use_ressource_warns_when_unbalanced(part_IOT, activities_coordina
     captured = capsys.readouterr()
     assert captured.err == "Warning : unbalanced IOT"+linebreaker+"Crude_oil, Natural_gas"+linebreaker
 
-def test_consolidate_headers(activities_coordinates_category_mapping, IOT_part_headers):
-    expected_consolidated_headers = [['Coking_coal', 'Crude_oil', 'Natural_gas', 'Labour_Tax', 'Labour_income'],
-                                     ['Coking_coal', 'Crude_oil', 'Natural_gas']]
-    consolidated_headers = data_mgmt._consolidate_headers(['IC', 'OthPart_IOT'], activities_coordinates_category_mapping, IOT_part_headers)
-    assert consolidated_headers == expected_consolidated_headers
+def test_combine_category_coordinates(activities_coordinates_category_mapping, IOT_part_headers):
+    expected_consolidated_activities = [['Coking_coal', 'Crude_oil', 'Natural_gas', 'Labour_Tax', 'Labour_income'],
+                                        ['Coking_coal', 'Crude_oil', 'Natural_gas']]
+    consolidated_activities = data_mgmt._combine_category_coordinates(['IC', 'OthPart_IOT'], 
+                                                                      activities_coordinates_category_mapping,
+                                                                      IOT_part_headers)
+    assert consolidated_activities == expected_consolidated_activities
 
 IOT_activities_mapping_full_file_path = mock_data_dir+'ordered_activities_category_mapping.csv'
 
