@@ -64,16 +64,16 @@ def test_slice_warns_when_bad_activities_coordinates(full_IOT, capsys):
     assert captured.err == "Warning : IOT activities coordinates might be ill informed"+linebreaker
 
 @pytest.fixture()
-def category_coordinates():
-    category_coordinates = {'IC':['Commodities','Sectors'],
-                            'FC':['Commodities', 'FC'],
-                            'OthPart_IOT':['OthPart_IOT', 'Sectors']}
-    return category_coordinates
+def categories_coordinates():
+    categories_coordinates = {'IC':['Commodities','Sectors'],
+                              'FC':['Commodities', 'FC'],
+                              'OthPart_IOT':['OthPart_IOT', 'Sectors']}
+    return categories_coordinates
 
-def test_read_category_coordinates_from(category_coordinates):
-    category_coordinates_filepath = mock_data_dir + 'category_coordinates.csv'
-    read_category_coordinates = data_mgmt.read_category_coordinates_from(category_coordinates_filepath)
-    assert read_category_coordinates == category_coordinates
+def test_read_categories_coordinates(categories_coordinates):
+    categories_coordinates_filepath = mock_data_dir + 'categories_coordinates.csv'
+    read_categories_coordinates = data_mgmt.read_categories_coordinates_mapping(categories_coordinates_filepath)
+    assert read_categories_coordinates == categories_coordinates
 
 @pytest.fixture()
 def ill_ordered_activities():
@@ -114,8 +114,8 @@ def activities_coordinates_category_mapping():
                                                'OthPart_IOT':[['Labour_Tax', 'Labour_income'], ['Coking_coal', 'Crude_oil', 'Natural_gas']]}
     return activities_coordinates_category_mapping
     
-def test_map_category_to_activities(category_coordinates, ordered_activities_category_mapping, activities_coordinates_category_mapping):
-    mapped_activities_coordinates_category_mapping = data_mgmt.map_category_to_activities(category_coordinates, ordered_activities_category_mapping)
+def test_map_category_to_activities(categories_coordinates, ordered_activities_category_mapping, activities_coordinates_category_mapping):
+    mapped_activities_coordinates_category_mapping = data_mgmt.map_category_to_activities(categories_coordinates, ordered_activities_category_mapping)
     assert mapped_activities_coordinates_category_mapping == activities_coordinates_category_mapping
 
 def test_extract_IOTs_from(part_IOT, activities_coordinates_category_mapping, capsys):
@@ -123,7 +123,7 @@ def test_extract_IOTs_from(part_IOT, activities_coordinates_category_mapping, ca
     assert ((len(extracted_IOTs) == 3) & (not capsys.readouterr().err))
     #FIXME test too weak, might not be able to distinguish which assertions fails
 
-def test_disaggregate_in_coordinates_category_mapping(category_coordinates, ordered_activities_category_mapping, activities_coordinates_category_mapping):
+def test_disaggregate_in_coordinates_category_mapping(categories_coordinates, ordered_activities_category_mapping, activities_coordinates_category_mapping):
     activities_coordinates_with_activities = {'IC':[['Coking_coal', 'Crude_oil', 'Natural_gas'],['Coking_coal', 'Crude_oil', 'Natural_gas']],
                                               'FC':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['I', 'X']],
                                               'I':[['Coking_coal', 'Crude_oil', 'Natural_gas'], ['I']],
@@ -161,9 +161,9 @@ def test_combine_category_coordinates(activities_coordinates_category_mapping, I
 
 IOT_activities_mapping_full_file_path = mock_data_dir+'ordered_activities_category_mapping.csv'
 
-def test_check_use_ressource_balance(full_IOT, category_coordinates, capsys):
+def test_check_use_ressource_balance(full_IOT, categories_coordinates, capsys):
     IOT_full_activities_mapping = data_mgmt.read_activities_category_mapping(IOT_activities_mapping_full_file_path, delimiter=';')
-    expanded_grouping = data_mgmt.map_category_to_activities(category_coordinates, IOT_full_activities_mapping)
+    expanded_grouping = data_mgmt.map_category_to_activities(categories_coordinates, IOT_full_activities_mapping)
     ressources = ['IC', 'FC']
     uses = ['IC', 'OthPart_IOT']
     data_mgmt.check_use_ressource(full_IOT, expanded_grouping, uses, ressources)

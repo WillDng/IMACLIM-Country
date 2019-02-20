@@ -68,22 +68,22 @@ def _get_matching_header_for(unordered_activities, headers):
 def _change_order_of(unordered_activities, header):
     return sorted(unordered_activities, key=lambda individual:list(header).index(individual))
 
-def read_category_coordinates_from(path, delimiter='|'):
-    reader = _get_reader_from(path, delimiter)
-    grouping = dict()
+def read_categories_coordinates_mapping(mapping_path, delimiter='|'):
+    reader = _get_reader_from(mapping_path, delimiter)
+    read_mapping = dict()
     for row in reader:
-        key = row[0]
-        if key not in grouping:
-            grouping[row[0]] = row[1:]
+        category = row[0]
+        if category not in read_mapping:
+            read_mapping[row[0]] = row[1:]
         else:
-            sys.stderr.write("Warning : "+key+" already in grouping, check grouping file at "+path+linebreaker)
-    return grouping
+            sys.stderr.write("Warning : "+category+" already in categories coordinates mapping, check file at "+mapping_path+linebreaker)
+    return read_mapping
 
-def extract_IOTs_from(IOT, field_headers):
-    out_IOT = dict()
-    for var_name, field_header in field_headers.items():
-        out_IOT[var_name] = _slice(IOT, field_header)
-    return out_IOT
+def extract_IOTs_from(IOT, activities_category_mapping):
+    extracted_IOTs = dict()
+    for var_name, field_header in activities_category_mapping.items():
+        extracted_IOTs[var_name] = _slice(IOT, field_header)
+    return extracted_IOTs
 
 def map_category_to_activities(grouping, activities_mapping):
     expanded_grouping = dict()
