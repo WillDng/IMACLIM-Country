@@ -29,15 +29,15 @@ def get_headers_from(IOT):
 def get_filename_from(path):
     return path.split(dir_separator)[-1]
 
-def read_activities_category_mapping(activities_mapping_path, delimiter='|', headers=None):
+def read_activities_category_mapping(mapping_path, delimiter='|', headers=None):
     """ Hypothesis : in first column are the names of the activities and in columns aggregates names """
-    reader = _get_reader_from(activities_mapping_path, delimiter)
+    reader = _get_reader_from(mapping_path, delimiter)
     read_mapping = collections.defaultdict(list)
     for activity_description in reader:
         activity = activity_description[0]
         categories = activity_description[1:]
         if not categories:
-            sys.stderr.write("Warning : delimiter might not be correctly informed in read_activities_category_mapping() for "+get_filename_from(activities_mapping_path)+linebreaker)
+            sys.stderr.write("Warning : delimiter might not be correctly informed in read_activities_category_mapping() for "+get_filename_from(mapping_path)+linebreaker)
             return            
         for category in categories:
             if activity not in read_mapping[category]:
@@ -52,11 +52,11 @@ def read_activities_category_mapping(activities_mapping_path, delimiter='|', hea
 def _get_reader_from(path, delimiter):
     return csv.reader(open(path), delimiter=delimiter)
 
-def _change_activities_order_in(activities_category_mapping, reference_headers):
-    reordered_activities_category_mapping = dict()
-    for aggregate, activities in activities_category_mapping.items():
-        reordered_activities_category_mapping[aggregate] = _get_and_change_order_of(activities, reference_headers)
-    return reordered_activities_category_mapping
+def _change_activities_order_in(input_mapping, reference_headers):
+    reordered_mapping = dict()
+    for category, activities in input_mapping.items():
+        reordered_mapping[category] = _get_and_change_order_of(activities, reference_headers)
+    return reordered_mapping
 
 def _get_and_change_order_of(activities, reference_headers):
     reference_header = _get_matching_header_for(activities, reference_headers)
