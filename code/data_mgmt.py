@@ -18,7 +18,8 @@ def read_IOT(IOT_file_path, **kwargs):
                                index_col=0,
                                **kwargs)
     if read_IOT.empty:
-        sys.stderr.write("Warning : IOT delimiter might not be correctly informed in "+get_filename_from(IOT_file_path)+linebreaker)
+        sys.stderr.write("Warning : IOT delimiter might not be correctly informed in "+
+                         get_filename_from(IOT_file_path)+linebreaker)
     return read_IOT
 
 def get_header_from(IOT):
@@ -30,7 +31,7 @@ def get_headers_from(IOT):
 def get_filename_from(path):
     return path.split(dir_separator)[-1]
 
-def read_activities_category_mapping(mapping_path, delimiter='|', headers=None):
+def read_activities_mapping(mapping_path, delimiter='|', headers=None):
     """ Hypothesis : in first column are the names of the activities and in columns aggregates names """
     reader = _get_reader_from(mapping_path, delimiter)
     read_mapping = collections.defaultdict(list)
@@ -38,7 +39,8 @@ def read_activities_category_mapping(mapping_path, delimiter='|', headers=None):
         activity = activity_description[0]
         categories = activity_description[1:]
         if not categories:
-            sys.stderr.write("Warning : delimiter might not be correctly informed in read_activities_category_mapping() for "+get_filename_from(mapping_path)+linebreaker)
+            sys.stderr.write("Warning : delimiter might not be correctly informed in read_activities_mapping() for "+
+                             get_filename_from(mapping_path)+linebreaker)
             return            
         for category in categories:
             if activity not in read_mapping[category]:
@@ -56,7 +58,8 @@ def _get_reader_from(path, delimiter):
 def _change_activities_order_in(input_mapping, reference_headers):
     reordered_mapping = dict()
     for category, activities in input_mapping.items():
-        reordered_mapping[category] = _get_and_change_order_of(activities, reference_headers)
+        reordered_mapping[category] = _get_and_change_order_of(activities, 
+                                                               reference_headers)
     return reordered_mapping
 
 def _get_and_change_order_of(activities, reference_headers):
@@ -84,10 +87,10 @@ def read_categories_coordinates_mapping(mapping_path, delimiter='|'):
                              check file at "+mapping_path+linebreaker)
     return read_mapping
 
-def extract_IOTs_from(IOT, activities_category_mapping):
+def extract_IOTs_from(IOT, activities_coordinates_mapping):
     extracted_IOTs = dict()
-    for var_name, field_header in activities_category_mapping.items():
-        extracted_IOTs[var_name] = _slice(IOT, field_header)
+    for category, activities_coordinates in activities_coordinates_mapping.items():
+        extracted_IOTs[category] = _slice(IOT, activities_coordinates)
     return extracted_IOTs
 
 def _slice(IOT, activities_coordinates):
@@ -99,10 +102,11 @@ def _slice(IOT, activities_coordinates):
     return sliced_IOT
 
 def map_categories_to_activities_coordinates(category_coordinates, 
-                                             activities_category_mapping):
+                                             activities_mapping):
     activities_coordinates = dict()
     for category, categories_coordinates in category_coordinates.items():
-        activities_coordinates[category] = _map_values_to_list(categories_coordinates, activities_category_mapping)
+        activities_coordinates[category] = _map_values_to_list(categories_coordinates,
+                                                               activities_mapping)
     return activities_coordinates
 
 def _map_values_to_list(input_list, mapping_dictionary):
@@ -114,12 +118,12 @@ def _map_values_to_list(input_list, mapping_dictionary):
 to_expand_variables = ['FC', 'OthPart_IOT']
 reference_variable = 'IC'
 
-def disaggregate_in_coordinates_category_mapping(coordinates_category_mapping):
-    new_coordinates_category_mapping = copy.deepcopy(coordinates_category_mapping)
+def disaggregate_in_coordinates_mapping(coordinates_mapping):
+    new_coordinates_mapping = copy.deepcopy(coordinates_mapping)
     for to_expand_variable in to_expand_variables:
-        new_coordinates_category_mapping.update(_disaggregate_coordinates(coordinates_category_mapping[to_expand_variable], 
-                                                                                          coordinates_category_mapping[reference_variable]))
-    return new_coordinates_category_mapping
+        new_coordinates_mapping.update(_disaggregate_coordinates(coordinates_mapping[to_expand_variable], 
+                                                                 coordinates_mapping[reference_variable]))
+    return new_coordinates_mapping
 
 def _disaggregate_coordinates(to_expand_coordinates, reference_coordinates):
     different_index = _get_dissimilar_coordinates_index(to_expand_coordinates, reference_coordinates)
@@ -138,8 +142,8 @@ def _get_dissimilar_coordinates_index(working_coordinates, reference_coordinates
 def check_use_ressource(IOT, activities_coordinates_mapping, use_categories, 
                         ressource_categories, balance_tolerance):
     use_ressource_activities_coordinates = list(map(lambda categories_list: _combine_category_coordinates(categories_list, 
-                                                                                              activities_coordinates_mapping, 
-                                                                                              get_headers_from(IOT)),
+                                                                                                          activities_coordinates_mapping, 
+                                                                                                          get_headers_from(IOT)),
                                                     [use_categories, ressource_categories]))
     use_ressource_sum = _slice_and_sum(use_ressource_activities_coordinates, IOT)
     balances = functools.reduce(operator.sub, use_ressource_sum) < balance_tolerance
