@@ -70,16 +70,22 @@ def test_slice_warns_when_bad_activities_coordinates(full_IOT, capsys):
                             ' returned empty values'+linebreaker
 
 @pytest.fixture()
-def categories_coordinates():
-    categories_coordinates = {'IC':['Commodities','Sectors'],
+def categories_coordinates_mapping():
+    categories_coordinates_mapping = {'IC':['Commodities','Sectors'],
                               'FC':['Commodities', 'FC'],
                               'OthPart_IOT':['OthPart_IOT', 'Sectors']}
-    return categories_coordinates
+    return categories_coordinates_mapping
 
-def test_read_categories_coordinates(categories_coordinates):
-    categories_coordinates_filepath = mock_data_dir + 'categories_coordinates.csv'
-    read_categories_coordinates = data_mgmt.read_categories_coordinates_mapping(categories_coordinates_filepath)
-    assert read_categories_coordinates == categories_coordinates
+categories_coordinates_mapping_filepath = mock_data_dir + 'categories_coordinates_mapping.csv'
+
+def test_read_categories_coordinates_mapping(categories_coordinates_mapping):
+    assert data_mgmt.read_categories_coordinates_mapping(categories_coordinates_mapping_filepath) == categories_coordinates_mapping
+
+def test_read_categories_coordinates_warns_when_bad_delimiter(categories_coordinates_mapping, capsys):
+    data_mgmt.read_categories_coordinates_mapping(categories_coordinates_mapping_filepath, delimiter=';')
+    captured = capsys.readouterr()
+    assert captured.err == "Warning : delimiter might not be correctly informed in read_categories_coordinates_mapping() for "+\
+                           data_mgmt.get_filename_from(categories_coordinates_mapping_filepath)+linebreaker
 
 @pytest.fixture()
 def ill_ordered_activities():
@@ -126,10 +132,10 @@ def activities_coordinates_mapping():
                                                      ['Coking_coal', 'Crude_oil', 'Natural_gas']]}
     return activities_coordinates_mapping
     
-def test_map_categories_to_activities_coordinates(categories_coordinates, 
+def test_map_categories_to_activities_coordinates(categories_coordinates_mapping, 
                                                   ordered_activities_mapping, 
                                                   activities_coordinates_mapping):
-    mapped_activities_coordinates_mapping = data_mgmt.map_categories_to_activities_coordinates(categories_coordinates, 
+    mapped_activities_coordinates_mapping = data_mgmt.map_categories_to_activities_coordinates(categories_coordinates_mapping, 
                                                                                                ordered_activities_mapping)
     assert mapped_activities_coordinates_mapping == activities_coordinates_mapping
 
@@ -139,7 +145,7 @@ def test_extract_IOTs_from(part_IOT, activities_coordinates_mapping, capsys):
     assert ((len(extracted_IOTs) == 3) & (not capsys.readouterr().err))
     #FIXME test too weak, might not be able to distinguish which assertions fails
 
-def test_disaggregate_in_coordinates_mapping(categories_coordinates, 
+def test_disaggregate_in_coordinates_mapping(categories_coordinates_mapping, 
                                              ordered_activities_mapping, 
                                              activities_coordinates_mapping):
     activities_coordinates_with_activities = {'IC':[['Coking_coal', 'Crude_oil', 'Natural_gas'],
@@ -210,12 +216,12 @@ def test_combine_category_coordinates(activities_coordinates_mapping, IOT_part_h
 
 activities_mapping_full_file_path = mock_data_dir+'ordered_activities_mapping.csv'
 
-def test_check_use_ressource_balance(full_IOT, categories_coordinates,
+def test_check_use_ressource_balance(full_IOT, categories_coordinates_mapping,
                                      use_categories, ressource_categories,
                                      balance_tolerance, capsys):
     activities_mapping_full = data_mgmt.read_activities_mapping(activities_mapping_full_file_path, 
                                                                 delimiter=';')
-    activities_coordinates_mapping = data_mgmt.map_categories_to_activities_coordinates(categories_coordinates, 
+    activities_coordinates_mapping = data_mgmt.map_categories_to_activities_coordinates(categories_coordinates_mapping, 
                                                                                         activities_mapping_full)
     data_mgmt.check_use_ressource(full_IOT, activities_coordinates_mapping, 
                                   use_categories, ressource_categories,

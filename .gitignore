@@ -1,3 +1,6 @@
+~*
 .~lock*
 *.pyc
 data/temp_data
+data/new_format
+code/Loading_data.py

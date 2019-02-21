@@ -50,7 +50,7 @@ def read_activities_mapping(mapping_path, delimiter='|', headers=None):
                 #FIXME should raise warning ?
     if headers:
         read_mapping = _change_activities_order_in(read_mapping, headers)
-    return read_mapping
+    return dict(read_mapping)
 
 def _get_reader_from(path, delimiter):
     return csv.reader(open(path), delimiter=delimiter)
@@ -80,7 +80,12 @@ def read_categories_coordinates_mapping(mapping_path, delimiter='|'):
     for row in reader:
         category = row[0]
         if category not in read_mapping:
-            read_mapping[row[0]] = row[1:]
+            coordinates = row[1:]
+            if not coordinates:
+                sys.stderr.write("Warning : delimiter might not be correctly informed in read_categories_coordinates_mapping() for "+
+                                 get_filename_from(mapping_path)+linebreaker)
+                break           
+            read_mapping[row[0]] = coordinates
         else:
             sys.stderr.write("Warning : "+category+
                              " already in categories coordinates mapping, \
@@ -101,10 +106,10 @@ def _slice(IOT, activities_coordinates):
                          ' returned empty values'+linebreaker)
     return sliced_IOT
 
-def map_categories_to_activities_coordinates(category_coordinates, 
+def map_categories_to_activities_coordinates(category_coordinates_mapping, 
                                              activities_mapping):
     activities_coordinates = dict()
-    for category, categories_coordinates in category_coordinates.items():
+    for category, categories_coordinates in category_coordinates_mapping.items():
         activities_coordinates[category] = _map_values_to_list(categories_coordinates,
                                                                activities_mapping)
     return activities_coordinates
@@ -112,7 +117,10 @@ def map_categories_to_activities_coordinates(category_coordinates,
 def _map_values_to_list(input_list, mapping_dictionary):
     output_list = list()
     for element_key in input_list:
-        output_list.append(mapping_dictionary[element_key])
+        try:
+            output_list.append(mapping_dictionary[element_key])
+        except KeyError:
+            sys.stderr.write(element_key+" not in mapping, please check")
     return output_list
 
 def disaggregate_in_coordinates_mapping(coordinates_mapping, to_expand_categories, reference_category):
@@ -143,12 +151,13 @@ def check_use_ressource(IOT, activities_coordinates_mapping, use_categories,
                                                                                                           get_headers_from(IOT)),
                                                     [use_categories, ressource_categories]))
     use_ressource_sum = _slice_and_sum(use_ressource_activities_coordinates, IOT)
-    balances = functools.reduce(operator.sub, use_ressource_sum) < balance_tolerance
-    if not all(balances):
+    difference = functools.reduce(operator.sub, use_ressource_sum)
+    is_balanced =  difference < balance_tolerance
+    if not all(is_balanced):
         sys.stderr.write("Warning : unbalanced IOT"+
                          linebreaker+
                          ', '.join([activities for activities, balanced in \
-                                    zip(use_ressource_activities_coordinates[0][0], balances) \
+                                    zip(use_ressource_activities_coordinates[0][0], is_balanced) \
                                     if not balanced])+
                          linebreaker)
 
