@@ -45,8 +45,23 @@ def test_read_activities_mapping(activities_mapping_part):
                                                                 delimiter=';')
     assert read_activities_mapping == activities_mapping_part
 
-def test_read_activities_mapping_warns_when_bad_delimiter(capsys):
-    data_mgmt.read_activities_mapping(activities_mapping_part_file_path)
+def test_parse_activities_mapping(activities_mapping_part):
+    activities_mapping = [['Crude_oil','Commodities','EnerSect'],
+                          ['Natural_gas','Commodities','EnerSect'],
+                          ['Coking_coal','Commodities','EnerSect'],
+                          ['Labour_income','OthPart_IOT','Value_Added'],
+                          ['Labour_Tax','OthPart_IOT','Value_Added'],
+                          ['Crude_oil','Sectors','NonSupplierSect'],
+                          ['Natural_gas','Sectors','NonSupplierSect'],
+                          ['Coking_coal','Sectors','NonSupplierSect'],
+                          ['I','FC'],
+                          ['X','FC'],]
+    assert data_mgmt._aggregate_activities(activities_mapping) == activities_mapping_part
+
+def test_warns_if_bad_delimiter(capsys):
+    file_content = [['Crude_oil;Commodities;EnerSect'],
+                    ['Natural_gas;Commodities;EnerSect']]
+    data_mgmt._warns_if_bad_delimiter(file_content, activities_mapping_part_file_path)
     captured = capsys.readouterr()
     assert captured.err == "Warning : delimiter might not be correctly informed in read_activities_mapping() for "+\
                             data_mgmt.get_filename_from(activities_mapping_part_file_path)+\

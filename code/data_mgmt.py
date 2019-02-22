@@ -1,5 +1,6 @@
 # coding : utf-8
 
+from typing import Iterable, Dict, List
 import os
 import sys
 import collections
@@ -31,42 +32,47 @@ def get_headers_from(IOT):
 def get_filename_from(path):
     return path.split(dir_separator)[-1]
 
-def read_activities_mapping(mapping_path, delimiter='|', headers=None):
+def read_activities_mapping(mapping_path: str, delimiter='|', headers: List[List[str]]=None) -> Dict[str,List[str]]:
     """ Hypothesis : in first column are the names of the activities and in columns aggregates names """
-    reader = _get_reader_from(mapping_path, delimiter)
+    mapping_raw_data = _read_csv(mapping_path, delimiter)
+    _warns_if_bad_delimiter(mapping_raw_data, mapping_path)
+    read_mapping = _aggregate_activities(mapping_raw_data)
+    if headers:
+        read_mapping = _change_activities_order_in(read_mapping, headers)
+    return read_mapping
+
+def _aggregate_activities(activities_mapping: List[List[str]]) -> Dict[str,List[str]]:
     read_mapping = collections.defaultdict(list)
-    for activity_description in reader:
-        activity = activity_description[0]
-        categories = activity_description[1:]
-        if not categories:
-            sys.stderr.write("Warning : delimiter might not be correctly informed in read_activities_mapping() for "+
-                             get_filename_from(mapping_path)+linebreaker)
-            return            
+    for activity_description in activities_mapping:
+        activity, categories = activity_description[0], activity_description[1:]
         for category in categories:
             if activity not in read_mapping[category]:
                 read_mapping[category].append(activity)
             else:
                 pass
                 #FIXME should raise warning ?
-    if headers:
-        read_mapping = _change_activities_order_in(read_mapping, headers)
     return dict(read_mapping)
 
-def _get_reader_from(path, delimiter):
-    return csv.reader(open(path), delimiter=delimiter)
+def _read_csv(path: str, delimiter: str) -> List[List[str]]:
+    return list(csv.reader(open(path), delimiter=delimiter))
 
-def _change_activities_order_in(input_mapping, reference_headers):
+def _warns_if_bad_delimiter(file_content: List[List], file_path: str):
+    if len(file_content[0]) == 1:
+            sys.stderr.write("Warning : delimiter might not be correctly informed in read_activities_mapping() for "+
+                             get_filename_from(file_path)+linebreaker)
+
+def _change_activities_order_in(input_mapping: List[List[str]], reference_headers: List[List[str]]) -> List[List[str]]:
     reordered_mapping = dict()
     for category, activities in input_mapping.items():
         reordered_mapping[category] = _get_and_change_order_of(activities, 
                                                                reference_headers)
     return reordered_mapping
 
-def _get_and_change_order_of(activities, reference_headers):
+def _get_and_change_order_of(activities: List[str], reference_headers: List[List[str]]) -> List[str]:
     reference_header = _get_matching_header_for(activities, reference_headers)
     return _change_order_of(activities, reference_header)
 
-def _get_matching_header_for(unordered_activities, headers):
+def _get_matching_header_for(unordered_activities: List[str], headers: List[List[str]]) -> List[str]:
     return max(headers, 
                key=lambda header: len(np.intersect1d(unordered_activities, header)))
 
@@ -75,7 +81,7 @@ def _change_order_of(unordered_activities, header):
                   key=lambda individual:list(header).index(individual))
 
 def read_categories_coordinates_mapping(mapping_path, delimiter='|'):
-    reader = _get_reader_from(mapping_path, delimiter)
+    reader = _read_csv(mapping_path, delimiter)
     read_mapping = dict()
     for row in reader:
         category = row[0]
