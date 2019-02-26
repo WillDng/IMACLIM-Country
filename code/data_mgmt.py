@@ -35,7 +35,6 @@ def get_filename_from(path):
 def read_activities_mapping(mapping_path: str, delimiter='|', headers: List[List[str]]=None) -> Dict[str,List[str]]:
     """ Hypothesis : in first column are the names of the activities and in columns aggregates names """
     mapping_raw_data = _read_csv(mapping_path, delimiter)
-    _warns_if_bad_delimiter(mapping_raw_data, mapping_path)
     read_mapping = _aggregate_activities(mapping_raw_data)
     if headers:
         read_mapping = _change_activities_order_in(read_mapping, headers)
@@ -54,11 +53,14 @@ def _aggregate_activities(activities_mapping: List[List[str]]) -> Dict[str,List[
     return dict(read_mapping)
 
 def _read_csv(path: str, delimiter: str) -> List[List[str]]:
-    return list(csv.reader(open(path), delimiter=delimiter))
+    mapping_raw_data = list(csv.reader(open(path), delimiter=delimiter))
+    _warns_if_bad_delimiter(mapping_raw_data, path)
+    return mapping_raw_data
 
 def _warns_if_bad_delimiter(file_content: List[List], file_path: str):
+    callers_caller = sys._getframe(3).f_code.co_name
     if len(file_content[0]) == 1:
-            sys.stderr.write("Warning : delimiter might not be correctly informed in read_activities_mapping() for "+
+            sys.stderr.write("Warning : delimiter might not be correctly informed in "+ callers_caller +"() for "+
                              get_filename_from(file_path)+linebreaker)
 
 def _change_activities_order_in(input_mapping: List[List[str]], reference_headers: List[List[str]]) -> List[List[str]]:
@@ -81,9 +83,9 @@ def _change_order_of(unordered_activities, header):
                   key=lambda individual:list(header).index(individual))
 
 def read_categories_coordinates_mapping(mapping_path, delimiter='|'):
-    reader = _read_csv(mapping_path, delimiter)
+    mapping_raw_data = _read_csv(mapping_path, delimiter)
     read_mapping = dict()
-    for row in reader:
+    for row in mapping_raw_data:
         category = row[0]
         if category not in read_mapping:
             coordinates = row[1:]

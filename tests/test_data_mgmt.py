@@ -5,6 +5,7 @@ import pytest
 import pandas as pd
 from code import data_mgmt
 from code.data_mgmt import linebreaker
+import sys
 
 mock_data_dir = 'tests/mock_data/'
 part_IOT_path = mock_data_dir+'IOT_part.csv'
@@ -20,13 +21,6 @@ def part_IOT():
                          [0, 9044.45950877, 556606.98333951, 0, 0], 
                          [0, 20587.91760946, 1267005.36419441, 0, 0]])
     return pd.DataFrame(IOT_data, index=IOT_ressources, columns=IOT_uses)
-
-def test_read_IOT_warns_when_bad_delimiter(capsys):
-    data_mgmt.read_IOT(part_IOT_path)
-    captured = capsys.readouterr()
-    assert captured.err == "Warning : IOT delimiter might not be correctly informed in "+\
-                            data_mgmt.get_filename_from(part_IOT_path)+\
-                            linebreaker
 
 @pytest.fixture()
 def activities_mapping_part():
@@ -61,9 +55,11 @@ def test_parse_activities_mapping(activities_mapping_part):
 def test_warns_if_bad_delimiter(capsys):
     file_content = [['Crude_oil;Commodities;EnerSect'],
                     ['Natural_gas;Commodities;EnerSect']]
+    function_name = "read_activities_mapping"
     data_mgmt._warns_if_bad_delimiter(file_content, activities_mapping_part_file_path)
+    function_name = sys._getframe(2).f_code.co_name
     captured = capsys.readouterr()
-    assert captured.err == "Warning : delimiter might not be correctly informed in read_activities_mapping() for "+\
+    assert captured.err == "Warning : delimiter might not be correctly informed in "+ function_name +"() for "+\
                             data_mgmt.get_filename_from(activities_mapping_part_file_path)+\
                             linebreaker
 
@@ -95,12 +91,6 @@ categories_coordinates_mapping_filepath = mock_data_dir + 'categories_coordinate
 
 def test_read_categories_coordinates_mapping(categories_coordinates_mapping):
     assert data_mgmt.read_categories_coordinates_mapping(categories_coordinates_mapping_filepath) == categories_coordinates_mapping
-
-def test_read_categories_coordinates_warns_when_bad_delimiter(categories_coordinates_mapping, capsys):
-    data_mgmt.read_categories_coordinates_mapping(categories_coordinates_mapping_filepath, delimiter=';')
-    captured = capsys.readouterr()
-    assert captured.err == "Warning : delimiter might not be correctly informed in read_categories_coordinates_mapping() for "+\
-                           data_mgmt.get_filename_from(categories_coordinates_mapping_filepath)+linebreaker
 
 @pytest.fixture()
 def ill_ordered_activities():
