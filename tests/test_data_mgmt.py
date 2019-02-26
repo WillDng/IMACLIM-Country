@@ -8,7 +8,6 @@ from code.data_mgmt import linebreaker
 import sys
 
 mock_data_dir = 'tests/mock_data/'
-part_IOT_path = mock_data_dir+'IOT_part.csv'
 IOT_delimiter = ';'
 
 @pytest.fixture()
@@ -32,13 +31,12 @@ def activities_mapping_part():
             'Value_Added':['Labour_income', 'Labour_Tax'],
             'NonSupplierSect':['Crude_oil', 'Natural_gas', 'Coking_coal']}
 
-activities_mapping_part_file_path = mock_data_dir+'activities_mapping_part.csv'
 
-def test_read_activities_mapping(activities_mapping_part):
-    read_activities_mapping = data_mgmt.read_activities_mapping(activities_mapping_part_file_path, 
-                                                                delimiter=';')
-    assert read_activities_mapping == activities_mapping_part
-
+# def test_read_activities_mapping(activities_mapping_part):
+#     read_activities_mapping = data_mgmt.read_activities_mapping(activities_mapping_part_file_path, 
+#                                                                 delimiter=';')
+#     assert read_activities_mapping == activities_mapping_part
+# 
 def test_parse_activities_mapping(activities_mapping_part):
     activities_mapping = [['Crude_oil','Commodities','EnerSect'],
                           ['Natural_gas','Commodities','EnerSect'],
@@ -55,13 +53,12 @@ def test_parse_activities_mapping(activities_mapping_part):
 def test_warns_if_bad_delimiter(capsys):
     file_content = [['Crude_oil;Commodities;EnerSect'],
                     ['Natural_gas;Commodities;EnerSect']]
-    function_name = "read_activities_mapping"
-    data_mgmt._warns_if_bad_delimiter(file_content, activities_mapping_part_file_path)
-    function_name = sys._getframe(2).f_code.co_name
+    file_path = 'path/to/file.csv'
+    data_mgmt._warns_if_bad_delimiter(file_content, file_path)
+    callers_name = sys._getframe(2).f_code.co_name
     captured = capsys.readouterr()
-    assert captured.err == "Warning : delimiter might not be correctly informed in "+ function_name +"() for "+\
-                            data_mgmt.get_filename_from(activities_mapping_part_file_path)+\
-                            linebreaker
+    assert captured.err == "Warning : delimiter might not be correctly informed in "+\
+                            callers_name+"() for file.csv"+linebreaker
 
 full_IOT_path = mock_data_dir+'IOT_Val.csv'
 
@@ -83,14 +80,20 @@ def test_slice_warns_when_bad_activities_coordinates(full_IOT, capsys):
 @pytest.fixture()
 def categories_coordinates_mapping():
     categories_coordinates_mapping = {'IC':['Commodities','Sectors'],
-                              'FC':['Commodities', 'FC'],
-                              'OthPart_IOT':['OthPart_IOT', 'Sectors']}
+                                      'FC':['Commodities', 'FC'],
+                                      'OthPart_IOT':['OthPart_IOT', 'Sectors']}
     return categories_coordinates_mapping
 
-categories_coordinates_mapping_filepath = mock_data_dir + 'categories_coordinates_mapping.csv'
+# categories_coordinates_mapping_filepath = mock_data_dir + 'categories_coordinates_mapping.csv'
 
-def test_read_categories_coordinates_mapping(categories_coordinates_mapping):
-    assert data_mgmt.read_categories_coordinates_mapping(categories_coordinates_mapping_filepath) == categories_coordinates_mapping
+# def test_read_categories_coordinates_mapping(categories_coordinates_mapping):
+#     assert data_mgmt.read_categories_coordinates_mapping(categories_coordinates_mapping_filepath) == categories_coordinates_mapping
+
+def test_map_categories_to_coordinates(categories_coordinates_mapping):
+    categories_coordinates_mapping_data = [['IC', 'Commodities', 'Sectors'],
+                                           ['FC', 'Commodities', 'FC'],
+                                           ['OthPart_IOT', 'OthPart_IOT', 'Sectors']]
+    assert data_mgmt._map_categories_to_coordinates(categories_coordinates_mapping_data) == categories_coordinates_mapping
 
 @pytest.fixture()
 def ill_ordered_activities():

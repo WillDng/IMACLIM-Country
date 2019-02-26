@@ -250,7 +250,6 @@ for elt=1:nb_OthPart_IOT
         varname = Index_OthPart_IOT(elt);
         initial_value.Value_Added(indicEltVA,:)=initial_value.OthPart_IOT(elt,:);
         execstr ("initial_value."+varname+"=initial_value.OthPart_IOT(elt,:);");
-        pause
         indicEltVA = 1 + indicEltVA;
 
     else if find(Index_OthPart_IOT(elt)==Index_SpeMarg) <> []

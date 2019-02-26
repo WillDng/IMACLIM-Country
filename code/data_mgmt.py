@@ -84,16 +84,15 @@ def _change_order_of(unordered_activities, header):
 
 def read_categories_coordinates_mapping(mapping_path, delimiter='|'):
     mapping_raw_data = _read_csv(mapping_path, delimiter)
+    read_mapping = _map_categories_to_coordinates(mapping_raw_data)
+    return read_mapping
+
+def _map_categories_to_coordinates(coordinates_mapping: List[List[str]]) -> Dict[str, List[str]]:
     read_mapping = dict()
-    for row in mapping_raw_data:
+    for row in coordinates_mapping:
         category = row[0]
         if category not in read_mapping:
-            coordinates = row[1:]
-            if not coordinates:
-                sys.stderr.write("Warning : delimiter might not be correctly informed in read_categories_coordinates_mapping() for "+
-                                 get_filename_from(mapping_path)+linebreaker)
-                break           
-            read_mapping[row[0]] = coordinates
+            read_mapping[row[0]] = row[1:]
         else:
             sys.stderr.write("Warning : "+category+
                              " already in categories coordinates mapping, \
@@ -154,20 +153,26 @@ def _get_dissimilar_coordinates_index(working_coordinates, reference_coordinates
 
 def check_use_ressource(IOT, activities_coordinates_mapping, use_categories, 
                         ressource_categories, balance_tolerance):
-    use_ressource_activities_coordinates = list(map(lambda categories_list: _combine_category_coordinates(categories_list, 
+    use_activities_coordinates, ressource_activities_coordinates = map(lambda categories_list: _combine_category_coordinates(categories_list, 
                                                                                                           activities_coordinates_mapping, 
                                                                                                           get_headers_from(IOT)),
-                                                    [use_categories, ressource_categories]))
-    use_ressource_sum = _slice_and_sum(use_ressource_activities_coordinates, IOT)
-    difference = functools.reduce(operator.sub, use_ressource_sum)
+                                                                       [use_categories, ressource_categories])
+    difference = get_use_ressource_difference(IOT, use_activities_coordinates, ressource_activities_coordinates)
     is_balanced =  difference < balance_tolerance
     if not all(is_balanced):
+        studied_activities = _combine_category_coordinates(use_categories, activities_coordinates_mapping, get_headers_from(IOT))[0]
         sys.stderr.write("Warning : unbalanced IOT"+
                          linebreaker+
                          ', '.join([activities for activities, balanced in \
-                                    zip(use_ressource_activities_coordinates[0][0], is_balanced) \
+                                    zip(studied_activities, is_balanced) \
                                     if not balanced])+
                          linebreaker)
+
+
+def get_use_ressource_difference(IOT, use_activities_coordinates, ressource_activities_coordinates):
+    use_ressource_sum = _slice_and_sum(use_activities_coordinates, ressource_activities_coordinates, IOT)
+    difference = functools.reduce(operator.sub, use_ressource_sum)
+    return difference
 
 def _combine_category_coordinates(category_to_combine, 
                                   activities_coordinates_mapping, 
@@ -180,9 +185,9 @@ def _combine_category_coordinates(category_to_combine,
                                                                            IOT_headers), 
                     merged_activities_coordinates))
 
-def _slice_and_sum(use_ressource_activities_coordinates, IOT):
+def _slice_and_sum(use_activities_coordinates, ressource_activities_coordinates, IOT):
     use_ressource_sum = list()
-    for axis_index, activities_coordinates in enumerate(use_ressource_activities_coordinates):
+    for axis_index, activities_coordinates in enumerate([use_activities_coordinates, ressource_activities_coordinates]):
         use_ressource_sum.append(_slice(IOT, activities_coordinates).sum(axis=axis_index))
     return use_ressource_sum
 
@@ -191,3 +196,5 @@ def _merge_coordinates(first_coordinates, second_coordinates):
     for first_positional_coordinate, second_positional_coordinate in zip(first_coordinates, second_coordinates):
         merged_coordinates.append(list(set(first_positional_coordinate+second_positional_coordinate)))
     return merged_coordinates
+
+# def get_ERE():
