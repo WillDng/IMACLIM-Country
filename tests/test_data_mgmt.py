@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import pandas as pd
 from code import data_mgmt
-from code.data_mgmt import linebreaker
+from code.parameters import linebreaker
 import sys
 
 mock_data_dir = 'tests/mock_data/'
@@ -60,9 +60,8 @@ def test_warns_if_bad_delimiter(capsys):
     file_path = 'path/to/file.csv'
     data_mgmt._warns_if_bad_delimiter(file_content, file_path)
     callers_name = sys._getframe(2).f_code.co_name
-    captured = capsys.readouterr()
-    assert captured.err == "Warning : delimiter might not be correctly informed in " + \
-                           callers_name + "() for file.csv" + linebreaker
+    assert capsys.readouterr().err == "Warning : delimiter might not be correctly informed in " + \
+                                      callers_name + "() for file.csv" + linebreaker
 
 
 full_IOT_path = mock_data_dir + 'IOT_Val.csv'
@@ -89,9 +88,8 @@ def test_slice_activities(part_IOT):
 def test_check_coordinates_in_IOT(part_IOT, capsys):
     bad_coordinates = [['Crude_oil', 'Natural_gas'], ['Natural_gas', 'Labour_Tax']]
     data_mgmt._check_coordinates_in_IOT(part_IOT, bad_coordinates)
-    captured = capsys.readouterr()
-    assert captured.err == "Warning : wrong coordinates" + linebreaker + \
-                           "Labour_Tax not in columns" + linebreaker
+    assert capsys.readouterr().err == "Warning : wrong coordinates" + linebreaker + \
+                                      "Labour_Tax not in columns" + linebreaker
 
 
 @pytest.fixture()
@@ -226,11 +224,6 @@ def test_get_dissimilar_coordinates_index(activities_coordinates_mapping):
                                                        activities_coordinates_mapping['IC']) == 1
 
 
-@pytest.fixture()
-def balance_tolerance():
-    return 1E-2
-
-
 # @pytest.fixture()
 # def use_categories():
 #     return ['IC', 'OthPart_IOT']
@@ -287,13 +280,20 @@ def test_slice_and_sum(part_IOT):
                                    expected_sum)
 
 
-# def test_is_IOT_balanced(full_IOT, capsys)
 def test_get_ERE(full_IOT, activities_coordinates_with_activities):
     expected_ERE = pd.Series(np.array([19609.61370695, 11920.71802629, -40048.59665631]),
-                             index=['Coking_coal', 'Crude_oil', 'Natural_gas']).rename_axis('Values')
+                             index=['Coking_coal', 'Crude_oil', 'Natural_gas'])
     use_categories = ['IC', 'Labour_Tax']
     ressource_categories = ['IC', 'FC']
     pd.testing.assert_series_equal(data_mgmt.get_ERE(use_categories, ressource_categories,
                                                      full_IOT, activities_coordinates_with_activities),
                                    expected_ERE,
                                    check_names=False)
+
+
+def test_ERE_not_balanced(full_IOT, capsys):
+    unbalanced_ERE = pd.Series(np.array([0.5, 0., -40048.59665631]),
+                               index=['Coking_coal', 'Crude_oil', 'Natural_gas'])
+    data_mgmt.is_ERE_balanced(unbalanced_ERE)
+    assert capsys.readouterr().err == "Warning : unbalanced IOT" + linebreaker + \
+                                      "Coking_coal, Natural_gas" + linebreaker

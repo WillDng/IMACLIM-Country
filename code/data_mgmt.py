@@ -1,7 +1,6 @@
 # coding : utf-8
 
 from typing import Dict, List
-import os
 import sys
 import collections
 import copy
@@ -10,9 +9,7 @@ import functools
 import numpy as np
 import operator
 import pandas as pd
-
-linebreaker = '\n'
-dir_separator = os.sep
+from code.parameters import (linebreaker, dir_separator, IOT_balance_tolerance)
 
 
 def read_IOT(IOT_file_path, **kwargs):
@@ -20,7 +17,7 @@ def read_IOT(IOT_file_path, **kwargs):
                            index_col=0,
                            **kwargs)
     if read_IOT.empty:
-        sys.stderr.write("Warning : IOT delimiter might not be correctly informed in "+
+        sys.stderr.write("Warning : IOT delimiter might not be correctly informed in " +
                          get_filename_from(IOT_file_path) + linebreaker)
     return read_IOT
 
@@ -239,7 +236,7 @@ def slice_and_sum(IOT: pd.DataFrame, activities_coordinates: List[List[str]], ax
 
 
 def get_ERE(use_categories: List[str], ressource_categories: List[str],
-            IOT, coordinates_mapping: Dict[str, List[List[str]]]) -> pd.Series:
+            IOT: pd.DataFrame, coordinates_mapping: Dict[str, List[List[str]]]) -> pd.Series:
     # temp = map(lambda category: slice_and_sum(IOT,
     #                                           coordinates_mapping[category]),
     #            use_categories)
@@ -251,3 +248,10 @@ def get_ERE(use_categories: List[str], ressource_categories: List[str],
                                                                                    axis=1),
                                                     ressource_categories))
     return ressources - uses
+
+
+def is_ERE_balanced(ERE: pd.Series):
+    is_balanced = abs(ERE) < IOT_balance_tolerance
+    if not all(is_balanced):
+        sys.stderr.write("Warning : unbalanced IOT" + linebreaker +
+                         ', '.join(ERE.index[~is_balanced]) + linebreaker)
