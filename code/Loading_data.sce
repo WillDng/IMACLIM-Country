@@ -1,9 +1,9 @@
 //////  Copyright or © or Copr. Ecole des Ponts ParisTech / CNRS 2018
 //////  Main Contributor (2017) : Gaëlle Le Treut / letreut[at]centre-cired.fr
 //////  Contributors : Emmanuel Combet, Ruben Bibas, Julien Lefèvre
-//////  
-//////  
-//////  This software is a computer program whose purpose is to centralise all  
+//////
+//////
+//////  This software is a computer program whose purpose is to centralise all
 //////  the IMACLIM national versions, a general equilibrium model for energy transition analysis
 //////
 //////  This software is governed by the CeCILL license under French law and
@@ -11,13 +11,13 @@
 //////  modify and/ or redistribute the software under the terms of the CeCILL
 //////  license as circulated by CEA, CNRS and INRIA at the following URL
 //////  "http://www.cecill.info".
-//////  
+//////
 //////  As a counterpart to the access to the source code and  rights to copy,
 //////  modify and redistribute granted by the license, users are provided only
 //////  with a limited warranty  and the software's author,  the holder of the
 //////  economic rights,  and the successive licensors  have only  limited
 //////  liability.
-//////  
+//////
 //////  In this respect, the user's attention is drawn to the risks associated
 //////  with loading,  using,  modifying and/or developing or reproducing the
 //////  software by the user in light of its specific status of free software,
@@ -25,10 +25,10 @@
 //////  therefore means  that it is reserved for developers  and  experienced
 //////  professionals having in-depth computer knowledge. Users are therefore
 //////  encouraged to load and test the software's suitability as regards their
-//////  requirements in conditions enabling the security of their systems and/or 
+//////  requirements in conditions enabling the security of their systems and/or
 //////  data to be ensured and,  more generally, to use and operate it in the
 //////  same conditions as regards security.
-//////  
+//////
 //////  The fact that you are presently reading this means that you have had
 //////  knowledge of the CeCILL license and that you accept its terms.
 //////////////////////////////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ if H_DISAGG == "HH1"
 	elseif AGG_type == ""
 		Index_AGG_type ="";
 	end
-	
+
 	if  AGG_type <> "" & Index_AGG_type==[]
 		error("Aggregation type "+AGG_type+" is not defined into Index_IOT.csv")
 	end
@@ -173,7 +173,7 @@ for col_row=1:size(Row_Column,"r")
         end
 
 
-        // Creation of aggregation list sector if there is no HH desagregation ( if there is HH disaggregation Index_SectorsAGG is defined after this disaggregation)	
+        // Creation of aggregation list sector if there is no HH desagregation ( if there is HH disaggregation Index_SectorsAGG is defined after this disaggregation)
         if H_DISAGG == "HH1" & Index_AGG_type <> "" & (sizeC_TableTemp-i) == (Index_AGG_type - 1)
             Index_SectorsAGG = list_varname;
             Ind_AGG = Index;
@@ -492,7 +492,7 @@ if Country=="Brasil" then
     initial_value.Corp_Direct_Tax = initial_value.Corp_Direct_Tax(Indice_Households);
     initial_value.Corp_Direct_Tax = abs(initial_value.Corp_Direct_Tax);
 
-else	
+else
 
     initial_value.Other_social_transfers = initial_value.Other_social_transfers(Indice_Households);
     initial_value.Other_social_transfers = abs(initial_value.Other_social_transfers);
@@ -502,7 +502,7 @@ else
     initial_value.Pensions = abs(initial_value.Pensions);
     initial_value.Pensions = initial_value.Pensions(Indice_Households);
     initial_value.Unemployment_transfers = initial_value.Unemployment_transfers(Indice_Households);
-   
+
 end
 
 initial_value.Income_Tax = initial_value.Income_Tax(Indice_Households);
@@ -573,7 +573,7 @@ listCSVfiles=list();
 
   // First: remove non .csv files from the list
 	indicElt = 1;
-for elt=1:Nb_Datafiles	
+for elt=1:Nb_Datafiles
     if strstr(listDataRoWfiles(elt),'.csv')<> ''
         listCSVfiles($+1) = listDataRoWfiles(elt);
     else indicElt = indicElt + 1;
@@ -584,9 +584,9 @@ indicElt = 1;
 for elt=1:size(listCSVfiles)
 	// Read all Index csv files and gives them the name of the file itself
 	if strstr(listCSVfiles(elt),'Index_') <> ''
-		
+
 		listIndex($+1)= listCSVfiles(elt);
-				
+
 		matStr = read_csv(DATA_Country+'Data_RoW'+sep+listCSVfiles(elt),';');
 		varname = strsubst(listCSVfiles(elt),".csv","");
 		if isdef(varname)
@@ -594,8 +594,8 @@ for elt=1:size(listCSVfiles)
 		error(' is already define. please choose a sufix ')
 		end
 		execstr(varname +'=matStr;');
-			
-	else 
+
+	else
 			matStr = read_csv(DATA_Country+'Data_RoW'+sep+listCSVfiles(elt),';');
 			matStr =evstr(matStr);
 			varname = strsubst(listCSVfiles(elt),".csv","");
@@ -617,23 +617,23 @@ nb_RoW = size(Index_Region,"c");
 
 end
 
-// //Put each IC matrix of different country into a 3D matrix ( sectors, sectors, region) 
+// //Put each IC matrix of different country into a 3D matrix ( sectors, sectors, region)
 // // IC_RoW = zeros(nb_Commodities,nb_Sectors,nb_RoW);
 
-// // for cur_reg = 1:nb_RoW 
+// // for cur_reg = 1:nb_RoW
 // // IC_RoW(:,:,cur_reg) = evstr('IC_'+Index_Region(cur_reg)+';');
 // // end
 
 
 
-// If AGGREGATION - execution of aggregation file	
+// If AGGREGATION - execution of aggregation file
 //////////////////////////////////////////////////////////////////
 //EXEC AGGREGATION.SCE //Execute agreagation.sce file if Index_SectorsAGG is defined
-//////////////////////////////////////////////////////////////////	
+//////////////////////////////////////////////////////////////////
 
 // ADD IC_RoW  ,Emis_Row , Ouput_RoW, M_RoW_bySectReg
-	
+
 //////////////////////////////////////////////////////////////////
-// EXEC DecompImpDom_value.SCE  Execute decomposition IOT_table value into domestics and importations elements 
-//////////////////////////////////////////////////////////////////	
+// EXEC DecompImpDom_value.SCE  Execute decomposition IOT_table value into domestics and importations elements
+//////////////////////////////////////////////////////////////////
 
