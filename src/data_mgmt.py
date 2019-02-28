@@ -9,7 +9,7 @@ import functools
 import numpy as np
 import operator
 import pandas as pd
-from code.parameters import (linebreaker, dir_separator, IOT_balance_tolerance)
+from parameters import (linebreaker, dir_separator, IOT_balance_tolerance)
 
 
 def read_IOT(IOT_file_path, **kwargs):
@@ -255,3 +255,9 @@ def is_ERE_balanced(ERE: pd.Series):
     if not all(is_balanced):
         sys.stderr.write("Warning : unbalanced IOT" + linebreaker +
                          ', '.join(ERE.index[~is_balanced]) + linebreaker)
+
+
+def is_IOT_balanced(use_categories: List[str], ressource_categories: List[str],
+                    IOT: pd.DataFrame, coordinates_mapping: Dict[str, List[List[str]]]):
+    ERE = get_ERE(use_categories, ressource_categories, IOT, coordinates_mapping)
+    is_ERE_balanced(ERE)

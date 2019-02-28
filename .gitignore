@@ -3,4 +3,5 @@
 *.pyc
 data/temp_data
 data/new_format
-code/Loading_data.py
+src/Loading_data.py
+setup.py

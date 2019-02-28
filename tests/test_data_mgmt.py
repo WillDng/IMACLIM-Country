@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 import pandas as pd
-from code import data_mgmt
-from code.parameters import linebreaker
+from src import data_mgmt
+from src.parameters import linebreaker
 import sys
 
 mock_data_dir = 'tests/mock_data/'
