@@ -40,7 +40,7 @@ def activities_mapping_part():
 #     assert read_activities_mapping == activities_mapping_part
 #
 
-def test_parse_activities_mapping(activities_mapping_part):
+def test_aggregate_activities_mapping(activities_mapping_part):
     activities_mapping = [['Crude_oil', 'Commodities', 'EnerSect'],
                           ['Natural_gas', 'Commodities', 'EnerSect'],
                           ['Coking_coal', 'Commodities', 'EnerSect'],
@@ -64,6 +64,16 @@ def test_warns_if_bad_delimiter(capsys):
                                       callers_name + "() for file.csv" + linebreaker
 
 
+def test_remove_trailing_blanks():
+    file_content = [['Crude_oil', 'Commodities', 'EnerSect', '', ''],
+                    ['Natural_gas', 'Commodities', 'EnerSect', ''],
+                    ['Coking_coal', 'Commodities', 'EnerSect', '', '', '']]
+    expected_file_content = [['Crude_oil', 'Commodities', 'EnerSect'],
+                             ['Natural_gas', 'Commodities', 'EnerSect'],
+                             ['Coking_coal', 'Commodities', 'EnerSect']]
+    assert data_mgmt._remove_trailing_blanks(file_content) == expected_file_content
+
+
 full_IOT_path = mock_data_dir + 'IOT_Val.csv'
 
 
@@ -77,7 +87,7 @@ def full_IOT():
 def test_slice_activities(part_IOT):
     index = ['Natural_gas', 'Labour_Tax']
     columns = ['Crude_oil', 'Natural_gas']
-    coordinates = [index, columns]
+    coordinates = (index, columns)
     expected_sliced_IOT = pd.DataFrame(np.array([[  3225.19564403,      0.        ],
                                                  [  9044.45950877, 556606.98333951]]),
                                        index=index,
@@ -155,12 +165,12 @@ def test_change_activities_order_in(activities_mapping_part, IOT_part_headers,
 
 @pytest.fixture()
 def activities_coordinates_mapping():
-    activities_coordinates_mapping = {'IC': [['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                                             ['Coking_coal', 'Crude_oil', 'Natural_gas']],
-                                      'FC': [['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                                             ['I', 'X']],
-                                      'OthPart_IOT': [['Labour_Tax', 'Labour_income'],
-                                                      ['Coking_coal', 'Crude_oil', 'Natural_gas']]}
+    activities_coordinates_mapping = {'IC': (['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                                             ['Coking_coal', 'Crude_oil', 'Natural_gas']),
+                                      'FC': (['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                                             ['I', 'X']),
+                                      'OthPart_IOT': (['Labour_Tax', 'Labour_income'],
+                                                      ['Coking_coal', 'Crude_oil', 'Natural_gas'])}
     return activities_coordinates_mapping
 
 
@@ -181,39 +191,39 @@ def test_extract_IOTs_from(part_IOT, activities_coordinates_mapping, capsys):
 
 @pytest.fixture()
 def activities_coordinates_with_activities():
-    return {'IC': [['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                   ['Coking_coal', 'Crude_oil', 'Natural_gas']],
-            'FC': [['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                   ['I', 'X']],
-            'I': [['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                  ['I']],
-            'X': [['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                  ['X']],
-            'OthPart_IOT': [['Labour_Tax', 'Labour_income'],
-                            ['Coking_coal', 'Crude_oil', 'Natural_gas']],
-            'Labour_Tax': [['Labour_Tax'],
-                           ['Coking_coal', 'Crude_oil', 'Natural_gas']],
-            'Labour_income': [['Labour_income'],
-                              ['Coking_coal', 'Crude_oil', 'Natural_gas']]}
+    return {'IC': (['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                   ['Coking_coal', 'Crude_oil', 'Natural_gas']),
+            'FC': (['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                   ['I', 'X']),
+            'I': (['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                  ['I']),
+            'X': (['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                  ['X']),
+            'OthPart_IOT': (['Labour_Tax', 'Labour_income'],
+                            ['Coking_coal', 'Crude_oil', 'Natural_gas']),
+            'Labour_Tax': (['Labour_Tax'],
+                           ['Coking_coal', 'Crude_oil', 'Natural_gas']),
+            'Labour_income': (['Labour_income'],
+                              ['Coking_coal', 'Crude_oil', 'Natural_gas'])}
 
 
-def test_disaggregate_in_coordinates_mapping(categories_coordinates_mapping,
-                                             ordered_activities_mapping,
-                                             activities_coordinates_mapping,
-                                             activities_coordinates_with_activities):
+def test_disaggregate_in_coordinates(categories_coordinates_mapping,
+                                     ordered_activities_mapping,
+                                     activities_coordinates_mapping,
+                                     activities_coordinates_with_activities):
     to_expand_categories = ['FC', 'OthPart_IOT']
     reference_category = 'IC'
-    disaggregated_activities_coordinates_mapping = data_mgmt.disaggregate_in_coordinates_mapping(activities_coordinates_mapping,
-                                                                                                 to_expand_categories,
-                                                                                                 reference_category)
+    disaggregated_activities_coordinates_mapping = data_mgmt.disaggregate_in_coordinates(activities_coordinates_mapping,
+                                                                                         to_expand_categories,
+                                                                                         reference_category)
     assert disaggregated_activities_coordinates_mapping == activities_coordinates_with_activities
 
 
 def test_disaggregate_coordinates(activities_coordinates_mapping):
-    new_activities_coordinates_mapping = {'I': [['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                                                ['I']],
-                                          'X': [['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                                                ['X']]}
+    new_activities_coordinates_mapping = {'I': (['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                                                ['I']),
+                                          'X': (['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                                                ['X'])}
     disaggregated_activities_coordinates_mapping = data_mgmt._disaggregate_coordinates(activities_coordinates_mapping['FC'],
                                                                                        activities_coordinates_mapping['IC'])
     assert disaggregated_activities_coordinates_mapping == new_activities_coordinates_mapping
@@ -273,7 +283,7 @@ def test_get_dissimilar_coordinates_index(activities_coordinates_mapping):
 def test_slice_and_sum(part_IOT):
     index = ['Natural_gas', 'Labour_Tax']
     columns = ['Crude_oil', 'Natural_gas']
-    coordinates = [index, columns]
+    coordinates = (index, columns)
     expected_sum = pd.Series(np.array([3225.19564403, 565651.44284828]),
                              index=index)
     pd.testing.assert_series_equal(data_mgmt.slice_and_sum(part_IOT, coordinates, axis=1),
@@ -297,3 +307,21 @@ def test_ERE_not_balanced(full_IOT, capsys):
     data_mgmt.is_ERE_balanced(unbalanced_ERE)
     assert capsys.readouterr().err == "Warning : unbalanced IOT" + linebreaker + \
                                       "Coking_coal, Natural_gas" + linebreaker
+
+
+def test_modify_activity_value(part_IOT, activities_coordinates_with_activities):
+    IOT_uses = ['Coking_coal', 'Crude_oil', 'Natural_gas', 'I', 'X']
+    IOT_ressources = ['Coking_coal', 'Crude_oil', 'Natural_gas', 'Labour_Tax', 'Labour_income']
+    IOT_data = np.array([[ 0. ,       0.      ,        0.       , 0., 19609.61370695 ],
+                         [ 0. ,       0.      ,        0.       , 0., 24190.37317909 ],
+                         [ 0. , 3225.19564403 ,        0.       , 0., 513333.19103917],
+                         [ 0. , 9044.45950877 , 556606.98333951 , 0.,        0.      ],
+                         [-100, 20587.91760946, 1267005.36419441, 0.,        0.      ]])
+    expected_modified_IOT = pd.DataFrame(IOT_data, index=IOT_ressources, columns=IOT_uses)
+    fill_series = pd.DataFrame(np.array([[-100., -200., -300.]]),
+                               columns=['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                               index=['Labour_income'])
+    data_mgmt.modify_activity_value(part_IOT, activities_coordinates_with_activities['Labour_income'],
+                                    part_IOT.loc[activities_coordinates_with_activities['Labour_income']] == 0,
+                                    fill_series)
+    pd.testing.assert_frame_equal(part_IOT, expected_modified_IOT)

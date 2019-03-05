@@ -1,6 +1,6 @@
 # coding : utf-8
 
-from typing import Dict, List
+from typing import (Dict, List, Tuple, Iterable, Union)
 import sys
 import collections
 import copy
@@ -44,7 +44,7 @@ def read_activities_mapping(mapping_path: str, delimiter='|',
     return read_mapping
 
 
-def _aggregate_activities(activities_mapping: List[List[str]]) -> Dict[str, List[str]]:
+def _aggregate_activities(activities_mapping: Iterable[List[str]]) -> Dict[str, List[str]]:
     read_mapping = collections.defaultdict(list)
     for activity_description in activities_mapping:
         activity, categories = activity_description[0], activity_description[1:]
@@ -57,18 +57,25 @@ def _aggregate_activities(activities_mapping: List[List[str]]) -> Dict[str, List
     return dict(read_mapping)
 
 
-def _read_csv(path: str, delimiter: str) -> List[List[str]]:
+def _read_csv(path: str, delimiter: str) -> Iterable[List[str]]:
     mapping_raw_data = list(csv.reader(open(path), delimiter=delimiter))
     _warns_if_bad_delimiter(mapping_raw_data, path)
-    return mapping_raw_data
+    return iter(_remove_trailing_blanks(mapping_raw_data))
 
 
-def _warns_if_bad_delimiter(file_content: List[List], file_path: str):
+def _warns_if_bad_delimiter(file_content: List[List[str]], file_path: str):
     callers_caller = sys._getframe(3).f_code.co_name
     if len(file_content[0]) == 1:
         sys.stderr.write("Warning : delimiter might not be correctly informed in " +
                          callers_caller + "() for " + get_filename_from(file_path) +
                          linebreaker)
+
+
+def _remove_trailing_blanks(file_content: List[List[str]]):
+    clean_file_content = list()
+    for row in file_content:
+        clean_file_content.append(list(filter(None, row)))
+    return clean_file_content
 
 
 def _change_activities_order_in(input_mapping: List[List[str]], reference_headers: List[List[str]]) -> List[List[str]]:
@@ -94,13 +101,13 @@ def _change_order_of(unordered_activities, header):
                   key=lambda individual: list(header).index(individual))
 
 
-def read_categories_coordinates_mapping(mapping_path, delimiter='|'):
+def read_categories_coordinates(mapping_path, delimiter='|') -> Dict[str, List[str]]:
     mapping_raw_data = _read_csv(mapping_path, delimiter)
     read_mapping = _map_categories_to_coordinates(mapping_raw_data)
     return read_mapping
 
 
-def _map_categories_to_coordinates(coordinates_mapping: Dict[str, List[str]]) -> Dict[str, List[str]]:
+def _map_categories_to_coordinates(coordinates_mapping: Iterable[List[str]]) -> Dict[str, List[str]]:
     read_mapping = dict()
     for row in coordinates_mapping:
         category = row[0]
@@ -121,7 +128,7 @@ def extract_IOTs_from(IOT, activities_coordinates_mapping):
 
 def _slice_activities(IOT, activities_coordinates: List[List[str]]):
     _check_coordinates_in_IOT(IOT, activities_coordinates)
-    sliced_IOT = IOT.loc[tuple(activities_coordinates)]
+    sliced_IOT = IOT.loc[activities_coordinates]
     return sliced_IOT
 
 
@@ -138,15 +145,18 @@ def _check_coordinates_in_IOT(IOT, coordinates: List[List[str]]):
 
 
 def map_categories_to_activities_coordinates(category_coordinates_mapping,
-                                             activities_mapping):
+                                             activities_mapping
+                                             ) -> Dict[Tuple[List[List[str]]], List[List[str]]]:
     activities_coordinates = dict()
     for category, categories_coordinates in category_coordinates_mapping.items():
-        activities_coordinates[category] = _map_values_to_list(categories_coordinates,
-                                                               activities_mapping)
+        activities_coordinates[category] = tuple(_map_values_to_list(categories_coordinates,
+                                                                     activities_mapping))
     return activities_coordinates
 
 
-def _map_values_to_list(input_list, mapping_dictionary):
+def _map_values_to_list(input_list,
+                        mapping_dictionary: Dict[str, List[List[str]]]
+                        ) -> List[List[str]]:
     output_list = list()
     for element_key in input_list:
         try:
@@ -156,7 +166,9 @@ def _map_values_to_list(input_list, mapping_dictionary):
     return output_list
 
 
-def disaggregate_in_coordinates_mapping(coordinates_mapping, to_expand_categories, reference_category):
+def disaggregate_in_coordinates(coordinates_mapping: Dict[str, Tuple[List[str], List[str]]],
+                                to_expand_categories: List[str],
+                                reference_category: List[str]) -> Dict[str, Tuple[List[str], List[str]]]:
     new_coordinates_mapping = copy.deepcopy(coordinates_mapping)
     for to_expand_category in to_expand_categories:
         new_coordinates_mapping.update(_disaggregate_coordinates(coordinates_mapping[to_expand_category],
@@ -167,10 +179,10 @@ def disaggregate_in_coordinates_mapping(coordinates_mapping, to_expand_categorie
 def _disaggregate_coordinates(to_expand_coordinates, reference_coordinates):
     different_index = _get_dissimilar_coordinates_index(to_expand_coordinates, reference_coordinates)
     output_grouping = dict()
-    for individual in to_expand_coordinates[different_index]:
-        new_nested_headers = copy.deepcopy(reference_coordinates)
-        new_nested_headers[different_index] = [individual]
-        output_grouping[individual] = new_nested_headers
+    for activity in to_expand_coordinates[different_index]:
+        new_nested_headers = list(copy.deepcopy(reference_coordinates))
+        new_nested_headers[different_index] = [activity]
+        output_grouping[activity] = tuple(new_nested_headers)
     return output_grouping
 
 
@@ -237,9 +249,6 @@ def slice_and_sum(IOT: pd.DataFrame, activities_coordinates: List[List[str]], ax
 
 def get_ERE(use_categories: List[str], ressource_categories: List[str],
             IOT: pd.DataFrame, coordinates_mapping: Dict[str, List[List[str]]]) -> pd.Series:
-    # temp = map(lambda category: slice_and_sum(IOT,
-    #                                           coordinates_mapping[category]),
-    #            use_categories)
     uses = functools.reduce(operator.add, map(lambda category: slice_and_sum(IOT,
                                                                              coordinates_mapping[category]),
                                               use_categories))
@@ -261,3 +270,8 @@ def is_IOT_balanced(use_categories: List[str], ressource_categories: List[str],
                     IOT: pd.DataFrame, coordinates_mapping: Dict[str, List[List[str]]]):
     ERE = get_ERE(use_categories, ressource_categories, IOT, coordinates_mapping)
     is_ERE_balanced(ERE)
+
+
+def modify_activity_value(IOT, coordinates: Tuple[List[List[str]], List[List[str]]],
+                          condition: Iterable[bool], fill_values: Union[pd.DataFrame, pd.Series]):
+    IOT.update(IOT.loc[coordinates].where(~condition, fill_values))

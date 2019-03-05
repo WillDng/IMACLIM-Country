@@ -1,9 +1,9 @@
 //////  Copyright or © or Copr. Ecole des Ponts ParisTech / CNRS 2018
 //////  Main Contributor (2017) : Gaëlle Le Treut / letreut[at]centre-cired.fr
 //////  Contributors : Emmanuel Combet, Ruben Bibas, Julien Lefèvre
-//////  
-//////  
-//////  This software is a computer program whose purpose is to centralise all  
+//////
+//////
+//////  This software is a computer program whose purpose is to centralise all
 //////  the IMACLIM national versions, a general equilibrium model for energy transition analysis
 //////
 //////  This software is governed by the CeCILL license under French law and
@@ -11,13 +11,13 @@
 //////  modify and/ or redistribute the software under the terms of the CeCILL
 //////  license as circulated by CEA, CNRS and INRIA at the following URL
 //////  "http://www.cecill.info".
-//////  
+//////
 //////  As a counterpart to the access to the source code and  rights to copy,
 //////  modify and redistribute granted by the license, users are provided only
 //////  with a limited warranty  and the software's author,  the holder of the
 //////  economic rights,  and the successive licensors  have only  limited
 //////  liability.
-//////  
+//////
 //////  In this respect, the user's attention is drawn to the risks associated
 //////  with loading,  using,  modifying and/or developing or reproducing the
 //////  software by the user in light of its specific status of free software,
@@ -25,10 +25,10 @@
 //////  therefore means  that it is reserved for developers  and  experienced
 //////  professionals having in-depth computer knowledge. Users are therefore
 //////  encouraged to load and test the software's suitability as regards their
-//////  requirements in conditions enabling the security of their systems and/or 
+//////  requirements in conditions enabling the security of their systems and/or
 //////  data to be ensured and,  more generally, to use and operate it in the
 //////  same conditions as regards security.
-//////  
+//////
 //////  The fact that you are presently reading this means that you have had
 //////  knowledge of the CeCILL license and that you accept its terms.
 //////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ sep = filesep(); // "/" or "\" depending on OS
 
 cd("..");
 PARENT    = pwd()  + sep;
-CODE      = PARENT + "code"     								 + sep;
+CODE      = PARENT + "src"     								 + sep;
 
 LIB       = PARENT + "library" 							     + sep;
 getd(LIB); // Charge toutes les fonctions dans LIB
@@ -61,7 +61,7 @@ getd(LIB); // Charge toutes les fonctions dans LIB
 OUTPUT    = PARENT + "outputs"    							 + sep;
 mkdir(OUTPUT);
 
-DATA      = PARENT + "data"         + sep; 
+DATA      = PARENT + "data"         + sep;
 STUDY     = PARENT + "study_frames"							 + sep;
 PARAMS    = PARENT + "params"    								 + sep;
 ROBOT     = PARENT + "robot"     								 + sep;
@@ -101,11 +101,11 @@ for elt=1:size(Country_available,"r");
     indtemp= find(Country_Selection(:,1)==Country_available(elt));
     valtemp = Country_Selection(indtemp,2);
     execstr(Country_available(elt)+"=valtemp;")
-	
+
 	if Country_available(elt) == "Country"
 	Country_ISO = Country_Selection(indtemp,3);
 	end
-		
+
 end
 
 if (size(Country,"r")<>[1]| size(Country,"r")<>[1])
@@ -115,8 +115,8 @@ end
 
 
 // Country specific MODEL FILE STRUCTURE
-DATA_Country      = DATA +"data_"+Country_ISO        + sep;  
-PARAMS_Country    = PARAMS + "params_"+Country_ISO    + sep;  
+DATA_Country      = DATA +"data_"+Country_ISO        + sep;
+PARAMS_Country    = PARAMS + "params_"+Country_ISO    + sep;
 STUDY_Country    = STUDY + "study_frames_"+Country_ISO    + sep;
 
 
