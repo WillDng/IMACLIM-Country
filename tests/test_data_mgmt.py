@@ -293,8 +293,8 @@ def test_slice_and_sum(part_IOT):
 def test_get_ERE(full_IOT, activities_coordinates_with_activities):
     expected_ERE = pd.Series(np.array([19609.61370695, 11920.71802629, -40048.59665631]),
                              index=['Coking_coal', 'Crude_oil', 'Natural_gas'])
-    use_categories = ['IC', 'Labour_Tax']
-    ressource_categories = ['IC', 'FC']
+    use_categories = ['IC', 'FC']
+    ressource_categories = ['IC', 'Labour_Tax']
     pd.testing.assert_series_equal(data_mgmt.get_ERE(use_categories, ressource_categories,
                                                      full_IOT, activities_coordinates_with_activities),
                                    expected_ERE,
