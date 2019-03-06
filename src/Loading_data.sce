@@ -523,7 +523,6 @@ initial_value.GFCF_byAgent(Indice_RestOfWorld) = [];
 // Demographic data file
 Demography(:, size(Demography,"c")) = [];
 list_demo_variable= Demography(2:$,1);
-
 for elt=1:size(list_demo_variable,"r");
     indtemp= find(Demography(:,1)==list_demo_variable(elt));
     valtemp = evstr(Demography(indtemp,2));
@@ -539,6 +538,7 @@ for elt=1:nb_IncomeSources;
     execstr("Indice_"+Index_IncomeSources(elt)+"=elt;")
 end
 
+pause
 
 // IC Domestic and imports tables
 [initial_value.IC_Import_rate] = fill_table( IOT_Import_rate,IndRow_IOT_Import_rate,IndCol_IOT_Import_rate,Index_Commodities,Index_Sectors);

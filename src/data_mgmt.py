@@ -244,7 +244,12 @@ def extract_accounts(data_account: pd.DataFrame) -> Dict[str, pd.Series]:
 
 def extract_households_accounts(data_account: pd.DataFrame, to_extract_accounts: List[str]
                                 ) -> Dict[str, float]:
-    output_data_account = dict()
-    for to_extract_account in to_extract_accounts:
-        output_data_account[to_extract_account] = abs(data_account.loc[to_extract_account, 'Households'])
-    return output_data_account
+    return extract_table_variables(data_account.apply(abs), to_extract_accounts, 'Households')
+
+
+def extract_table_variables(table: pd.DataFrame, to_extract_variables: List[str],
+                            interest_variable: str) -> Dict[str, float]:
+    output_variables = dict()
+    for to_extract_variable in to_extract_variables:
+        output_variables[to_extract_variable] = table.loc[to_extract_variable, interest_variable]
+    return output_variables
