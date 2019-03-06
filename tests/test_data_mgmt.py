@@ -281,7 +281,7 @@ def test_modify_activity_value(part_IOT, activities_coordinates_with_activities)
     pd.testing.assert_frame_equal(part_IOT, expected_modified_IOT)
 
 
-def test_extract_data_account_values():
+def test_extract_households_accounts():
     data_account_data = np.array([[ 0.00000000e+00, -9.42450000e+07,  9.42450000e+07, 0.00000000e+00],
                                   [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00, 0.00000000e+00],
                                   [-9.05024286e+07,  5.80836174e+07,  2.48562610e+07, 7.56255024e+06],
@@ -295,4 +295,4 @@ def test_extract_data_account_values():
     expected_data_account = {'Other_social_transfers': 9.42450000e+07,
                              'Other_Transfers': 2.48562610e+07,
                              'Income_Tax': 1.42634000e+08}
-    assert data_mgmt.extract_data_account_values(DataAccount, selected_accounts) == expected_data_account
+    assert data_mgmt.extract_households_accounts(DataAccount, selected_accounts) == expected_data_account

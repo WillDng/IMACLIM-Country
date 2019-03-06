@@ -16,6 +16,7 @@ from parameters import (linebreaker, dir_separator, IOT_balance_tolerance)
 def read_table(IOT_file_path, **kwargs):
     read_table = pd.read_csv(IOT_file_path,
                              index_col=0,
+                             skipfooter=1,
                              **kwargs)
     if read_table.empty:
         sys.stderr.write("Warning : IOT delimiter might not be correctly informed in " +
@@ -231,10 +232,17 @@ def modify_activity_value(IOT, coordinates: Tuple[List[List[str]], List[List[str
 
 def read_list(path: str, delimiter=',') -> List[str]:
     list_raw_data = _read_csv(path, delimiter)
-    return list(itertools.chain_from_itertable(list_raw_data))
+    return list(itertools.chain.from_iterable(list_raw_data))
 
 
-def extract_data_account_values(data_account: pd.DataFrame, to_extract_accounts: List[str]
+def extract_accounts(data_account: pd.DataFrame) -> Dict[str, pd.Series]:
+    output_data_account = dict()
+    for account in data_account.index:
+        output_data_account[account] = data_account.loc[account, ]
+    return output_data_account
+
+
+def extract_households_accounts(data_account: pd.DataFrame, to_extract_accounts: List[str]
                                 ) -> Dict[str, float]:
     output_data_account = dict()
     for to_extract_account in to_extract_accounts:

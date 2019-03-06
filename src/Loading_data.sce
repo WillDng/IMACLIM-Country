@@ -506,7 +506,6 @@ initial_value.Income_Tax = initial_value.Income_Tax(Indice_Households);
 initial_value.Income_Tax = abs(initial_value.Income_Tax);
 initial_value.Corporate_Tax = initial_value.Corporate_Tax(Indice_Corporations);
 initial_value.Corporate_Tax = abs(initial_value.Corporate_Tax);
-pause
 initial_value.GFCF_byAgent(Indice_RestOfWorld) = [];
 
 
