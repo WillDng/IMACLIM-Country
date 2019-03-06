@@ -480,6 +480,7 @@ for elt=1:nb_DataAccount
     indicEltDataAccountFC = 1 + indicEltDataAccountFC;
 end
 
+
 // Some values are modified into positive values for a better comprehension of the economics equations
 
 if Country=="Brasil" then
@@ -491,27 +492,25 @@ if Country=="Brasil" then
     initial_value.Corp_social_transfers = abs(initial_value.Corp_social_transfers);
     initial_value.Corp_Direct_Tax = initial_value.Corp_Direct_Tax(Indice_Households);
     initial_value.Corp_Direct_Tax = abs(initial_value.Corp_Direct_Tax);
-
-else
-
-    initial_value.Other_social_transfers = initial_value.Other_social_transfers(Indice_Households);
-    initial_value.Other_social_transfers = abs(initial_value.Other_social_transfers);
-    initial_value.Other_Direct_Tax = initial_value.Other_Direct_Tax(Indice_Households);
-    initial_value.Other_Direct_Tax = abs(initial_value.Other_Direct_Tax);
-    initial_value.Unemployment_transfers = abs(initial_value.Unemployment_transfers);
-    initial_value.Pensions = abs(initial_value.Pensions);
-    initial_value.Pensions = initial_value.Pensions(Indice_Households);
-    initial_value.Unemployment_transfers = initial_value.Unemployment_transfers(Indice_Households);
-
 end
 
+initial_value.Other_social_transfers = initial_value.Other_social_transfers(Indice_Households);
+initial_value.Other_social_transfers = abs(initial_value.Other_social_transfers);
+initial_value.Other_Direct_Tax = initial_value.Other_Direct_Tax(Indice_Households);
+initial_value.Other_Direct_Tax = abs(initial_value.Other_Direct_Tax);
+initial_value.Unemployment_transfers = initial_value.Unemployment_transfers(Indice_Households);
+initial_value.Unemployment_transfers = abs(initial_value.Unemployment_transfers);
+initial_value.Pensions = initial_value.Pensions(Indice_Households);
+initial_value.Pensions = abs(initial_value.Pensions);
 initial_value.Income_Tax = initial_value.Income_Tax(Indice_Households);
+initial_value.Income_Tax = abs(initial_value.Income_Tax);
 initial_value.Corporate_Tax = initial_value.Corporate_Tax(Indice_Corporations);
+initial_value.Corporate_Tax = abs(initial_value.Corporate_Tax);
+pause
 initial_value.GFCF_byAgent(Indice_RestOfWorld) = [];
 
-initial_value.Income_Tax = abs(initial_value.Income_Tax);
 
-initial_value.Corporate_Tax = abs(initial_value.Corporate_Tax);
+
 //////////////////////////////////////////////////////////////////
 // READ OTHER CSV FILES
 //////////////////////////////////////////////////////////////////

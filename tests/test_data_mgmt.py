@@ -234,52 +234,6 @@ def test_get_dissimilar_coordinates_index(activities_coordinates_mapping):
                                                        activities_coordinates_mapping['IC']) == 1
 
 
-# @pytest.fixture()
-# def use_categories():
-#     return ['IC', 'OthPart_IOT']
-
-
-# @pytest.fixture()
-# def ressource_categories():
-#     return ['IC', 'FC']
-
-# def test_check_use_ressource_warns_when_unbalanced(part_IOT,
-#                                                    activities_coordinates_mapping,
-#                                                    use_categories,
-#                                                    ressource_categories,
-#                                                    balance_tolerance, capsys):
-#     data_mgmt.check_use_ressource(part_IOT, activities_coordinates_mapping,
-#                                   use_categories, ressource_categories,
-#                                   balance_tolerance)
-#     captured = capsys.readouterr()
-#     assert captured.err == "Warning : unbalanced IOT"+linebreaker+\
-#                            "Crude_oil, Natural_gas"+linebreaker
-
-
-# def test_combine_category_coordinates(activities_coordinates_mapping, IOT_part_headers):
-#     expected_consolidated_activities = [['Coking_coal', 'Crude_oil', 'Natural_gas', 'Labour_Tax', 'Labour_income'],
-#                                         ['Coking_coal', 'Crude_oil', 'Natural_gas']]
-#     consolidated_activities = data_mgmt._combine_category_coordinates(['IC', 'OthPart_IOT'],
-#                                                                       activities_coordinates_mapping,
-#                                                                       IOT_part_headers)
-#     assert list(consolidated_activities) == expected_consolidated_activities
-
-
-# activities_mapping_full_file_path = mock_data_dir + 'ordered_activities_mapping.csv'
-
-# def test_check_use_ressource_balance(full_IOT, categories_coordinates_mapping,
-#                                      use_categories, ressource_categories,
-#                                      balance_tolerance, capsys):
-#     activities_mapping_full = data_mgmt.read_activities_mapping(activities_mapping_full_file_path,
-#                                                                 delimiter=';')
-#     activities_coordinates_mapping = data_mgmt.map_categories_to_activities_coordinates(categories_coordinates_mapping,
-#                                                                                         activities_mapping_full)
-#     data_mgmt.check_use_ressource(full_IOT, activities_coordinates_mapping,
-#                                   use_categories, ressource_categories,
-#                                   balance_tolerance)
-#     assert not capsys.readouterr().err
-
-
 def test_slice_and_sum(part_IOT):
     index = ['Natural_gas', 'Labour_Tax']
     columns = ['Crude_oil', 'Natural_gas']
@@ -325,3 +279,20 @@ def test_modify_activity_value(part_IOT, activities_coordinates_with_activities)
                                     part_IOT.loc[activities_coordinates_with_activities['Labour_income']] == 0,
                                     fill_series)
     pd.testing.assert_frame_equal(part_IOT, expected_modified_IOT)
+
+
+def test_extract_data_account_values():
+    data_account_data = np.array([[ 0.00000000e+00, -9.42450000e+07,  9.42450000e+07, 0.00000000e+00],
+                                  [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00, 0.00000000e+00],
+                                  [-9.05024286e+07,  5.80836174e+07,  2.48562610e+07, 7.56255024e+06],
+                                  [ 0.00000000e+00,  1.42634000e+08, -1.42634000e+08, 0.00000000e+00],
+                                  [-3.66830000e+07,  3.66830000e+07,  0.00000000e+00, 0.00000000e+00]])
+    accounts = ['Other_social_transfers', 'ClimPolicyCompens',
+                'Other_Transfers', 'Income_Tax', 'Corporate_Tax']
+    institutions = ['Corporations', 'Government', 'Households', 'RestOfWorld']
+    selected_accounts = ['Other_social_transfers', 'Other_Transfers', 'Income_Tax']
+    DataAccount = pd.DataFrame(data_account_data, index=accounts, columns=institutions)
+    expected_data_account = {'Other_social_transfers': 9.42450000e+07,
+                             'Other_Transfers': 2.48562610e+07,
+                             'Income_Tax': 1.42634000e+08}
+    assert data_mgmt.extract_data_account_values(DataAccount, selected_accounts) == expected_data_account

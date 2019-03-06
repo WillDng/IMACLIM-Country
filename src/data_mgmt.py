@@ -6,20 +6,21 @@ import collections
 import copy
 import csv
 import functools
+import itertools
 import numpy as np
 import operator
 import pandas as pd
 from parameters import (linebreaker, dir_separator, IOT_balance_tolerance)
 
 
-def read_IOT(IOT_file_path, **kwargs):
-    read_IOT = pd.read_csv(IOT_file_path,
-                           index_col=0,
-                           **kwargs)
-    if read_IOT.empty:
+def read_table(IOT_file_path, **kwargs):
+    read_table = pd.read_csv(IOT_file_path,
+                             index_col=0,
+                             **kwargs)
+    if read_table.empty:
         sys.stderr.write("Warning : IOT delimiter might not be correctly informed in " +
                          get_filename_from(IOT_file_path) + linebreaker)
-    return read_IOT
+    return read_table
 
 
 def get_header_from(IOT):
@@ -191,56 +192,6 @@ def _get_dissimilar_coordinates_index(working_coordinates, reference_coordinates
         if working_coordinates[index] != positional_coordinates:
             return index
 
-# def check_use_ressource(IOT, activities_coordinates_mapping, use_categories,
-#                         ressource_categories, balance_tolerance):
-#     use_activities_coordinates, ressource_activities_coordinates = map(lambda categories_list: _combine_category_coordinates(categories_list,
-#                                                                                                           activities_coordinates_mapping,
-#                                                                                                           get_headers_from(IOT)),
-#                                                                        [use_categories, ressource_categories])
-#     difference = get_use_ressource_difference(IOT, use_activities_coordinates, ressource_activities_coordinates)
-#     is_balanced =  difference < balance_tolerance
-#     if not all(is_balanced):
-#         studied_activities = list(_combine_category_coordinates(use_categories, activities_coordinates_mapping, get_headers_from(IOT)))[0]
-#         sys.stderr.write("Warning : unbalanced IOT"+
-#                          linebreaker+
-#                          ', '.join([activities for activities, balanced in \
-#                                     zip(studied_activities, is_balanced) \
-#                                     if not balanced])+
-#                          linebreaker)
-
-
-# def get_use_ressource_difference(IOT, use_activities_coordinates, ressource_activities_coordinates):
-#     use_ressource_sum = _slice_and_sum(use_activities_coordinates, ressource_activities_coordinates, IOT)
-#     difference = functools.reduce(operator.sub, use_ressource_sum)
-#     return difference
-
-
-# def _combine_category_coordinates(category_to_combine,
-#                                   activities_coordinates_mapping,
-#                                   IOT_headers):
-#     activities_coordinates_to_combine = _map_values_to_list(category_to_combine,
-#                                                             activities_coordinates_mapping)
-#     merged_activities_coordinates = functools.reduce(_merge_coordinates,
-#                                                      activities_coordinates_to_combine)
-#     return map(lambda positional_coordinate: _get_and_change_order_of(positional_coordinate,
-#                                                                       IOT_headers),
-#                merged_activities_coordinates)
-
-
-# def _slice_and_sum(use_activities_coordinates, ressource_activities_coordinates, IOT):
-#     use_ressource_sum = list()
-#     for axis_index, activities_coordinates in enumerate([use_activities_coordinates, ressource_activities_coordinates]):
-#         use_ressource_sum.append(_slice_activities(IOT, activities_coordinates).sum(axis=axis_index))
-#     return use_ressource_sum
-
-
-# def _merge_coordinates(first_coordinates, second_coordinates):
-#     merged_coordinates = list()
-#     for first_positional_coordinate, second_positional_coordinate in zip(first_coordinates, second_coordinates):
-#         merged_coordinates.append(list(set(first_positional_coordinate +
-#                                            second_positional_coordinate)))
-#     return merged_coordinates
-
 
 def slice_and_sum(IOT: pd.DataFrame, activities_coordinates: List[List[str]], axis: int):
     sliced_IOT = _slice_activities(IOT, activities_coordinates)
@@ -276,3 +227,16 @@ def is_IOT_balanced(use_categories: List[str], ressource_categories: List[str],
 def modify_activity_value(IOT, coordinates: Tuple[List[List[str]], List[List[str]]],
                           condition: Iterable[bool], fill_values: Union[pd.DataFrame, pd.Series]):
     IOT.update(IOT.loc[coordinates].where(~condition, fill_values))
+
+
+def read_list(path: str, delimiter=',') -> List[str]:
+    list_raw_data = _read_csv(path, delimiter)
+    return list(itertools.chain_from_itertable(list_raw_data))
+
+
+def extract_data_account_values(data_account: pd.DataFrame, to_extract_accounts: List[str]
+                                ) -> Dict[str, float]:
+    output_data_account = dict()
+    for to_extract_account in to_extract_accounts:
+        output_data_account[to_extract_account] = abs(data_account.loc[to_extract_account, 'Households'])
+    return output_data_account
