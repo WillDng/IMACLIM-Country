@@ -1,6 +1,5 @@
 # coding : utf-8
 
-from typing import (Dict, List, Tuple, Iterable, Union)
 import sys
 import collections
 import copy
@@ -11,12 +10,14 @@ import numpy as np
 import operator
 import pandas as pd
 from parameters import (linebreaker, dir_separator, IOT_balance_tolerance)
+from typing import (Any, Dict, List, Iterable, Tuple, Union)
+
+Coordinates = Tuple[List[str], List[str]]
 
 
 def read_table(IOT_file_path, **kwargs):
     read_table = pd.read_csv(IOT_file_path,
                              index_col=0,
-                             skipfooter=1,
                              **kwargs)
     if read_table.empty:
         sys.stderr.write("Warning : IOT delimiter might not be correctly informed in " +
@@ -80,7 +81,9 @@ def _remove_trailing_blanks(file_content: List[List[str]]):
     return clean_file_content
 
 
-def _change_activities_order_in(input_mapping: List[List[str]], reference_headers: List[List[str]]) -> List[List[str]]:
+def _change_activities_order_in(input_mapping: List[List[str]],
+                                reference_headers: List[List[str]]
+                                ) -> List[List[str]]:
     reordered_mapping = dict()
     for category, activities in input_mapping.items():
         reordered_mapping[category] = _get_and_change_order_of(activities,
@@ -88,28 +91,35 @@ def _change_activities_order_in(input_mapping: List[List[str]], reference_header
     return reordered_mapping
 
 
-def _get_and_change_order_of(activities: List[str], reference_headers: List[List[str]]) -> List[str]:
+def _get_and_change_order_of(activities: List[str],
+                             reference_headers: List[List[str]]
+                             ) -> List[str]:
     reference_header = _get_matching_header_for(activities, reference_headers)
     return _change_order_of(activities, reference_header)
 
 
-def _get_matching_header_for(unordered_activities: List[str], headers: List[List[str]]) -> List[str]:
+def _get_matching_header_for(unordered_activities: List[str],
+                             headers: List[pd.Index]
+                             ) -> List[str]:
     return max(headers,
                key=lambda header: len(np.intersect1d(unordered_activities, header)))
 
 
-def _change_order_of(unordered_activities, header):
+def _change_order_of(unordered_activities: List[str],
+                     header: pd.Index):
     return sorted(unordered_activities,
                   key=lambda individual: list(header).index(individual))
 
 
-def read_categories_coordinates(mapping_path, delimiter='|') -> Dict[str, List[str]]:
+def read_categories_coordinates(mapping_path, delimiter='|'
+                                ) -> Dict[str, List[str]]:
     mapping_raw_data = _read_csv(mapping_path, delimiter)
     read_mapping = _map_categories_to_coordinates(mapping_raw_data)
     return read_mapping
 
 
-def _map_categories_to_coordinates(coordinates_mapping: Iterable[List[str]]) -> Dict[str, List[str]]:
+def _map_categories_to_coordinates(coordinates_mapping: Iterable[List[str]]
+                                   ) -> Dict[str, List[str]]:
     read_mapping = dict()
     for row in coordinates_mapping:
         category = row[0]
@@ -146,9 +156,9 @@ def _check_coordinates_in_IOT(IOT, coordinates: List[List[str]]):
                              IOT_headers_name[positional_arg] + linebreaker)
 
 
-def map_categories_to_activities_coordinates(category_coordinates_mapping,
-                                             activities_mapping
-                                             ) -> Dict[Tuple[List[List[str]]], List[List[str]]]:
+def map_categories_to_activities_coordinates(category_coordinates_mapping: Dict[str, List[str]],
+                                             activities_mapping: Dict[str, List[str]]
+                                             ) -> Dict[str, Coordinates]:
     activities_coordinates = dict()
     for category, categories_coordinates in category_coordinates_mapping.items():
         activities_coordinates[category] = tuple(_map_values_to_list(categories_coordinates,
@@ -156,21 +166,30 @@ def map_categories_to_activities_coordinates(category_coordinates_mapping,
     return activities_coordinates
 
 
-def _map_values_to_list(input_list,
-                        mapping_dictionary: Dict[str, List[List[str]]]
+def _map_values_to_list(input_list: List[str],
+                        mapping_dictionary: Dict[str, List[str]]
                         ) -> List[List[str]]:
+    _check_values_in_dict(input_list, mapping_dictionary)
     output_list = list()
     for element_key in input_list:
         try:
             output_list.append(mapping_dictionary[element_key])
         except KeyError:
-            sys.stderr.write(element_key + " not in mapping, please check")
+            # FIXME redundancy with previous check
+            pass
     return output_list
 
 
-def disaggregate_in_coordinates(coordinates_mapping: Dict[str, Tuple[List[str], List[str]]],
+def _check_values_in_dict(interest_values: List[str],
+                          comparison_dictionary: Dict[str, Any]):
+    absent_headers = set(interest_values) - set(comparison_dictionary.keys())
+    if absent_headers:
+        sys.stderr.write("Warning : " + ", ".join(absent_headers) + " not in mapping" + linebreaker)
+
+
+def disaggregate_in_coordinates(coordinates_mapping: Dict[str, Coordinates],
                                 to_expand_categories: List[str],
-                                reference_category: List[str]) -> Dict[str, Tuple[List[str], List[str]]]:
+                                reference_category: List[str]) -> Dict[str, Coordinates]:
     new_coordinates_mapping = copy.deepcopy(coordinates_mapping)
     for to_expand_category in to_expand_categories:
         new_coordinates_mapping.update(_disaggregate_coordinates(coordinates_mapping[to_expand_category],
@@ -225,8 +244,9 @@ def is_IOT_balanced(use_categories: List[str], ressource_categories: List[str],
     is_ERE_balanced(ERE)
 
 
-def modify_activity_value(IOT, coordinates: Tuple[List[List[str]], List[List[str]]],
-                          condition: Iterable[bool], fill_values: Union[pd.DataFrame, pd.Series]):
+def modify_activity_value(IOT, coordinates: Coordinates,
+                          condition: Union[pd.DataFrame, pd.Series],
+                          fill_values: Union[pd.DataFrame, pd.Series]):
     IOT.update(IOT.loc[coordinates].where(~condition, fill_values))
 
 
@@ -253,3 +273,17 @@ def extract_table_variables(table: pd.DataFrame, to_extract_variables: List[str]
     for to_extract_variable in to_extract_variables:
         output_variables[to_extract_variable] = table.loc[to_extract_variable, interest_variable]
     return output_variables
+
+
+def map_list_to_dict(interest_list: List[str],
+                     mapping_dictionary: Dict[str, Any]
+                     ) -> Dict[str, Any]:
+    _check_values_in_dict(interest_list, mapping_dictionary)
+    output_dict = dict()
+    for interest_var in interest_list:
+        try:
+            output_dict[interest_var] = mapping_dictionary[interest_var]
+        except KeyError:
+            # FIXME : redundant problem with _map_values_to_list()
+            pass
+    return output_dict

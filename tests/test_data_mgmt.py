@@ -109,11 +109,6 @@ def categories_coordinates_mapping():
                                       'OthPart_IOT': ['OthPart_IOT', 'Sectors']}
     return categories_coordinates_mapping
 
-# categories_coordinates_mapping_filepath = mock_data_dir + 'categories_coordinates_mapping.csv'
-
-# def test_read_categories_coordinates_mapping(categories_coordinates_mapping):
-#     assert data_mgmt.read_categories_coordinates_mapping(categories_coordinates_mapping_filepath) == categories_coordinates_mapping
-
 
 def test_map_categories_to_coordinates(categories_coordinates_mapping):
     categories_coordinates_mapping_data = [['IC', 'Commodities', 'Sectors'],
@@ -180,6 +175,12 @@ def test_map_categories_to_activities_coordinates(categories_coordinates_mapping
     mapped_activities_coordinates_mapping = data_mgmt.map_categories_to_activities_coordinates(categories_coordinates_mapping,
                                                                                                ordered_activities_mapping)
     assert mapped_activities_coordinates_mapping == activities_coordinates_mapping
+
+
+def test_warns_when_values_not_in_dict(activities_coordinates_mapping, capsys):
+    interest_categories = ['IC', 'mock_header']
+    data_mgmt._check_values_in_dict(interest_categories, activities_coordinates_mapping)
+    assert capsys.readouterr().err == "Warning : mock_header not in mapping" + linebreaker
 
 
 def test_extract_IOTs_from(part_IOT, activities_coordinates_mapping, capsys):
