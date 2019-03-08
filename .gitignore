@@ -3,6 +3,5 @@
 *.pyc
 data/temp_data
 data/new_format
-src/Loading_data.py
 setup.py
-src/IOT_DecompImpDom.py
+*IOT_DecompImpDom*.py

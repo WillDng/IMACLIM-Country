@@ -53,7 +53,7 @@ sep = filesep(); // "/" or "\" depending on OS
 
 cd("..");
 PARENT    = pwd()  + sep;
-CODE      = PARENT + "src"     								 + sep;
+CODE      = PARENT + "code"     								 + sep;
 
 LIB       = PARENT + "library" 							     + sep;
 getd(LIB); // Charge toutes les fonctions dans LIB
