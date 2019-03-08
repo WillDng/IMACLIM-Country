@@ -484,7 +484,7 @@ end
 // Some values are modified into positive values for a better comprehension of the economics equations
 
 if Country=="Brasil" then
- initial_value.Gov_social_transfers = initial_value.Gov_social_transfers(Indice_Households);
+    initial_value.Gov_social_transfers = initial_value.Gov_social_transfers(Indice_Households);
     initial_value.Gov_social_transfers = abs(initial_value.Gov_social_transfers);
     initial_value.Gov_Direct_Tax = initial_value.Gov_Direct_Tax(Indice_Households);
     initial_value.Gov_Direct_Tax = abs(initial_value.Gov_Direct_Tax);
@@ -537,8 +537,6 @@ nb_IncomeSources = size(Distribution_Shares_form (2:$,1),"r");
 for elt=1:nb_IncomeSources;
     execstr("Indice_"+Index_IncomeSources(elt)+"=elt;")
 end
-
-pause
 
 // IC Domestic and imports tables
 [initial_value.IC_Import_rate] = fill_table( IOT_Import_rate,IndRow_IOT_Import_rate,IndCol_IOT_Import_rate,Index_Commodities,Index_Sectors);
