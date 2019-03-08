@@ -156,6 +156,3 @@ IOT_import_rate = ld.read_table(import_rate_path,
                                 delimiter=';')
 import_rate_coord = ld.map_list_to_dict(use_categories, value_coord)
 initial_import_rate = ld.extract_IOTs_from(IOT_import_rate, import_rate_coord)
-
-ipdb.set_trace()
-print('here')

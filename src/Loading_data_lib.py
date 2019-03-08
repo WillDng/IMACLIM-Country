@@ -213,22 +213,23 @@ def _get_dissimilar_coordinates_index(working_coordinates, reference_coordinates
             return index
 
 
-def slice_and_sum(IOT: pd.DataFrame, activities_coordinates: List[List[str]], axis: int):
-    sliced_IOT = _slice_activities(IOT, activities_coordinates)
-    return sliced_IOT.sum(axis=axis)
-
-
 def get_ERE(use_categories: List[str], ressource_categories: List[str],
             IOT: pd.DataFrame, coordinates_mapping: Dict[str, List[List[str]]]) -> pd.Series:
-    ressources = functools.reduce(operator.add, map(lambda category: slice_and_sum(IOT,
-                                                                                   coordinates_mapping[category],
-                                                                                   axis=0),
+    ressources = functools.reduce(operator.add, map(lambda category: row_sum(_slice_activities(IOT,
+                                                                                               coordinates_mapping[category])),
                                                     ressource_categories))
-    uses = functools.reduce(operator.add, map(lambda category: slice_and_sum(IOT,
-                                                                             coordinates_mapping[category],
-                                                                             axis=1),
+    uses = functools.reduce(operator.add, map(lambda category: col_sum(_slice_activities(IOT,
+                                                                                         coordinates_mapping[category])),
                                               use_categories))
     return uses - ressources
+
+
+def row_sum(IOT: pd.DataFrame) -> pd.Series:
+    return IOT.sum(axis=0)
+
+
+def col_sum(IOT: pd.DataFrame) -> pd.Series:
+    return IOT.sum(axis=1)
 
 
 def is_ERE_balanced(ERE: pd.Series):

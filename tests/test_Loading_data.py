@@ -136,7 +136,7 @@ def test_get_matching_header_for(ill_ordered_activities, IOT_part_headers):
 
 def test_change_order_of(ill_ordered_activities, IOT_part_headers):
     assert ld._change_order_of(ill_ordered_activities,
-                                      IOT_part_headers[1]) == ['Coking_coal', 'Crude_oil', 'Natural_gas', 'X']
+                               IOT_part_headers[1]) == ['Coking_coal', 'Crude_oil', 'Natural_gas', 'X']
 
 
 @pytest.fixture()
@@ -233,16 +233,6 @@ def test_disaggregate_coordinates(activities_coordinates_mapping):
 def test_get_dissimilar_coordinates_index(activities_coordinates_mapping):
     assert ld._get_dissimilar_coordinates_index(activities_coordinates_mapping['FC'],
                                                 activities_coordinates_mapping['IC']) == 1
-
-
-def test_slice_and_sum(part_IOT):
-    index = ['Natural_gas', 'Labour_Tax']
-    columns = ['Crude_oil', 'Natural_gas']
-    coordinates = (index, columns)
-    expected_sum = pd.Series(np.array([3225.19564403, 565651.44284828]),
-                             index=index)
-    pd.testing.assert_series_equal(ld.slice_and_sum(part_IOT, coordinates, axis=1),
-                                   expected_sum)
 
 
 def test_get_ERE(full_IOT, activities_coordinates_with_activities):
