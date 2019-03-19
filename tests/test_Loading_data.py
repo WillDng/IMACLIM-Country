@@ -287,3 +287,19 @@ def test_extract_households_accounts():
                              'Other_Transfers': 2.48562610e+07,
                              'Income_Tax': 1.42634000e+08}
     assert ld.extract_households_accounts(DataAccount, selected_accounts) == expected_data_account
+
+
+def test_filter_list_duplicate():
+    index_input = iter([['Crude_oil','Commodities'],
+                        ['Natural_gas','Commodities'],
+                        ['Coking_coal','Commodities'],
+                        ['Bituminous_coal','Commodities'],
+                        ['Crude_oil','-'],
+                        ['Natural_gas','-'],
+                        ['Coking_coal','-'],
+                        ['Bituminous_coal','-']])
+    expected_index = iter([['Crude_oil','Commodities'],
+                           ['Natural_gas','Commodities'],
+                           ['Coking_coal','Commodities'],
+                           ['Bituminous_coal','Commodities']])
+    assert list(ld.filter_list_duplicate(index_input)) == list(expected_index)

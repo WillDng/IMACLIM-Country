@@ -1,21 +1,18 @@
 # coding : utf-8
 
-import Loading_data_lib as ld
+from src import Loading_data_lib as ld
+from paths import data_dir
 import ipdb
 
-data_dir = '/home/will/Documents/work/imaclim/IMACLIM-Country/data/new_format/data_FRA_update/'
-
-IOT_val_path = data_dir + 'IOT_Val.csv'
+IOT_val_path = data_dir / 'IOT_Val.csv'
 IOT_val = ld.read_table(IOT_val_path,
-                        delimiter=';',
-                        skipfooter=1,
-                        engine='python')
-value_activities_mapping_path = data_dir + 'value_activities_mapping.csv'
+                        delimiter=';')
+value_activities_mapping_path = data_dir / 'value_activities_mapping.csv'
 value_activities_mapping = ld.read_activities_mapping(value_activities_mapping_path,
                                                       delimiter=',',
                                                       headers=ld.get_headers_from(IOT_val))
 
-value_categories_coord_path = data_dir + 'value_categories_coordinates.csv'
+value_categories_coord_path = data_dir / 'value_categories_coordinates.csv'
 value_categories_coord = ld.read_categories_coordinates(value_categories_coord_path,
                                                         delimiter=',')
 
@@ -45,18 +42,18 @@ initial_values = ld.extract_IOTs_from(IOT_val, value_coord)
 
 #########
 
-IOT_quantity_path = data_dir + 'IOT_Qtities.csv'
+IOT_quantity_path = data_dir / 'IOT_Qtities.csv'
 IOT_quantity = ld.read_table(IOT_quantity_path,
                              delimiter=';',
                              skipfooter=1,
                              engine='python')
 
-quantity_activities_mapping_path = data_dir + 'quantity_activities_mapping.csv'
+quantity_activities_mapping_path = data_dir / 'quantity_activities_mapping.csv'
 quantity_activities_mapping = ld.read_activities_mapping(quantity_activities_mapping_path,
                                                          delimiter=',',
                                                          headers=ld.get_headers_from(IOT_quantity))
 quantity_activities_mapping = dict(value_activities_mapping, **quantity_activities_mapping)
-quantity_coord_path = data_dir + 'quantity_categories_coordinates.csv'
+quantity_coord_path = data_dir / 'quantity_categories_coordinates.csv'
 quantity_categories_coord = ld.read_categories_coordinates(quantity_coord_path,
                                                            delimiter=',')
 quantity_coord = ld.map_categories_to_activities_coordinates(quantity_categories_coord,
@@ -84,7 +81,7 @@ initial_quantities = ld.extract_IOTs_from(IOT_quantity, quantity_coord)
 #########
 
 
-IOT_prices_path = data_dir + 'IOT_Prices.csv'
+IOT_prices_path = data_dir / 'IOT_Prices.csv'
 IOT_prices = ld.read_table(IOT_prices_path,
                            delimiter=';',
                            skipfooter=1,
@@ -94,17 +91,17 @@ initial_prices = ld.extract_IOTs_from(IOT_prices, quantity_coord)
 
 #########
 
-IOT_CO2_path = data_dir + 'IOT_CO2.csv'
+IOT_CO2_path = data_dir / 'IOT_CO2.csv'
 IOT_CO2 = ld.read_table(IOT_CO2_path,
                         delimiter=';',
                         skipfooter=1,
                         engine='python')
 
-CO2_activities_mapping_path = data_dir + 'CO2_activities_mapping.csv'
+CO2_activities_mapping_path = data_dir / 'CO2_activities_mapping.csv'
 CO2_activities_mapping = ld.read_activities_mapping(CO2_activities_mapping_path,
                                                     delimiter=',')
 CO2_activities_mapping = dict(value_activities_mapping, **CO2_activities_mapping)
-CO2_categories_coord_path = data_dir + 'CO2_categories_coordinates.csv'
+CO2_categories_coord_path = data_dir / 'CO2_categories_coordinates.csv'
 CO2_categories_coord = ld.read_categories_coordinates(CO2_categories_coord_path,
                                                       delimiter=',')
 CO2_activities_coord = ld.map_categories_to_activities_coordinates(CO2_categories_coord,
@@ -113,13 +110,13 @@ initial_CO2 = ld.extract_IOTs_from(IOT_CO2, CO2_activities_coord)
 
 #########
 
-DataAccount_path = data_dir + 'DataAccountTable.csv'
+DataAccount_path = data_dir / 'DataAccountTable.csv'
 DataAccount_table = ld.read_table(DataAccount_path,
                                   delimiter=';',
                                   skipfooter=1,
                                   engine='python')
 extracted_accounts = ld.extract_accounts(DataAccount_table)
-selected_accounts_path = data_dir + 'DataAccountTable_params.csv'
+selected_accounts_path = data_dir / 'DataAccountTable_params.csv'
 selected_accounts = ld.read_list(selected_accounts_path,
                                  delimiter=',')
 extracted_households_accounts = ld.extract_households_accounts(DataAccount_table,
@@ -130,7 +127,7 @@ initial_DataAccount['GFCF_byAgent'] = initial_DataAccount['GFCF_byAgent'][:3]
 
 #########
 
-labour_path = data_dir + 'Labour.csv'
+labour_path = data_dir / 'Labour.csv'
 initial_labour = ld.read_table(labour_path,
                                delimiter=';',
                                skipfooter=1,
@@ -139,7 +136,7 @@ initial_labour = ld.read_table(labour_path,
 
 #########
 
-demography_path = data_dir + 'Demography.csv'
+demography_path = data_dir / 'Demography.csv'
 demography_table = ld.read_table(demography_path,
                                  delimiter=';',
                                  skipfooter=1,
@@ -151,7 +148,7 @@ initial_demography = ld.extract_table_variables(demography_table,
 
 #########
 
-import_rate_path = data_dir + 'IOT_Import_rate.csv'
+import_rate_path = data_dir / 'IOT_Import_rate.csv'
 IOT_import_rate = ld.read_table(import_rate_path,
                                 delimiter=';')
 import_rate_coord = ld.map_list_to_dict(use_categories, value_coord)

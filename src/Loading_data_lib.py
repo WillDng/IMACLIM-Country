@@ -9,7 +9,7 @@ import itertools
 import numpy as np
 import operator
 import pandas as pd
-from parameters import (linebreaker, dir_separator, IOT_balance_tolerance)
+from src.parameters import (linebreaker, dir_separator, IOT_balance_tolerance)
 from typing import (Any, Dict, List, Iterable, Tuple, Union)
 
 Coordinates = Tuple[List[str], List[str]]
@@ -252,8 +252,8 @@ def modify_activity_value(IOT, coordinates: Coordinates,
 
 
 def read_list(path: str, delimiter=',') -> List[str]:
-    list_raw_data = _read_csv(path, delimiter)
-    return list(itertools.chain.from_iterable(list_raw_data))
+    iter_raw_data = _read_csv(path, delimiter)
+    return list(itertools.chain.from_iterable(iter_raw_data))
 
 
 def extract_accounts(data_account: pd.DataFrame) -> Dict[str, pd.Series]:
@@ -288,3 +288,51 @@ def map_list_to_dict(interest_list: List[str],
             # FIXME : redundant problem with _map_values_to_list()
             pass
     return output_dict
+
+
+def read_dict(path: str, value_col: int, key_col: int = 0,
+              delimiter: str='|', overwrite: bool=False) -> Dict[str, str]:
+    iter_data = _read_csv(path, delimiter)
+    if not overwrite:
+        iter_data = filter_list_duplicate(iter_data, key_col=key_col)
+    out_dict = dict()
+    for row in iter_data:
+        out_dict[row[key_col]] = row[value_col]
+    return out_dict
+
+
+def filter_list_duplicate(entry_iter_list: Iterable[List[Any]],
+                          key_col : int=0) -> Iterable[List[Any]]:
+    out_list = list()
+    seen_item = list()
+    for row in entry_iter_list:
+        key_item = row[key_col]
+        if key_item in seen_item:
+            continue
+        else:
+            out_list.append(row)
+            seen_item.append(key_item)
+    return iter(out_list)
+
+
+# def _to_list_iter(entry: Any) -> Any:
+#     if not hasattr(entry, '__iter__'):
+#         return iter([entry])
+#     return iter(entry)
+
+
+def remap_dict(entry_dict: Dict[str, Any],
+               remapping_dict: Dict[Any, Any],
+               keep=False) -> Dict[str, Any]:
+    if not keep:
+        _check_values_in_dict(entry_dict.values(), remapping_dict)
+    remapped_dict = dict()
+    for entry_key, entry_value in entry_dict.items():
+        try:
+            remapped_dict[entry_key] = remapping_dict[entry_value]
+        except KeyError:
+            if keep:
+                remapped_dict[entry_key] = entry_value
+            else:
+                pass
+    return remapped_dict

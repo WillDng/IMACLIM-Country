@@ -5,3 +5,4 @@ data/temp_data
 data/new_format
 setup.py
 *IOT_DecompImpDom*.py
+.gitignore
