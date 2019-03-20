@@ -9,6 +9,7 @@ import itertools
 import numpy as np
 import operator
 import pandas as pd
+from src.common_utils import _read_csv
 from src.parameters import (linebreaker, dir_separator, IOT_balance_tolerance)
 from typing import (Any, Dict, List, Iterable, Tuple, Union)
 
@@ -58,20 +59,6 @@ def _aggregate_activities(activities_mapping: Iterable[List[str]]) -> Dict[str, 
                 pass
                 # FIXME should raise warning ?
     return dict(read_mapping)
-
-
-def _read_csv(path: str, delimiter: str) -> Iterable[List[str]]:
-    mapping_raw_data = list(csv.reader(open(path), delimiter=delimiter))
-    _warns_if_bad_delimiter(mapping_raw_data, path)
-    return iter(_remove_trailing_blanks(mapping_raw_data))
-
-
-def _warns_if_bad_delimiter(file_content: List[List[str]], file_path: str):
-    callers_caller = sys._getframe(3).f_code.co_name
-    if len(file_content[0]) == 1:
-        sys.stderr.write("Warning : delimiter might not be correctly informed in " +
-                         callers_caller + "() for " + get_filename_from(file_path) +
-                         linebreaker)
 
 
 def _remove_trailing_blanks(file_content: List[List[str]]):
@@ -288,31 +275,6 @@ def map_list_to_dict(interest_list: List[str],
             # FIXME : redundant problem with _map_values_to_list()
             pass
     return output_dict
-
-
-def read_dict(path: str, value_col: int, key_col: int = 0,
-              delimiter: str='|', overwrite: bool=False) -> Dict[str, str]:
-    iter_data = _read_csv(path, delimiter)
-    if not overwrite:
-        iter_data = filter_list_duplicate(iter_data, key_col=key_col)
-    out_dict = dict()
-    for row in iter_data:
-        out_dict[row[key_col]] = row[value_col]
-    return out_dict
-
-
-def filter_list_duplicate(entry_iter_list: Iterable[List[Any]],
-                          key_col : int=0) -> Iterable[List[Any]]:
-    out_list = list()
-    seen_item = list()
-    for row in entry_iter_list:
-        key_item = row[key_col]
-        if key_item in seen_item:
-            continue
-        else:
-            out_list.append(row)
-            seen_item.append(key_item)
-    return iter(out_list)
 
 
 # def _to_list_iter(entry: Any) -> Any:
