@@ -1,8 +1,9 @@
 # coding : utf-8
 
 import sys
+import csv
 from src.parameters import linebreaker
-from typing import (Any, Dict, Iterable, List)
+from typing import (Any, Dict, Iterable, List, Tuple)
 
 def read_dict(path: str, value_col: int, key_col: int = 0,
               delimiter: str='|', overwrite: bool=False,
@@ -13,7 +14,7 @@ def read_dict(path: str, value_col: int, key_col: int = 0,
                                                       path,
                                                       key_col=key_col)
         if raises:
-            _raise_if_duplicates(duplicates)
+            raise_if_duplicates(duplicates)
     out_dict = dict()
     for row in iter_data:
         out_dict[row[key_col]] = row[value_col]
@@ -31,9 +32,17 @@ def _warns_if_bad_delimiter(file_content: List[List[str]], file_path: str):
                          callers_caller + "() for " + file_path +
                          linebreaker)
 
+
+def _remove_trailing_blanks(file_content: List[List[str]]):
+    clean_file_content = list()
+    for row in file_content:
+        clean_file_content.append(list(filter(None, row)))
+    return clean_file_content
+
+
 def filter_list_duplicate(entry_iter_list: Iterable[List[Any]],
                           file_path: str,
-                          key_col: int=0) -> Iterable[List[Any]]:
+                          key_col: int=0) -> Tuple[Iterable[List[Any]], List[str]]:
     out_list = list()
     seen_item = list()
     duplicates = list()
@@ -47,7 +56,7 @@ def filter_list_duplicate(entry_iter_list: Iterable[List[Any]],
             seen_item.append(key_item)
     return iter(out_list), duplicates
 
-def _raise_if_duplicates(duplicates: Dict[str, str],
+def raise_if_duplicates(duplicates: Dict[str, str],
                          path: str) -> None:
     if duplicates:
         raise InputError(', '.join(duplicates) + ' have duplicates in ' +

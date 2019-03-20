@@ -54,16 +54,6 @@ def test_aggregate_activities_mapping(activities_mapping_part):
     assert ld._aggregate_activities(activities_mapping) == activities_mapping_part
 
 
-def test_remove_trailing_blanks():
-    file_content = [['Crude_oil', 'Commodities', 'EnerSect', '', ''],
-                    ['Natural_gas', 'Commodities', 'EnerSect', ''],
-                    ['Coking_coal', 'Commodities', 'EnerSect', '', '', '']]
-    expected_file_content = [['Crude_oil', 'Commodities', 'EnerSect'],
-                             ['Natural_gas', 'Commodities', 'EnerSect'],
-                             ['Coking_coal', 'Commodities', 'EnerSect']]
-    assert ld._remove_trailing_blanks(file_content) == expected_file_content
-
-
 full_IOT_path = mock_data_dir + 'IOT_Val.csv'
 
 

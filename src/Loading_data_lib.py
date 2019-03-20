@@ -3,7 +3,6 @@
 import sys
 import collections
 import copy
-import csv
 import functools
 import itertools
 import numpy as np
@@ -59,13 +58,6 @@ def _aggregate_activities(activities_mapping: Iterable[List[str]]) -> Dict[str, 
                 pass
                 # FIXME should raise warning ?
     return dict(read_mapping)
-
-
-def _remove_trailing_blanks(file_content: List[List[str]]):
-    clean_file_content = list()
-    for row in file_content:
-        clean_file_content.append(list(filter(None, row)))
-    return clean_file_content
 
 
 def _change_activities_order_in(input_mapping: List[List[str]],
