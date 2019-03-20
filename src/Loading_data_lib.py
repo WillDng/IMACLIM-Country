@@ -156,22 +156,30 @@ def map_categories_to_activities_coordinates(category_coordinates_mapping: Dict[
 def _map_values_to_list(input_list: List[str],
                         mapping_dictionary: Dict[str, List[str]]
                         ) -> List[List[str]]:
-    _check_values_in_dict(input_list, mapping_dictionary)
+    surplus_headers = _check_values_in_dict(input_list, mapping_dictionary)
+    if surplus_headers:
+        input_list = filter_list(input_list, surplus_headers)
     output_list = list()
     for element_key in input_list:
-        try:
-            output_list.append(mapping_dictionary[element_key])
-        except KeyError:
-            # FIXME redundancy with previous check
-            pass
+        output_list.append(mapping_dictionary[element_key])
+    return output_list
+
+
+def filter_list(input_list, exclude_list):
+    output_list = list()
+    for element in input_list:
+        if element not in exclude_list:
+            output_list.append(element)
     return output_list
 
 
 def _check_values_in_dict(interest_values: List[str],
-                          comparison_dictionary: Dict[str, Any]):
-    absent_headers = set(interest_values) - set(comparison_dictionary.keys())
-    if absent_headers:
-        sys.stderr.write("Warning : " + ", ".join(absent_headers) + " not in mapping" + linebreaker)
+                          comparison_dictionary: Dict[str, Any]
+                          ) -> List[str]:
+    surplus_headers = set(interest_values) - set(comparison_dictionary.keys())
+    if surplus_headers:
+        sys.stderr.write("Warning : " + ", ".join(surplus_headers) + " not in mapping" + linebreaker)
+    return list(surplus_headers)
 
 
 def disaggregate_in_coordinates(coordinates_mapping: Dict[str, Coordinates],
@@ -266,14 +274,12 @@ def extract_table_variables(table: pd.DataFrame, to_extract_variables: List[str]
 def map_list_to_dict(interest_list: List[str],
                      mapping_dictionary: Dict[str, Any]
                      ) -> Dict[str, Any]:
-    _check_values_in_dict(interest_list, mapping_dictionary)
+    surplus_headers = _check_values_in_dict(interest_list, mapping_dictionary)
+    if surplus_headers:
+        interest_list = filter_list(interest_list, surplus_headers)
     output_dict = dict()
     for interest_var in interest_list:
-        try:
-            output_dict[interest_var] = mapping_dictionary[interest_var]
-        except KeyError:
-            # FIXME : redundant problem with _map_values_to_list()
-            pass
+        output_dict[interest_var] = mapping_dictionary[interest_var]
     return output_dict
 
 
