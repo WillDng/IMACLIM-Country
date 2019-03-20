@@ -6,13 +6,14 @@ from typing import (Any, Dict, Iterable, List)
 
 def read_dict(path: str, value_col: int, key_col: int = 0,
               delimiter: str='|', overwrite: bool=False,
-              warn: bool=False) -> Dict[str, str]:
+              raises: bool=False) -> Dict[str, str]:
     iter_data = _read_csv(path, delimiter)
     if not overwrite:
-        iter_data = filter_list_duplicate(iter_data,
-                                          path,
-                                          key_col=key_col,
-                                          warn=warn)
+        iter_data, duplicates = filter_list_duplicate(iter_data,
+                                                      path,
+                                                      key_col=key_col)
+        if raises:
+            _raise_if_duplicates(duplicates)
     out_dict = dict()
     for row in iter_data:
         out_dict[row[key_col]] = row[value_col]
@@ -32,18 +33,37 @@ def _warns_if_bad_delimiter(file_content: List[List[str]], file_path: str):
 
 def filter_list_duplicate(entry_iter_list: Iterable[List[Any]],
                           file_path: str,
-                          key_col: int=0,
-                          warn: bool=False) -> Iterable[List[Any]]:
+                          key_col: int=0) -> Iterable[List[Any]]:
     out_list = list()
     seen_item = list()
+    duplicates = list()
     for row in entry_iter_list:
         key_item = row[key_col]
         if key_item in seen_item:
-            if warn:
-                sys.stderr.write('Warning : ' + key_item +
-                                 ' already in ' + file_path )
+            duplicates.append(key_item)
             continue
         else:
             out_list.append(row)
             seen_item.append(key_item)
-    return iter(out_list)
+    return iter(out_list), duplicates
+
+def _raise_if_duplicates(duplicates: Dict[str, str],
+                         path: str) -> None:
+    if duplicates:
+        raise InputError(', '.join(duplicates) + ' have duplicates in ' +
+                         path)
+
+
+class Error(Exception):
+    """Base class for exceptions in this module."""
+    pass
+
+class InputError(Error):
+    """Exception raised for errors in the input.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message

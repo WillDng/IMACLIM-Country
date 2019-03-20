@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import sys
+import pytest
 import src.common_utils as cu
 from src.parameters import linebreaker
 
@@ -15,6 +16,8 @@ def test_warns_if_bad_delimiter(capsys):
                                       callers_name + "() for " + file_path + linebreaker
 
 
+expected_duplicates = ['Crude_oil', 'Natural_gas', 'Coking_coal', 'Bituminous_coal']
+
 def test_filter_list_duplicate():
     index_input = iter([['Crude_oil','Commodities'],
                         ['Natural_gas','Commodities'],
@@ -28,4 +31,11 @@ def test_filter_list_duplicate():
                            ['Natural_gas','Commodities'],
                            ['Coking_coal','Commodities'],
                            ['Bituminous_coal','Commodities']])
-    assert list(cu.filter_list_duplicate(index_input, 'path_to_file')) == list(expected_index)
+    filtered_data, duplicates = cu.filter_list_duplicate(index_input, 'path_to_file')
+    assert ((list(filtered_data) == list(expected_index)) and (duplicates == expected_duplicates))
+
+
+def test_filter_list_duplicate_raises():
+    with pytest.raises(cu.InputError, match=r'Crude_oil, Natural_gas, Coking_coal, Bituminous_coal ' \
+                                              'have duplicates in path_to_file'):
+        _, _ = cu._raise_if_duplicates(expected_duplicates, 'path_to_file')
