@@ -16,9 +16,6 @@ def test_warns_if_bad_delimiter(capsys):
                                       callers_name + "() for " + file_path + linebreaker
 
 
-expected_duplicates = ['Crude_oil', 'Natural_gas', 'Coking_coal', 'Bituminous_coal']
-
-
 def test_remove_trailing_blanks():
     file_content = [['Crude_oil', 'Commodities', 'EnerSect', '', ''],
                     ['Natural_gas', 'Commodities', 'EnerSect', ''],
@@ -29,6 +26,7 @@ def test_remove_trailing_blanks():
     assert cu._remove_trailing_blanks(file_content) == expected_file_content
 
 
+expected_duplicates = ['Crude_oil', 'Natural_gas', 'Coking_coal', 'Bituminous_coal']
 def test_filter_list_duplicate():
     index_input = iter([['Crude_oil','Commodities'],
                         ['Natural_gas','Commodities'],

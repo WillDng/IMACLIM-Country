@@ -1,7 +1,7 @@
 # coding : utf-8
 
 from typing import (Any, Dict, Iterable, List, Union)
-from paths import study_dir
+from src.paths import study_dir
 import src.common_utils as cu
 
 
@@ -27,6 +27,21 @@ def filter_comment_in_dashboard(dashboard_raw: Iterable[List[str]]
         if not row[0].startswith('//'):
             out_dashboard.append(row)
     return iter(out_dashboard)
+
+
+def compose_duplicates_message(dashb_categories_duplicates: List[str]) -> None:
+    dashb_categories_mess = {'H_DISAGG':"various types of disaggregation profiles of households have been selected in Dashboard",
+                             'AGG_type':"various types of aggregation profiles of sectors have been selected in Dashboard",
+                             'System_Resol':"various types of resolution system have been selected in Dashboard",
+                             'Resol_Mode':"various types of simulation mode have been selected in Dashboard",
+                             'Scenario':"various types of scenario have been selected in Dashboard. The model isn't ready yet to run several Scenarios successively.",
+                             'Macro_nb':"various types of macroeconomic framework been selected in Dashboard.",
+                             'CO2_footprint':"You have to choose whether or not you want to realise an Input-Output Analysis about carbon footprint.",
+                             'Output_files':"You have to choose whether or not you want to print outputs in external files."}
+    messages = list()
+    for duplicate_dashb_category in dashb_categories_duplicates:
+        messages.append(dashb_categories_mess[duplicate_dashb_category])
+    return '\n'.join(messages)
 
 
 def nested_list_to_dict(nested_list: List[List[str]],
