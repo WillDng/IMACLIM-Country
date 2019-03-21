@@ -3,7 +3,7 @@
 import sys
 import csv
 from src.parameters import linebreaker
-from typing import (Any, Dict, Iterable, List, Tuple)
+from typing import (Any, Dict, Iterator, List, Tuple)
 
 def read_dict(path: str, value_col: int, key_col: int = 0,
               delimiter: str='|', overwrite: bool=False,
@@ -11,16 +11,15 @@ def read_dict(path: str, value_col: int, key_col: int = 0,
     iter_data = _read_csv(path, delimiter)
     if not overwrite:
         iter_data, duplicates = filter_list_duplicate(iter_data,
-                                                      path,
                                                       key_col=key_col)
         if raises:
-            raise_if_duplicates(duplicates)
+            raise_if_duplicates(duplicates, path)
     out_dict = dict()
     for row in iter_data:
         out_dict[row[key_col]] = row[value_col]
     return out_dict
 
-def _read_csv(path: str, delimiter: str) -> Iterable[List[str]]:
+def _read_csv(path: str, delimiter: str) -> Iterator[List[str]]:
     mapping_raw_data = list(csv.reader(open(path), delimiter=delimiter))
     _warns_if_bad_delimiter(mapping_raw_data, path)
     return iter(_remove_trailing_blanks(mapping_raw_data))
@@ -40,9 +39,8 @@ def _remove_trailing_blanks(file_content: List[List[str]]):
     return clean_file_content
 
 
-def filter_list_duplicate(entry_iter_list: Iterable[List[Any]],
-                          file_path: str,
-                          key_col: int=0) -> Tuple[Iterable[List[Any]], List[str]]:
+def filter_list_duplicate(entry_iter_list: Iterator[List[Any]],
+                          key_col: int=0) -> Tuple[Iterator[List[Any]], List[str]]:
     out_list = list()
     seen_item = list()
     duplicates = list()

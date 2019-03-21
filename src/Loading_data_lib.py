@@ -10,7 +10,7 @@ import operator
 import pandas as pd
 from src.common_utils import _read_csv
 from src.parameters import (linebreaker, dir_separator, IOT_balance_tolerance)
-from typing import (Any, Dict, List, Iterable, Tuple, Union)
+from typing import (Any, Dict, List, Iterator, Tuple, Union)
 
 Coordinates = Tuple[List[str], List[str]]
 
@@ -47,7 +47,7 @@ def read_activities_mapping(mapping_path: str, delimiter='|',
     return read_mapping
 
 
-def _aggregate_activities(activities_mapping: Iterable[List[str]]) -> Dict[str, List[str]]:
+def _aggregate_activities(activities_mapping: Iterator[List[str]]) -> Dict[str, List[str]]:
     read_mapping = collections.defaultdict(list)
     for activity_description in activities_mapping:
         activity, categories = activity_description[0], activity_description[1:]
@@ -97,7 +97,7 @@ def read_categories_coordinates(mapping_path, delimiter='|'
     return read_mapping
 
 
-def _map_categories_to_coordinates(coordinates_mapping: Iterable[List[str]]
+def _map_categories_to_coordinates(coordinates_mapping: Iterator[List[str]]
                                    ) -> Dict[str, List[str]]:
     read_mapping = dict()
     for row in coordinates_mapping:

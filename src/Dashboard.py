@@ -1,9 +1,8 @@
 # coding : utf-8
 
-from typing import (Any, Dict, Iterable, List, Union)
+from typing import (Any, Dict, Iterator, List, Union)
 from src.paths import study_dir
 import src.common_utils as cu
-
 
 def read_(study_ISO: str)-> Dict[str, str]:
     study_frame_path = 'study_frames_'+ study_ISO
@@ -11,9 +10,6 @@ def read_(study_ISO: str)-> Dict[str, str]:
     dashboard_path = study_dir / study_frame_path / dashboard_filepath
     dashboard_raw = cu._read_csv(dashboard_path, delimiter=';')
     dashboard_data = filter_comment_in_dashboard(dashboard_raw)
-    filtered_dashboard, duplicates = cu.filter_list_duplicate(dashboard_data,
-                                                              dashboard_path)
-    cu.raise_if_duplicates(duplicates, dashboard_path)
     dashboard = nested_list_to_dict(filtered_dashboard)
     dashboard = convert_boolean_in_dict(dashboard)
     dashboard['Country_selection'] = study_ISO
@@ -22,8 +18,9 @@ def read_(study_ISO: str)-> Dict[str, str]:
 boolean_str_map = {'True':True,
                    'False':False}
 
-def convert_dashboard_values(dashboard_data: Iterable[List[List[str]]]
-                             ) -> Iterable[List[List[Union[str, int, bool]]]]:
+
+def _convert_dashboard_values(dashboard_data: Iterator[List[List[str]]]
+                             ) -> Iterator[List[List[Union[str, int, bool]]]]:
     out_dashboard_data = list()
     for row in dashboard_data:
         value = row[1]
@@ -32,7 +29,6 @@ def convert_dashboard_values(dashboard_data: Iterable[List[List[str]]]
         elif is_int(value):
             row[1] = int(value)
         out_dashboard_data.append(row)
-    return out_dashboard_data
 
 
 def is_bool(entry: str) -> bool:
