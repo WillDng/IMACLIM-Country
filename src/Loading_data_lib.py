@@ -281,18 +281,27 @@ def map_list_to_dict(interest_list: List[str],
 #     return iter(entry)
 
 
-def remap_dict(entry_dict: Dict[str, Any],
-               remapping_dict: Dict[Any, Any],
-               keep=False) -> Dict[str, Any]:
-    if not keep:
-        _check_values_in_dict(entry_dict.values(), remapping_dict)
-    remapped_dict = dict()
-    for entry_key, entry_value in entry_dict.items():
-        try:
-            remapped_dict[entry_key] = remapping_dict[entry_value]
-        except KeyError:
-            if keep:
-                remapped_dict[entry_key] = entry_value
-            else:
-                pass
-    return remapped_dict
+# def remap_dict(entry_dict: Dict[str, Any],
+#                remapping_dict: Dict[Any, Any],
+#                keep=False) -> Dict[str, Any]:
+#     if not keep:
+#         _ = _check_values_in_dict(entry_dict.values(), remapping_dict)
+#     remapped_dict = dict()
+#     for entry_key, entry_value in entry_dict.items():
+#         try:
+#             remapped_dict[entry_key] = remapping_dict[entry_value]
+#         except KeyError:
+#             if keep:
+#                 remapped_dict[entry_key] = entry_value
+#             else:
+#                 pass
+#     return remapped_dict
+
+
+# def filter_dict(input_dict: Dict[str, Any],
+#                 exclude_list: List[str]
+#                 ) -> Dict[str, Any]:
+#     output_dict = copy.deepcopy(input_dict)
+#     for element_to_exclude in exclude_list:
+#         del output_dict[element_to_exclude]
+#     return output_dict

@@ -40,7 +40,7 @@ def test_filter_list_duplicate():
                            ['Natural_gas','Commodities'],
                            ['Coking_coal','Commodities'],
                            ['Bituminous_coal','Commodities']])
-    filtered_data, duplicates = cu.filter_list_duplicate(index_input, 'path_to_file')
+    filtered_data, duplicates = cu.filter_list_duplicate(index_input)
     assert ((list(filtered_data) == list(expected_index)) and (duplicates == expected_duplicates))
 
 

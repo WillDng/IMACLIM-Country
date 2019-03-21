@@ -3,6 +3,7 @@
 from typing import (Any, Dict, Iterator, List, Union)
 from src.paths import study_dir
 import src.common_utils as cu
+from src.common_utils import InputError
 
 def read_(study_ISO: str)-> Dict[str, str]:
     study_frame_path = 'study_frames_'+ study_ISO
@@ -10,10 +11,22 @@ def read_(study_ISO: str)-> Dict[str, str]:
     dashboard_path = study_dir / study_frame_path / dashboard_filepath
     dashboard_raw = cu._read_csv(dashboard_path, delimiter=';')
     dashboard_data = filter_comment_in_dashboard(dashboard_raw)
+    dashboard_data = convert_dashboard_values(dashboard_data)
+    _validate_or_raise_dashboard(dashboard_data)
     dashboard = nested_list_to_dict(filtered_dashboard)
     dashboard = convert_boolean_in_dict(dashboard)
     dashboard['Country_selection'] = study_ISO
     return dashboard
+
+
+def filter_comment_in_dashboard(dashboard_raw: Iterator[List[str]]
+                                )-> Dict[str, str]:
+    out_dashboard = list()
+    for row in dashboard_raw:
+        if not row[0].startswith('//'):
+            out_dashboard.append(row)
+    return iter(out_dashboard)
+
 
 boolean_str_map = {'True':True,
                    'False':False}
@@ -29,6 +42,7 @@ def _convert_dashboard_values(dashboard_data: Iterator[List[List[str]]]
         elif is_int(value):
             row[1] = int(value)
         out_dashboard_data.append(row)
+    return iter(out_dashboard_data)
 
 
 def is_bool(entry: str) -> bool:
@@ -45,16 +59,24 @@ def is_int(entry: str) -> bool:
         return False
 
 
-def filter_comment_in_dashboard(dashboard_raw: Iterable[List[str]]
-                                )-> Dict[str, str]:
-    out_dashboard = list()
-    for row in dashboard_raw:
-        if not row[0].startswith('//'):
-            out_dashboard.append(row)
-    return iter(out_dashboard)
+def _validate_or_raise_dashboard(dashboard_data: Iterator[List[List[Union[str, int, bool]]]]
+                                 ) -> None:
+    data_to_validate = list(dashboard_data)
+    iteration_message = _compose_iteration_nb_message(data_to_validate)
+    _, duplicates = cu.filter_list_duplicate(data_to_validate)
+    if duplicates:
+        duplicates_message = _compose_duplicates_message(duplicates)
+    if iteration_message or duplicates_message:
+        raise InputError(iteration_message+'\n'+duplicates_message)
 
+def _compose_iteration_nb_message(dashb_data: List[List[Union[str, int, bool]]]
+                                  ) -> Union[str, None]:
+    for row in dashb_data:
+        if ((row[0] == 'Nb_Iter') and (row[1] < 0 )):
+            return 'the number of iteration should be positive'
+    return ''
 
-def compose_duplicates_message(dashb_categories_duplicates: List[str]) -> None:
+def _compose_duplicates_message(dashb_categories_duplicates: List[str]) -> None:
     dashb_categories_mess = {'H_DISAGG':"various types of disaggregation profiles of households have been selected in Dashboard",
                              'AGG_type':"various types of aggregation profiles of sectors have been selected in Dashboard",
                              'System_Resol':"various types of resolution system have been selected in Dashboard",
