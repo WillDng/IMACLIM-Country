@@ -15,9 +15,38 @@ def read_(study_ISO: str)-> Dict[str, str]:
                                                               dashboard_path)
     cu.raise_if_duplicates(duplicates, dashboard_path)
     dashboard = nested_list_to_dict(filtered_dashboard)
-    dashboard = interpret_boolean_in_dict(dashboard)
+    dashboard = convert_boolean_in_dict(dashboard)
     dashboard['Country_selection'] = study_ISO
     return dashboard
+
+boolean_str_map = {'True':True,
+                   'False':False}
+
+def convert_dashboard_values(dashboard_data: Iterable[List[List[str]]]
+                             ) -> Iterable[List[List[Union[str, int, bool]]]]:
+    out_dashboard_data = list()
+    for row in dashboard_data:
+        value = row[1]
+        if is_bool(value):
+            row[1] = boolean_str_map[value]
+        elif is_int(value):
+            row[1] = int(value)
+        out_dashboard_data.append(row)
+    return out_dashboard_data
+
+
+def is_bool(entry: str) -> bool:
+    if entry in boolean_str_map.keys():
+        return True
+    return False
+
+
+def is_int(entry: str) -> bool:
+    try:
+        int(entry)
+        return True
+    except ValueError:
+        return False
 
 
 def filter_comment_in_dashboard(dashboard_raw: Iterable[List[str]]
@@ -68,10 +97,8 @@ def value_if_alone(input_list: List[Any])-> List[Any]:
         return iter(input_list)
 
 
-def interpret_boolean_in_dict(input_dict: Dict[str, str]
+def convert_boolean_in_dict(input_dict: Dict[str, str]
                               ) -> Dict[str, Union[str, bool]]:
-    boolean_str_map = {'True':True,
-                       'False':False}
     output_dict = dict()
     for key, value in input_dict.items():
         if value in boolean_str_map.keys():
