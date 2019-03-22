@@ -8,6 +8,7 @@ import itertools
 import numpy as np
 import operator
 import pandas as pd
+import pathlib as pl
 from src.common_utils import _read_csv
 from src.parameters import (linebreaker, dir_separator, IOT_balance_tolerance)
 from typing import (Any, Dict, List, Iterator, Tuple, Union)
@@ -15,29 +16,29 @@ from typing import (Any, Dict, List, Iterator, Tuple, Union)
 Coordinates = Tuple[List[str], List[str]]
 
 
-def read_table(IOT_file_path, **kwargs):
+def read_table(IOT_file_path: pl.Path, **kwargs) -> pd.DataFrame:
     read_table = pd.read_csv(IOT_file_path,
                              index_col=0,
                              **kwargs)
     if read_table.empty:
         sys.stderr.write("Warning : IOT delimiter might not be correctly informed in " +
-                         get_filename_from(IOT_file_path) + linebreaker)
+                         str(IOT_file_path) + linebreaker)
     return read_table
 
 
-def get_header_from(IOT):
+def get_header_from(IOT: pd.DataFrame) -> pd.Index:
     return IOT.columns
 
 
-def get_headers_from(IOT):
+def get_headers_from(IOT: pd.DataFrame) -> List[pd.Index]:
     return [IOT.index, IOT.columns]
 
 
-def get_filename_from(path):
-    return path.split(dir_separator)[-1]
+def get_filename_from(path: pl.Path):
+    return path.name
 
 
-def read_activities_mapping(mapping_path: str, delimiter='|',
+def read_activities_mapping(mapping_path: pl.Path, delimiter: str='|',
                             headers: List[List[str]] = None) -> Dict[str, List[str]]:
     """ Hypothesis : in first column are the names of the activities and in columns aggregates names """
     mapping_raw_data = _read_csv(mapping_path, delimiter)
@@ -90,7 +91,7 @@ def _change_order_of(unordered_activities: List[str],
                   key=lambda individual: list(header).index(individual))
 
 
-def read_categories_coordinates(mapping_path, delimiter='|'
+def read_categories_coordinates(mapping_path: pl.Path, delimiter='|'
                                 ) -> Dict[str, List[str]]:
     mapping_raw_data = _read_csv(mapping_path, delimiter)
     read_mapping = _map_categories_to_coordinates(mapping_raw_data)
@@ -110,20 +111,25 @@ def _map_categories_to_coordinates(coordinates_mapping: Iterator[List[str]]
     return read_mapping
 
 
-def extract_IOTs_from(IOT, activities_coordinates_mapping):
+def extract_IOTs_from(IOT: pd.DataFrame,
+                      activities_coordinates_mapping: Dict[str, List[str]]
+                      ) -> Dict[str, Coordinates]:
     extracted_IOTs = dict()
     for category, activities_coordinates in activities_coordinates_mapping.items():
         extracted_IOTs[category] = _slice_activities(IOT, activities_coordinates)
     return extracted_IOTs
 
 
-def _slice_activities(IOT, activities_coordinates: List[List[str]]):
+def _slice_activities(IOT: pd.DataFrame,
+                      activities_coordinates: List[List[str]]
+                     ) -> pd.DataFrame:
     _check_coordinates_in_IOT(IOT, activities_coordinates)
     sliced_IOT = IOT.loc[activities_coordinates]
     return sliced_IOT
 
 
-def _check_coordinates_in_IOT(IOT, coordinates: List[List[str]]):
+def _check_coordinates_in_IOT(IOT: pd.DataFrame,
+                              coordinates: Coordinates) -> None:
     IOT_headers = get_headers_from(IOT)
     IOT_headers_name = ['index', 'columns']
     for positional_arg, positional_coordinates in enumerate(coordinates):
@@ -157,7 +163,9 @@ def _map_values_to_list(input_list: List[str],
     return output_list
 
 
-def filter_list(input_list, exclude_list):
+def filter_list(input_list: List,
+                exclude_list: List
+                ) -> List:
     output_list = list()
     for element in input_list:
         if element not in exclude_list:
@@ -238,7 +246,7 @@ def modify_activity_value(IOT, coordinates: Coordinates,
     IOT.update(IOT.loc[coordinates].where(~condition, fill_values))
 
 
-def read_list(path: str, delimiter=',') -> List[str]:
+def read_list(path: str, delimiter: str=',') -> List[str]:
     iter_raw_data = _read_csv(path, delimiter)
     return list(itertools.chain.from_iterable(iter_raw_data))
 
