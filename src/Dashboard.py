@@ -1,22 +1,20 @@
 # coding : utf-8
 
 from typing import (Any, Dict, Iterator, List, Union)
-from src.paths import study_dir
+from src.paths import study_frames_dir
 import src.common_utils as cu
 from src.common_utils import InputError
 import copy
 
 def read_(study_ISO: str)-> Dict[str, str]:
-    study_frame_path = 'study_frames_'+ study_ISO
-    dashboard_filepath = 'Dashboard_' + study_ISO + '.csv'
-    dashboard_path = study_dir / study_frame_path / dashboard_filepath
+    dashboard_path = study_frames_dir / study_ISO / 'Dashboard.csv'
     dashboard_raw = cu._read_csv(dashboard_path, delimiter=';')
     dashboard_data = filter_comment_in_dashboard(dashboard_raw)
     dashboard_data = _convert_dashboard_values(dashboard_data)
     _validate_or_raise_dashboard(copy.deepcopy(dashboard_data))
     dashboard = nested_list_to_dict(dashboard_data)
     dashboard = convert_boolean_in_dict(dashboard)
-    dashboard['Country_selection'] = study_ISO
+    dashboard['Country'] = study_ISO
     return dashboard
 
 
