@@ -4,6 +4,7 @@ from typing import (Any, Dict, Iterator, List, Union)
 from src.paths import study_dir
 import src.common_utils as cu
 from src.common_utils import InputError
+import copy
 
 def read_(study_ISO: str)-> Dict[str, str]:
     study_frame_path = 'study_frames_'+ study_ISO
@@ -11,9 +12,9 @@ def read_(study_ISO: str)-> Dict[str, str]:
     dashboard_path = study_dir / study_frame_path / dashboard_filepath
     dashboard_raw = cu._read_csv(dashboard_path, delimiter=';')
     dashboard_data = filter_comment_in_dashboard(dashboard_raw)
-    dashboard_data = convert_dashboard_values(dashboard_data)
-    _validate_or_raise_dashboard(dashboard_data)
-    dashboard = nested_list_to_dict(filtered_dashboard)
+    dashboard_data = _convert_dashboard_values(dashboard_data)
+    _validate_or_raise_dashboard(copy.deepcopy(dashboard_data))
+    dashboard = nested_list_to_dict(dashboard_data)
     dashboard = convert_boolean_in_dict(dashboard)
     dashboard['Country_selection'] = study_ISO
     return dashboard
@@ -36,7 +37,10 @@ def _convert_dashboard_values(dashboard_data: Iterator[List[List[str]]]
                              ) -> Iterator[List[List[Union[str, int, bool]]]]:
     out_dashboard_data = list()
     for row in dashboard_data:
-        value = row[1]
+        try:
+            value = row[1]
+        except IndexError:
+            value = None
         if is_bool(value):
             row[1] = boolean_str_map[value]
         elif is_int(value):
@@ -55,7 +59,7 @@ def is_int(entry: str) -> bool:
     try:
         int(entry)
         return True
-    except ValueError:
+    except (ValueError, TypeError):
         return False
 
 
@@ -64,8 +68,7 @@ def _validate_or_raise_dashboard(dashboard_data: Iterator[List[List[Union[str, i
     data_to_validate = list(dashboard_data)
     iteration_message = _compose_iteration_nb_message(data_to_validate)
     _, duplicates = cu.filter_list_duplicate(data_to_validate)
-    if duplicates:
-        duplicates_message = _compose_duplicates_message(duplicates)
+    duplicates_message = _compose_duplicates_message(duplicates)
     if iteration_message or duplicates_message:
         raise InputError(iteration_message+'\n'+duplicates_message)
 
@@ -85,6 +88,8 @@ def _compose_duplicates_message(dashb_categories_duplicates: List[str]) -> None:
                              'Macro_nb':"various types of macroeconomic framework been selected in Dashboard.",
                              'CO2_footprint':"You have to choose whether or not you want to realise an Input-Output Analysis about carbon footprint.",
                              'Output_files':"You have to choose whether or not you want to print outputs in external files."}
+    if not dashb_categories_duplicates:
+        return ''
     messages = list()
     for duplicate_dashb_category in dashb_categories_duplicates:
         messages.append(dashb_categories_mess[duplicate_dashb_category])
