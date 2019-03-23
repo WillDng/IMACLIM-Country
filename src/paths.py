@@ -2,7 +2,7 @@
 
 import pathlib
 
-basedir = pathlib.Path(__file__).parent.parent
+basedir = pathlib.Path(__file__).parents[1]
 
 
 data_dir = basedir  / 'data'

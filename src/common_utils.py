@@ -3,7 +3,7 @@
 import sys
 import csv
 import pathlib as pl
-from src.parameters import linebreaker
+from src.parameters import (linebreaker, file_delimiter)
 from typing import (Any, Dict, Iterator, List, Tuple)
 
 def read_dict(path: pl.Path, value_col: int, key_col: int = 0,
@@ -36,7 +36,8 @@ def _warns_if_bad_delimiter(file_content: List[List[str]], file_path: pl.Path):
 def _remove_trailing_blanks(file_content: List[List[str]]):
     clean_file_content = list()
     for row in file_content:
-        clean_file_content.append(list(filter(None, row)))
+        row_str = file_delimiter.join(row).rstrip(file_delimiter)
+        clean_file_content.append(row_str.split(file_delimiter))
     return clean_file_content
 
 

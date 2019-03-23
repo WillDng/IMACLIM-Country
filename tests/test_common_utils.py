@@ -18,10 +18,10 @@ def test_warns_if_bad_delimiter(capsys):
 
 def test_remove_trailing_blanks():
     file_content = [['Crude_oil', 'Commodities', 'EnerSect', '', ''],
-                    ['Natural_gas', 'Commodities', 'EnerSect', ''],
+                    ['', 'Commodities', 'EnerSect', ''],
                     ['Coking_coal', 'Commodities', 'EnerSect', '', '', '']]
     expected_file_content = [['Crude_oil', 'Commodities', 'EnerSect'],
-                             ['Natural_gas', 'Commodities', 'EnerSect'],
+                             ['', 'Commodities', 'EnerSect'],
                              ['Coking_coal', 'Commodities', 'EnerSect']]
     assert cu._remove_trailing_blanks(file_content) == expected_file_content
 
