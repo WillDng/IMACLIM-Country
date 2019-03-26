@@ -56,7 +56,7 @@ def filter_list_duplicate(entry_iter_list: Iterator[List[Any]],
             seen_item.append(key_item)
     return iter(out_list), duplicates
 
-def raise_if_duplicates(duplicates: Dict[str, str],
+def raise_if_duplicates(duplicates: List[str],
                          path: pl.Path) -> None:
     if duplicates:
         raise InputError(', '.join(duplicates) + ' have duplicates in ' +

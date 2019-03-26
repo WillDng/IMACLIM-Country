@@ -9,7 +9,7 @@ import numpy as np
 import operator
 import pandas as pd
 import pathlib as pl
-from src.common_utils import _read_csv
+from src import common_utils as cu
 from src.parameters import (linebreaker, dir_separator, IOT_balance_tolerance)
 from typing import (Any, Dict, List, Iterator, Tuple, Union)
 
@@ -39,25 +39,32 @@ def get_filename_from(path: pl.Path):
 
 
 def read_activities_mapping(mapping_path: pl.Path, delimiter: str='|',
-                            headers: List[List[str]] = None) -> Dict[str, List[str]]:
+                            headers: Union[List[List[str]], None] = None
+                            ) -> Dict[str, List[str]]:
     """ Hypothesis : in first column are the names of the activities and in columns aggregates names """
-    mapping_raw_data = _read_csv(mapping_path, delimiter)
-    read_mapping = _aggregate_activities(mapping_raw_data)
+    mapping_raw_data = cu._read_csv(mapping_path, delimiter)
+    read_mapping = extract_activities_mapping(mapping_raw_data, mapping_path)
     if headers:
         read_mapping = _change_activities_order_in(read_mapping, headers)
     return read_mapping
 
 
-def _aggregate_activities(activities_mapping: Iterator[List[str]]) -> Dict[str, List[str]]:
+def extract_activities_mapping(activities_mapping: Iterator[List[str]],
+                               mapping_filpath : str,
+                               col: Union[int, None]=None
+                               ) -> Dict[str, List[str]]:
     read_mapping = collections.defaultdict(list)
     for activity_description in activities_mapping:
-        activity, categories = activity_description[0], activity_description[1:]
+        activity = activity_description[0]
+        if col is None:
+            categories = activity_description[1:]
+        else:
+            categories = [activity_description[col]]
+        categories, duplicates = cu.filter_list_duplicate(categories)
+        if duplicates:
+            cu.raise_if_duplicates(duplicates, mapping_filpath)
         for category in categories:
-            if activity not in read_mapping[category]:
                 read_mapping[category].append(activity)
-            else:
-                pass
-                # FIXME should raise warning ?
     return dict(read_mapping)
 
 
