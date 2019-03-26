@@ -15,10 +15,18 @@ def read_dict(path: pl.Path, value_col: int, key_col: int = 0,
                                                       key_col=key_col)
         if raises:
             raise_if_duplicates(duplicates, path)
+    return fill_dict(iter_data, key_col, value_col)
+
+
+def fill_dict(entry_data: Iterator,
+              value_col: int,
+              key_col: int = 0
+              ) -> Dict[str, str]:
     out_dict = dict()
-    for row in iter_data:
+    for row in entry_data:
         out_dict[row[key_col]] = row[value_col]
     return out_dict
+
 
 def _read_csv(path: pl.Path, delimiter: str) -> Iterator[List[str]]:
     mapping_raw_data = list(csv.reader(open(path), delimiter=delimiter))
