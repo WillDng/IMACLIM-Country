@@ -4,6 +4,7 @@ import pathlib as pl
 import src.common_utils as cu
 from src.paths import data_dir
 from typing import (Dict, Iterator)
+import copy
 import ipdb
 
 # def read_file(data_path: pl.Path) -> Dict[str, Dict[str, str]]:
@@ -19,3 +20,11 @@ def extract_agg(raw_data: Iterator) -> Dict[str, Dict[str, str]]:
         for agg_type_index, agg_type in enumerate(agg_types):
             out_agg[agg_type][activity_row[0]] = activity_row[agg_type_index+1]
     return out_agg
+
+
+def complete_missing_keys(dict_to_commplete, headers):
+    completed_dict = copy.deepcopy(dict_to_commplete)
+    missing_keys = set(headers) - set(dict_to_commplete.keys())
+    for missing_key in missing_keys:
+        completed_dict[missing_key] = missing_key
+    return completed_dict

@@ -11,3 +11,11 @@ def test_extract_aggregation():
                             'AGG_MetMin': {'a':'c', 'e':'g', 'i':'k'},
                             'AGG_IndEner': {'a':'d', 'e':'h', 'i':'l'}}
     assert Aggregation.extract_agg(iter_aggregattion) == expected_aggregation
+
+
+def test_complete_missing_keys():
+    headers = ['a', 'b', 'c', 'd']
+    dict_to_complete = {'a':'b', 'e':'f', 'i':'j'}
+    expected_completed_dict = {'a':'b', 'e':'f', 'i':'j',
+                               'b':'b', 'c':'c', 'd':'d'}
+    assert Aggregation.complete_missing_keys(dict_to_complete, headers)
