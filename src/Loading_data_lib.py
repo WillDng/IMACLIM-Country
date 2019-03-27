@@ -1,7 +1,6 @@
 # coding : utf-8
 
 import sys
-import collections
 import copy
 import functools
 import itertools
@@ -53,19 +52,20 @@ def extract_activities_mapping(activities_mapping: Iterator[List[str]],
                                mapping_filpath : str,
                                col: Union[int, None]=None
                                ) -> Dict[str, List[str]]:
-    read_mapping = collections.defaultdict(list)
+    read_mapping = dict()
     for activity_description in activities_mapping:
         activity = activity_description[0]
         if col is None:
             categories = activity_description[1:]
         else:
             categories = [activity_description[col]]
-        categories, duplicates = cu.filter_list_duplicate(categories)
-        if duplicates:
-            cu.raise_if_duplicates(duplicates, mapping_filpath)
+        # categories, duplicates = cu.filter_list_duplicate(categories)
+        # ipdb.set_trace()
+        # if duplicates:
+        #     cu.raise_if_duplicates(duplicates, mapping_filpath)
         for category in categories:
-                read_mapping[category].append(activity)
-    return dict(read_mapping)
+                read_mapping.setdefault(category, list()).append(activity)
+    return read_mapping
 
 
 def _change_activities_order_in(input_mapping: List[List[str]],
