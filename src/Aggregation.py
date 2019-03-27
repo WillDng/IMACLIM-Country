@@ -1,12 +1,11 @@
 # coding : utf-8
 
+import copy
 import pathlib as pl
 import src.common_utils as cu
 import src.Loading_data_lib as ldl
 from src.paths import data_dir
-import collections
 from typing import (Dict, Iterator, List, Union)
-import copy
 import ipdb
 
 # def read_file(data_path: pl.Path) -> Dict[str, Dict[str, str]]:
@@ -35,3 +34,16 @@ def complete_missing_keys(dict_to_commplete, headers):
     for missing_key in missing_keys:
         completed_dict[missing_key] = missing_key
     return completed_dict
+
+
+def aggregate_in_list(list_to_aggregate: List[str],
+                      aggregation_mapping: Dict[str, List[str]]
+                      ) -> List[str]:
+    aggregated_list = list()
+    remaining_items = set(list_to_aggregate)
+    for group, members in aggregation_mapping.items():
+        members_set = set(members)
+        if members_set.issubset(remaining_items):
+            aggregated_list.append(group)
+            remaining_items -= members_set
+    return list(aggregated_list)+list(remaining_items)
