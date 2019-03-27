@@ -100,7 +100,7 @@ def change_order_of(unordered_activities: List[str],
 
 def read_categories_coordinates(mapping_path: pl.Path, delimiter='|'
                                 ) -> Dict[str, List[str]]:
-    mapping_raw_data = _read_csv(mapping_path, delimiter)
+    mapping_raw_data = cu._read_csv(mapping_path, delimiter)
     read_mapping = _map_categories_to_coordinates(mapping_raw_data)
     return read_mapping
 

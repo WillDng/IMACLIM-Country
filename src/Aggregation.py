@@ -1,6 +1,7 @@
 # coding : utf-8
 
 import copy
+import pandas as pd
 import pathlib as pl
 import src.common_utils as cu
 import src.Loading_data_lib as ldl
@@ -34,6 +35,15 @@ def complete_missing_keys(dict_to_commplete, headers):
     for missing_key in missing_keys:
         completed_dict[missing_key] = missing_key
     return completed_dict
+
+
+def aggregate_coordinates(activities_to_aggregate: List[str],
+                          aggregation_mapping: Dict[str, List[str]],
+                          header: pd.Index
+                          ) -> List[str]:
+    unordered_activities = aggregate_in_list(activities_to_aggregate,
+                                             aggregation_mapping)
+    return ldl.change_order_of(unordered_activities, header)
 
 
 def aggregate_in_list(list_to_aggregate: List[str],
