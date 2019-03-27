@@ -124,7 +124,7 @@ def test_get_matching_header_for(ill_ordered_activities, IOT_part_headers):
 
 
 def test_change_order_of(ill_ordered_activities, IOT_part_headers):
-    assert ld._change_order_of(ill_ordered_activities,
+    assert ld.change_order_of(ill_ordered_activities,
                                IOT_part_headers[1]) == ['Coking_coal', 'Crude_oil', 'Natural_gas', 'X']
 
 

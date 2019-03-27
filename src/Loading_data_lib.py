@@ -82,7 +82,7 @@ def _get_and_change_order_of(activities: List[str],
                              reference_headers: List[List[str]]
                              ) -> List[str]:
     reference_header = _get_matching_header_for(activities, reference_headers)
-    return _change_order_of(activities, reference_header)
+    return change_order_of(activities, reference_header)
 
 
 def _get_matching_header_for(unordered_activities: List[str],
@@ -92,7 +92,7 @@ def _get_matching_header_for(unordered_activities: List[str],
                key=lambda header: len(np.intersect1d(unordered_activities, header)))
 
 
-def _change_order_of(unordered_activities: List[str],
+def change_order_of(unordered_activities: List[str],
                      header: pd.Index):
     return sorted(unordered_activities,
                   key=lambda individual: list(header).index(individual))
