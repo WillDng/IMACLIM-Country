@@ -5,8 +5,8 @@ from src import Aggregation
 
 def test_complete_missing_keys():
     headers = ['a', 'b', 'c', 'd']
-    dict_to_complete = {'a':'b', 'e':'f', 'i':'j'}
-    expected_completed_dict = {'a':'b', 'e':'f', 'i':'j',
+    dict_to_complete = {'a':'z', 'e':'f', 'i':'j'}
+    expected_completed_dict = {'a':'z', 'e':'f', 'i':'j',
                                'b':'b', 'c':'c', 'd':'d'}
     assert Aggregation.complete_missing_keys(dict_to_complete, headers)
 
