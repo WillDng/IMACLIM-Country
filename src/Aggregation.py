@@ -37,6 +37,18 @@ def complete_missing_keys(dict_to_commplete, headers):
     return completed_dict
 
 
+def aggregate_activities_mapping(activities_mapping: Dict[str, List[str]],
+                                 aggregation_mapping: Dict[str, List[str]],
+                                 headers: List[pd.Index]
+                                 ) -> Dict[str, List[str]]:
+    aggregated_activities_mapping = dict()
+    ipdb.set_trace()
+    for category, activities in activities_mapping.items():
+        aggregated_activities_mapping[category] = aggregate_activities(activities,
+                                                                       aggregation_mapping,
+                                                                       ldl.get_matching_header_for(activities,
+                                                                                                   headers))
+    return aggregated_activities_mapping
 
 
 def aggregate_activities(activities_to_aggregate: List[str],
