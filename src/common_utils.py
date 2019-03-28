@@ -28,10 +28,14 @@ def fill_dict(entry_data: Iterator,
     return out_dict
 
 
-def _read_csv(path: pl.Path, delimiter: str) -> Iterator[List[str]]:
+def _read_csv(path: pl.Path,
+              delimiter: str,
+              remove_blanks: bool=True) -> Iterator[List[str]]:
     mapping_raw_data = list(csv.reader(open(path), delimiter=delimiter))
     _warns_if_bad_delimiter(mapping_raw_data, path)
-    return iter(_remove_trailing_blanks(mapping_raw_data))
+    if remove_blanks:
+        mapping_raw_data = _remove_trailing_blanks(mapping_raw_data)
+    return iter(mapping_raw_data)
 
 def _warns_if_bad_delimiter(file_content: List[List[str]], file_path: pl.Path):
     callers_caller = sys._getframe(3).f_code.co_name
