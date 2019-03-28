@@ -120,7 +120,7 @@ def IOT_part_headers():
 
 
 def test_get_matching_header_for(ill_ordered_activities, IOT_part_headers):
-    pd.testing.assert_index_equal(ld._get_matching_header_for(ill_ordered_activities, IOT_part_headers), IOT_part_headers[1])
+    pd.testing.assert_index_equal(ld.get_matching_header_for(ill_ordered_activities, IOT_part_headers), IOT_part_headers[1])
 
 
 def test_change_order_of(ill_ordered_activities, IOT_part_headers):

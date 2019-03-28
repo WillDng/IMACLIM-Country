@@ -37,9 +37,11 @@ def complete_missing_keys(dict_to_commplete, headers):
     return completed_dict
 
 
-def aggregate_coordinates(activities_to_aggregate: List[str],
-                          aggregation_mapping: Dict[str, List[str]],
-                          header: pd.Index
+
+
+def aggregate_activities(activities_to_aggregate: List[str],
+                         aggregation_mapping: Dict[str, List[str]],
+                         header: pd.Index
                           ) -> List[str]:
     unordered_activities = aggregate_in_list(activities_to_aggregate,
                                              aggregation_mapping)

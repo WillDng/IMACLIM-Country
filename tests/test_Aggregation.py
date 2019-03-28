@@ -44,7 +44,7 @@ def test_aggregate_in_list():
                                              aggregation_mapping)) == set(expected_aggregated_list)
 
 
-def test_aggregate_coordinates():
+def test_aggregate_activities():
     given_index = pd.Index(['Crude_oil', 'Natural_gas', 'Coal', 'AllFuels', 'Electricity',
                             'HeatGeoSol_Th', 'Heavy_Industry', 'Buildings_constr', 'Work_constr',
                             'Automobile', 'OthSectors', 'Load_PipeTransp', 'PassTransp',
@@ -67,6 +67,6 @@ def test_aggregate_coordinates():
                             'Energy_Tax_IC', 'Energy_Tax_FC', 'ClimPolCompensbySect',
                             'OtherIndirTax'],
                             dtype='object')
-    assert Aggregation.aggregate_coordinates(list_to_aggregate,
+    assert Aggregation.aggregate_activities(list_to_aggregate,
                                              aggregation_mapping,
                                              given_index) == expected_aggregated_list
