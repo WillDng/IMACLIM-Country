@@ -39,13 +39,24 @@ def get_filename_from(path: pl.Path):
 
 def read_activities_mapping(mapping_path: pl.Path, delimiter: str='|',
                             headers: Union[List[List[str]], None] = None
-                            ) -> Dict[str, List[str]]:
+                            ) -> Dict[str, Dict[str, List[str]]]:
     """ Hypothesis : in first column are the names of the activities and in columns aggregates names """
-    mapping_raw_data = cu._read_csv(mapping_path, delimiter)
-    read_mapping = extract_activities_mapping(mapping_raw_data, mapping_path)
-    if headers:
-        read_mapping = _change_activities_order_in(read_mapping, headers)
-    return read_mapping
+    mapping_raw_data = cu._read_csv(mapping_path,
+                                    delimiter,
+                                    remove_blanks=False)
+    file_header = list(filter(None, mapping_raw_data.__next__()))
+    mapping_raw_data = list(mapping_raw_data)
+    activities_mapping = dict()
+    for grouping_index, grouping_name in enumerate(file_header):
+        read_mapping = extract_activities_mapping(mapping_raw_data,
+                                                  mapping_path,
+                                                  col=grouping_index+1)
+        if read_mapping.get('', None):
+            del read_mapping['']
+        if headers:
+            read_mapping = _change_activities_order_in(read_mapping, headers)
+        activities_mapping[grouping_name] = read_mapping
+    return activities_mapping
 
 
 def extract_activities_mapping(activities_mapping: Iterator[List[str]],
@@ -59,18 +70,14 @@ def extract_activities_mapping(activities_mapping: Iterator[List[str]],
             categories = activity_description[1:]
         else:
             categories = [activity_description[col]]
-        # categories, duplicates = cu.filter_list_duplicate(categories)
-        # ipdb.set_trace()
-        # if duplicates:
-        #     cu.raise_if_duplicates(duplicates, mapping_filpath)
         for category in categories:
                 read_mapping.setdefault(category, list()).append(activity)
     return read_mapping
 
 
-def _change_activities_order_in(input_mapping: List[List[str]],
+def _change_activities_order_in(input_mapping: Dict[str, List[str]],
                                 reference_headers: List[List[str]]
-                                ) -> List[List[str]]:
+                                ) -> Dict[str, List[str]]:
     reordered_mapping = dict()
     for category, activities in input_mapping.items():
         reordered_mapping[category] = _get_and_change_order_of(activities,
