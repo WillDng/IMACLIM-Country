@@ -29,9 +29,19 @@ def read_aggregation(dashb: Dict[str, str]):
     return agg_keys, agg_values
 
 
-def complete_missing_keys(dict_to_commplete, headers):
-    completed_dict = copy.deepcopy(dict_to_commplete)
-    missing_keys = set(headers) - set(dict_to_commplete.keys())
+def aggregate_IOT(IOT: pd.DataFrame,
+                  aggregation: Dict[str, List[str]]
+                  ) -> pd.DataFrame:
+    index_aggregation  = complete_missing_keys(aggregation, IOT.index)
+    index_aggregated_IOT = IOT.groupby(index_aggregation, sort=False).sum()
+    columns_aggregation = complete_missing_keys(aggregation, IOT.columns)
+    aggregated_IOT = index_aggregated_IOT.groupby(columns_aggregation, axis=1, sort=False).sum()
+    return aggregated_IOT
+
+
+def complete_missing_keys(dict_to_complete, headers):
+    completed_dict = copy.deepcopy(dict_to_complete)
+    missing_keys = set(headers) - set(dict_to_complete.keys())
     for missing_key in missing_keys:
         completed_dict[missing_key] = missing_key
     return completed_dict

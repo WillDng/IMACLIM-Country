@@ -81,11 +81,11 @@ def _change_activities_order_in(input_mapping: List[List[str]],
 def _get_and_change_order_of(activities: List[str],
                              reference_headers: List[List[str]]
                              ) -> List[str]:
-    reference_header = _get_matching_header_for(activities, reference_headers)
+    reference_header = get_matching_header_for(activities, reference_headers)
     return change_order_of(activities, reference_header)
 
 
-def _get_matching_header_for(unordered_activities: List[str],
+def get_matching_header_for(unordered_activities: List[str],
                              headers: List[pd.Index]
                              ) -> List[str]:
     return max(headers,
