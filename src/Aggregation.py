@@ -72,7 +72,7 @@ def aggregate_activities(activities_to_aggregate: List[str],
 
 def aggregate_in_list(list_to_aggregate: List[str],
                       aggregation_mapping: Dict[str, List[str]]
-                      ) -> List[str]:
+                      ) -> (List[str], Set[str]):
     aggregated_list = list()
     remaining_items = set(list_to_aggregate)
     for group, members in aggregation_mapping.items():
@@ -80,4 +80,4 @@ def aggregate_in_list(list_to_aggregate: List[str],
         if members_set.issubset(remaining_items):
             aggregated_list.append(group)
             remaining_items -= members_set
-    return list(aggregated_list)+list(remaining_items)
+    return list(aggregated_list), remaining_items

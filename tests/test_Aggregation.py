@@ -40,8 +40,10 @@ expected_aggregated_list = ['Crude_oil', 'Natural_gas', 'Coal', 'AllFuels',
                             'PassTransp', 'Agri_Food_industry', 'Property_business']
 
 def test_aggregate_in_list():
-    assert set(Aggregation.aggregate_in_list(list_to_aggregate,
-                                             aggregation_mapping)) == set(expected_aggregated_list)
+    unordered_activities, remaining_activities = Aggregation.aggregate_in_list(list_to_aggregate,
+                                                                               aggregation_mapping)
+    unordered_activities += list(remaining_activities)
+    assert set(unordered_activities) == set(expected_aggregated_list)
 
 
 def test_aggregate_activities():
