@@ -6,14 +6,28 @@ import pathlib as pl
 import src.common_utils as cu
 import src.Loading_data_lib as ldl
 from src.paths import data_dir
-from typing import (Dict, Iterator, List, Union)
+from typing import (Dict, Iterator, List, Set, Union)
 import ipdb
 
-# def read_file(data_path: pl.Path) -> Dict[str, Dict[str, str]]:
-#      iter
-#     iter_data = _read_csv(path, delimiter)
 
-def read_aggregation(dashb: Dict[str, str]):
+def apply_aggregation(dashb: Dict[str, str],
+                      IOT: pd.DataFrame,
+                      activities_mapping: Dict[str, List[str]]
+                      ) -> (pd.DataFrame, Dict[str, List[str]]):
+    if dashb['AGG_type'] == '':
+        return IOT, activities_mapping
+    keys_aggregation, values_aggregation = read_aggregation(dashb)
+    ipdb.set_trace()
+    aggregated_IOT = aggregate_IOT(IOT, keys_aggregation)
+    aggregated_activities_mapping = aggregate_activities_mapping(activities_mapping,
+                                                                 keys_aggregation,
+                                                                 values_aggregation,
+                                                                 ldl.get_headers_from(aggregated_IOT))
+    return aggregated_IOT, aggregated_activities_mapping
+
+
+def read_aggregation(dashb: Dict[str, str]
+                     ) -> (Dict[str, str], Dict[str, List[str]]):
     agg_filepath = dashb['data_dir'] / 'aggregation.csv'
     aggregation_raw_data = cu._read_csv(agg_filepath, delimiter=';')
     #FIXME delimiter is hardcoded
