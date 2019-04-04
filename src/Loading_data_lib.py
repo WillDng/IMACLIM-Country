@@ -93,16 +93,17 @@ def _get_and_change_order_of(activities: List[str],
 
 
 def get_matching_header_for(unordered_activities: List[str],
-                             headers: List[pd.Index]
-                             ) -> List[str]:
+                            headers: List[pd.Index]
+                            ) -> List[str]:
     return max(headers,
                key=lambda header: len(np.intersect1d(unordered_activities, header)))
 
 
 def change_order_of(unordered_activities: List[str],
                      header: pd.Index):
+    header = list(header)
     return sorted(unordered_activities,
-                  key=lambda individual: list(header).index(individual))
+                  key=lambda individual: header.index(individual))
 
 
 def read_categories_coordinates(mapping_path: pl.Path, delimiter='|'
@@ -161,7 +162,7 @@ def map_categories_to_activities_coordinates(category_coordinates_mapping: Dict[
     activities_coordinates = dict()
     for category, categories_coordinates in category_coordinates_mapping.items():
         activities_coordinates[category] = tuple(_map_values_to_list(categories_coordinates,
-                                                                     activities_mapping))
+                                                                     activities_mapping['Type']))
     return activities_coordinates
 
 

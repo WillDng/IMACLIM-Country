@@ -161,8 +161,15 @@ def activities_coordinates_mapping():
 def test_map_categories_to_activities_coordinates(categories_coordinates_mapping,
                                                   ordered_activities_mapping,
                                                   activities_coordinates_mapping):
+    grouped_ordered_activities_mapping = {'Type': {'Commodities': ['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                                                   'OthPart_IOT': ['Labour_Tax', 'Labour_income'],
+                                                   'Sectors': ['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                                                   'FC': ['I', 'X']},
+                                          'Sub-type': {'EnerSect': ['Coking_coal', 'Crude_oil', 'Natural_gas'],
+                                                       'Value_Added': ['Labour_Tax', 'Labour_income'],
+                                                       'NonSupplierSect': ['Coking_coal', 'Crude_oil', 'Natural_gas']}}
     mapped_activities_coordinates_mapping = ld.map_categories_to_activities_coordinates(categories_coordinates_mapping,
-                                                                                        ordered_activities_mapping)
+                                                                                        grouped_ordered_activities_mapping)
     assert mapped_activities_coordinates_mapping == activities_coordinates_mapping
 
 
