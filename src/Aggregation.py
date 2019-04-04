@@ -55,6 +55,18 @@ def aggregate_activities_mapping(activities_mapping: Dict[str, List[str]],
     return aggregated_activities_mapping
 
 
+def sort_remaining_activities(remaining_activities: Set[str],
+                              unordered_agg_activities: List[str],
+                              categoryless_activities: List[str],
+                              ordering_header: pd.Index
+                              ) -> (List[str], List[str]):
+    if remaining_activities.issubset(set(ordering_header)):
+        unordered_agg_activities += list(remaining_activities)
+    else:
+        categoryless_activities.extend(list(remaining_activities))
+    return unordered_agg_activities, categoryless_activities
+
+
 def treat_remaining(grouping_name: str,
                     remaining_activities: List[str],
                     values_aggregation: Dict[str, List[str]],
