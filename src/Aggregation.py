@@ -47,11 +47,34 @@ def complete_missing_keys(dict_to_complete, headers):
     return completed_dict
 
 
-def aggregate_activities_mapping(activities_mapping: Dict[str, List[str]],
-                                 aggregation_mapping: Dict[str, List[str]],
-                                 headers: List[pd.Index]
-                                 ) -> Dict[str, List[str]]:
+def aggregate_activities_mapping(activities_mapping: Dict[str, Dict[str, List[str]]],
+                                 keys_aggregation : Dict[str, str],
+                                 values_aggregation: Dict[str, List[str]],
+                                 headers: List[pd.DataFrame],
+                                 ) -> Dict[str, Dict[str, List[str]]]:
     aggregated_activities_mapping = dict()
+    for grouping_name, grouping_values in activities_mapping.items():
+        aggregated_mappping = dict()
+        categoryless_activities = list()
+        for category, activities in grouping_values.items():
+            unordered_agg_activities, remaining_activities = aggregate_in_list(activities,
+                                                                               values_aggregation)
+            ordering_header = ldl.get_matching_header_for(activities,
+                                                          headers)
+            if remaining_activities:
+                unordered_agg_activities, categoryless_activities = sort_remaining_activities(remaining_activities,
+                                                                                              unordered_agg_activities,
+                                                                                              categoryless_activities,
+                                                                                              ordering_header)
+            aggregated_mappping[category] = ldl.change_order_of(unordered_agg_activities,
+                                                                ordering_header)
+        if categoryless_activities and (has_remaining_treatment.get(grouping_name, False)):
+            aggregated_mappping = treat_remaining(grouping_name,
+                                                  categoryless_activities,
+                                                  values_aggregation,
+                                                  aggregated_mappping,
+                                                  ordering_header)
+        aggregated_activities_mapping[grouping_name] = aggregated_mappping
     return aggregated_activities_mapping
 
 
