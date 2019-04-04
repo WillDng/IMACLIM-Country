@@ -46,29 +46,3 @@ def test_aggregate_in_list():
     assert set(unordered_activities) == set(expected_aggregated_list)
 
 
-def test_aggregate_activities():
-    given_index = pd.Index(['Crude_oil', 'Natural_gas', 'Coal', 'AllFuels', 'Electricity',
-                            'HeatGeoSol_Th', 'Heavy_Industry', 'Buildings_constr', 'Work_constr',
-                            'Automobile', 'OthSectors', 'Load_PipeTransp', 'PassTransp',
-                            'Agri_Food_industry', 'Property_business', 'Labour_income',
-                            'Labour_Tax', 'Capital_income', 'Production_Tax', 'Profit_margin',
-                            'M_value', 'Trade_margins', 'Transp_margins', 'SpeMarg_Crude_oil',
-                            'SpeMarg_Natural_gas', 'SpeMarg_Coking_coal', 'SpeMarg_Bituminous_coal',
-                            'SpeMarg_Coke', 'SpeMarg_Other_coal', 'SpeMarg_Gasoline', 'SpeMarg_LPG',
-                            'SpeMarg_Jetfuel', 'SpeMarg_Fuel', 'SpeMarg_Fuel_oil',
-                            'SpeMarg_Heavy_fuel_oil', 'SpeMarg_Other_fuel_prod',
-                            'SpeMarg_Electricity', 'SpeMarg_HeatGeoSol_Th', 'SpeMarg_Steel_Iron',
-                            'SpeMarg_NonFerrousMetals', 'SpeMarg_Cement', 'SpeMarg_OthMin',
-                            'SpeMarg_Buildings_constr', 'SpeMarg_Work_constr',
-                            'SpeMarg_ChemicalPharma', 'SpeMarg_Paper', 'SpeMarg_Mining',
-                            'SpeMarg_Automobile', 'SpeMarg_OthTranspEquip',
-                            'SpeMarg_Load_PipeTransp', 'SpeMarg_PassTransp', 'SpeMarg_NavalTransp',
-                            'SpeMarg_AirTransp', 'SpeMarg_Agri_Forestry', 'SpeMarg_Fishing',
-                            'SpeMarg_Food_industry', 'SpeMarg_Property_business', 'SpeMarg_Comp',
-                            'SpeMarg_C', 'SpeMarg_G', 'SpeMarg_I', 'SpeMarg_X', 'VA_Tax',
-                            'Energy_Tax_IC', 'Energy_Tax_FC', 'ClimPolCompensbySect',
-                            'OtherIndirTax'],
-                            dtype='object')
-    assert Aggregation.aggregate_activities(list_to_aggregate,
-                                             aggregation_mapping,
-                                             given_index) == expected_aggregated_list

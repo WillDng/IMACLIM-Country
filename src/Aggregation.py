@@ -52,22 +52,9 @@ def aggregate_activities_mapping(activities_mapping: Dict[str, List[str]],
                                  headers: List[pd.Index]
                                  ) -> Dict[str, List[str]]:
     aggregated_activities_mapping = dict()
-    ipdb.set_trace()
-    for category, activities in activities_mapping.items():
-        aggregated_activities_mapping[category] = aggregate_activities(activities,
-                                                                       aggregation_mapping,
-                                                                       ldl.get_matching_header_for(activities,
-                                                                                                   headers))
     return aggregated_activities_mapping
 
 
-def aggregate_activities(activities_to_aggregate: List[str],
-                         aggregation_mapping: Dict[str, List[str]],
-                         header: pd.Index
-                          ) -> List[str]:
-    unordered_activities = aggregate_in_list(activities_to_aggregate,
-                                             aggregation_mapping)
-    return ldl.change_order_of(unordered_activities, header)
 
 
 def aggregate_in_list(list_to_aggregate: List[str],
