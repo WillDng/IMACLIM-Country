@@ -55,6 +55,34 @@ def aggregate_activities_mapping(activities_mapping: Dict[str, List[str]],
     return aggregated_activities_mapping
 
 
+def treat_remaining(grouping_name: str,
+                    remaining_activities: List[str],
+                    values_aggregation: Dict[str, List[str]],
+                    aggregated_mappping: Dict[str, Dict[str, List[str]]],
+                    header: pd.Index) -> Dict[str, Dict[str, List[str]]]:
+    treat_function = has_remaining_treatment[grouping_name]
+    new_aggregated_mapping = treat_function(remaining_activities,
+                                            values_aggregation,
+                                            aggregated_mappping,
+                                            header)
+    return new_aggregated_mapping
+
+
+def hybrid_treatment(remaining_activities: List[str],
+                     values_aggregation: Dict[str, List[str]],
+                     aggregated_mappping: Dict[str, Dict[str, List[str]]],
+                     header: pd.Index) -> Dict[str, Dict[str, List[str]]]:
+    unordered_agg_activities, remaining_activities = aggregate_in_list(remaining_activities,
+                                                                       values_aggregation)
+    remaining_header = 'NonHybridCommod'
+    unordered_agg_activities.extend(aggregated_mappping[remaining_header])
+    aggregated_mappping[remaining_header] = ldl.change_order_of(unordered_agg_activities,
+                                                                header)
+    return aggregated_mappping
+
+has_remaining_treatment = {'Hybrid': hybrid_treatment}
+
+
 
 
 def aggregate_in_list(list_to_aggregate: List[str],
