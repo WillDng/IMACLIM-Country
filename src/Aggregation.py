@@ -23,7 +23,7 @@ def apply_aggregation(dashb: Dict[str, str],
 
 def read_aggregation(dashb: Dict[str, str]
                      ) -> (Dict[str, str], Dict[str, List[str]]):
-    agg_filepath = dashb['data_dir'] / 'aggregation.csv'
+    agg_filepath = dashb['studydata_dir'] / 'aggregation.csv'
     aggregation_raw_data = cu._read_csv(agg_filepath, delimiter=';')
     # FIXME delimiter is hardcoded
     agg_header, aggregation_raw_data = list(filter(None, aggregation_raw_data.__next__())), list(aggregation_raw_data)
@@ -138,7 +138,5 @@ def hybrid_treatment(remaining_activities: List[str],
 
 
 has_remaining_treatment = {'Hybrid': hybrid_treatment}
-
-
 
 
