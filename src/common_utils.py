@@ -6,9 +6,10 @@ import pathlib as pl
 from src.parameters import (linebreaker, file_delimiter)
 from typing import (Any, Dict, Iterator, List, Tuple)
 
+
 def read_dict(path: pl.Path, value_col: int, key_col: int = 0,
-              delimiter: str='|', overwrite: bool=False,
-              raises: bool=False) -> Dict[str, str]:
+              delimiter: str = '|', overwrite: bool = False,
+              raises: bool = False) -> Dict[str, str]:
     iter_data = _read_csv(path, delimiter)
     if not overwrite:
         iter_data, duplicates = filter_list_duplicate(iter_data,
@@ -30,12 +31,13 @@ def fill_dict(entry_data: Iterator,
 
 def _read_csv(path: pl.Path,
               delimiter: str,
-              remove_blanks: bool=True) -> Iterator[List[str]]:
+              remove_blanks: bool = True) -> Iterator[List[str]]:
     mapping_raw_data = list(csv.reader(open(path), delimiter=delimiter))
     _warns_if_bad_delimiter(mapping_raw_data, path)
     if remove_blanks:
         mapping_raw_data = _remove_trailing_blanks(mapping_raw_data)
     return iter(mapping_raw_data)
+
 
 def _warns_if_bad_delimiter(file_content: List[List[str]], file_path: pl.Path):
     callers_caller = sys._getframe(3).f_code.co_name
@@ -54,7 +56,7 @@ def _remove_trailing_blanks(file_content: List[List[str]]):
 
 
 def filter_list_duplicate(entry_iter_list: Iterator[List[Any]],
-                          key_col: int=0) -> Tuple[Iterator[List[Any]], List[str]]:
+                          key_col: int = 0) -> Tuple[Iterator[List[Any]], List[str]]:
     out_list = list()
     seen_item = list()
     duplicates = list()
@@ -68,8 +70,9 @@ def filter_list_duplicate(entry_iter_list: Iterator[List[Any]],
             seen_item.append(key_item)
     return iter(out_list), duplicates
 
+
 def raise_if_duplicates(duplicates: List[str],
-                         path: pl.Path) -> None:
+                        path: pl.Path) -> None:
     if duplicates:
         raise InputError(', '.join(duplicates) + ' have duplicates in ' +
                          str(path))
@@ -78,6 +81,7 @@ def raise_if_duplicates(duplicates: List[str],
 class Error(Exception):
     """Base class for exceptions in this module."""
     pass
+
 
 class InputError(Error):
     """Exception raised for errors in the input.
@@ -88,3 +92,10 @@ class InputError(Error):
 
     def __init__(self, message):
         self.message = message
+
+
+def unpack_nested_dict(nested_dict):
+    unpacked_dict = dict()
+    for k1, v1 in nested_dict.items():
+        unpacked_dict.update(v1)
+    return unpacked_dict

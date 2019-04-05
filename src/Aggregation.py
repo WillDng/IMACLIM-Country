@@ -2,12 +2,9 @@
 
 import copy
 import pandas as pd
-import pathlib as pl
 import src.common_utils as cu
 import src.Loading_data_lib as ldl
-from src.paths import data_dir
-from typing import (Dict, Iterator, List, Set, Union)
-import ipdb
+from typing import (Dict, List, Set)
 
 
 def apply_aggregation(dashb: Dict[str, str],
@@ -17,10 +14,8 @@ def apply_aggregation(dashb: Dict[str, str],
     if dashb['AGG_type'] == '':
         return IOT, activities_mapping
     keys_aggregation, values_aggregation = read_aggregation(dashb)
-    ipdb.set_trace()
     aggregated_IOT = aggregate_IOT(IOT, keys_aggregation)
     aggregated_activities_mapping = aggregate_activities_mapping(activities_mapping,
-                                                                 keys_aggregation,
                                                                  values_aggregation,
                                                                  ldl.get_headers_from(aggregated_IOT))
     return aggregated_IOT, aggregated_activities_mapping
@@ -30,12 +25,12 @@ def read_aggregation(dashb: Dict[str, str]
                      ) -> (Dict[str, str], Dict[str, List[str]]):
     agg_filepath = dashb['data_dir'] / 'aggregation.csv'
     aggregation_raw_data = cu._read_csv(agg_filepath, delimiter=';')
-    #FIXME delimiter is hardcoded
+    # FIXME delimiter is hardcoded
     agg_header, aggregation_raw_data = list(filter(None, aggregation_raw_data.__next__())), list(aggregation_raw_data)
     chosen_aggregation = dashb['AGG_type']
     if chosen_aggregation not in agg_header:
         raise KeyError('Chosen aggregation is not available at ' + agg_filepath)
-    agg_index = agg_header.index(chosen_aggregation)+1
+    agg_index = agg_header.index(chosen_aggregation) + 1
     agg_keys = cu.fill_dict(aggregation_raw_data, agg_index)
     agg_values = ldl.extract_activities_mapping(aggregation_raw_data,
                                                 agg_filepath,
@@ -46,7 +41,7 @@ def read_aggregation(dashb: Dict[str, str]
 def aggregate_IOT(IOT: pd.DataFrame,
                   aggregation: Dict[str, List[str]]
                   ) -> pd.DataFrame:
-    index_aggregation  = complete_missing_keys(aggregation, IOT.index)
+    index_aggregation = complete_missing_keys(aggregation, IOT.index)
     index_aggregated_IOT = IOT.groupby(index_aggregation, sort=False).sum()
     columns_aggregation = complete_missing_keys(aggregation, IOT.columns)
     aggregated_IOT = index_aggregated_IOT.groupby(columns_aggregation, axis=1, sort=False).sum()
@@ -62,7 +57,6 @@ def complete_missing_keys(dict_to_complete, headers):
 
 
 def aggregate_activities_mapping(activities_mapping: Dict[str, Dict[str, List[str]]],
-                                 keys_aggregation : Dict[str, str],
                                  values_aggregation: Dict[str, List[str]],
                                  headers: List[pd.DataFrame],
                                  ) -> Dict[str, Dict[str, List[str]]]:
@@ -89,7 +83,20 @@ def aggregate_activities_mapping(activities_mapping: Dict[str, Dict[str, List[st
                                                   aggregated_mappping,
                                                   ordering_header)
         aggregated_activities_mapping[grouping_name] = aggregated_mappping
-    return aggregated_activities_mapping
+    return cu.unpack_nested_dict(aggregated_activities_mapping)
+
+
+def aggregate_in_list(list_to_aggregate: List[str],
+                      aggregation_mapping: Dict[str, List[str]]
+                      ) -> (List[str], Set[str]):
+    aggregated_list = list()
+    remaining_items = set(list_to_aggregate)
+    for group, members in aggregation_mapping.items():
+        members_set = set(members)
+        if members_set.issubset(remaining_items):
+            aggregated_list.append(group)
+            remaining_items -= members_set
+    return list(aggregated_list), remaining_items
 
 
 def sort_remaining_activities(remaining_activities: Set[str],
@@ -129,19 +136,9 @@ def hybrid_treatment(remaining_activities: List[str],
                                                                 header)
     return aggregated_mappping
 
+
 has_remaining_treatment = {'Hybrid': hybrid_treatment}
 
 
 
 
-def aggregate_in_list(list_to_aggregate: List[str],
-                      aggregation_mapping: Dict[str, List[str]]
-                      ) -> (List[str], Set[str]):
-    aggregated_list = list()
-    remaining_items = set(list_to_aggregate)
-    for group, members in aggregation_mapping.items():
-        members_set = set(members)
-        if members_set.issubset(remaining_items):
-            aggregated_list.append(group)
-            remaining_items -= members_set
-    return list(aggregated_list), remaining_items

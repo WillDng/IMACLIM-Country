@@ -162,7 +162,7 @@ def map_categories_to_activities_coordinates(category_coordinates_mapping: Dict[
     activities_coordinates = dict()
     for category, categories_coordinates in category_coordinates_mapping.items():
         activities_coordinates[category] = tuple(_map_values_to_list(categories_coordinates,
-                                                                     activities_mapping['Type']))
+                                                                     activities_mapping))
     return activities_coordinates
 
 
