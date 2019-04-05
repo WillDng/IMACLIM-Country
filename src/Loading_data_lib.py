@@ -9,7 +9,7 @@ import operator
 import pandas as pd
 import pathlib as pl
 from src import common_utils as cu
-from src.parameters import (linebreaker, dir_separator, IOT_balance_tolerance)
+from src.parameters import (linebreaker, IOT_balance_tolerance)
 from typing import (Any, Dict, List, Iterator, Tuple, Union)
 
 Coordinates = Tuple[List[str], List[str]]
@@ -37,7 +37,7 @@ def get_filename_from(path: pl.Path):
     return path.name
 
 
-def read_activities_mapping(mapping_path: pl.Path, delimiter: str='|',
+def read_activities_mapping(mapping_path: pl.Path, delimiter: str = '|',
                             headers: Union[List[List[str]], None] = None
                             ) -> Dict[str, Dict[str, List[str]]]:
     """ Hypothesis : in first column are the names of the activities and in columns aggregates names """
@@ -50,7 +50,7 @@ def read_activities_mapping(mapping_path: pl.Path, delimiter: str='|',
     for grouping_index, grouping_name in enumerate(file_header):
         read_mapping = extract_activities_mapping(mapping_raw_data,
                                                   mapping_path,
-                                                  col=grouping_index+1)
+                                                  col=grouping_index + 1)
         if read_mapping.get('', None):
             del read_mapping['']
         if headers:
@@ -60,8 +60,8 @@ def read_activities_mapping(mapping_path: pl.Path, delimiter: str='|',
 
 
 def extract_activities_mapping(activities_mapping: Iterator[List[str]],
-                               mapping_filpath : str,
-                               col: Union[int, None]=None
+                               mapping_filpath: str,
+                               col: Union[int, None] = None
                                ) -> Dict[str, List[str]]:
     read_mapping = dict()
     for activity_description in activities_mapping:
@@ -71,7 +71,7 @@ def extract_activities_mapping(activities_mapping: Iterator[List[str]],
         else:
             categories = [activity_description[col]]
         for category in categories:
-                read_mapping.setdefault(category, list()).append(activity)
+            read_mapping.setdefault(category, list()).append(activity)
     return read_mapping
 
 
@@ -100,7 +100,7 @@ def get_matching_header_for(unordered_activities: List[str],
 
 
 def change_order_of(unordered_activities: List[str],
-                     header: pd.Index):
+                    header: pd.Index):
     header = list(header)
     return sorted(unordered_activities,
                   key=lambda individual: header.index(individual))
@@ -137,7 +137,7 @@ def extract_IOTs_from(IOT: pd.DataFrame,
 
 def _slice_activities(IOT: pd.DataFrame,
                       activities_coordinates: List[List[str]]
-                     ) -> pd.DataFrame:
+                      ) -> pd.DataFrame:
     _check_coordinates_in_IOT(IOT, activities_coordinates)
     sliced_IOT = IOT.loc[activities_coordinates]
     return sliced_IOT
@@ -261,8 +261,8 @@ def modify_activity_value(IOT, coordinates: Coordinates,
     IOT.update(IOT.loc[coordinates].where(~condition, fill_values))
 
 
-def read_list(path: str, delimiter: str=',') -> List[str]:
-    iter_raw_data = _read_csv(path, delimiter)
+def read_list(path: str, delimiter: str = ',') -> List[str]:
+    iter_raw_data = cu._read_csv(path, delimiter)
     return list(itertools.chain.from_iterable(iter_raw_data))
 
 
@@ -296,6 +296,16 @@ def map_list_to_dict(interest_list: List[str],
     for interest_var in interest_list:
         output_dict[interest_var] = mapping_dictionary[interest_var]
     return output_dict
+
+
+def extend_activities_mapping(to_extend_activities_mapping_path: str,
+                              IOT: pd.DataFrame,
+                              common_mapping: Dict[str, List[str]]):
+    # FIXME delimiter is hardcoded
+    new_activities_mapping = read_activities_mapping(to_extend_activities_mapping_path,
+                                                     delimiter=',',
+                                                     headers=get_headers_from(IOT))
+    return dict(common_mapping, **cu.unpack_nested_dict(new_activities_mapping))
 
 
 # def _to_list_iter(entry: Any) -> Any:
