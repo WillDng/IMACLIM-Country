@@ -7,18 +7,19 @@ import src.Loading_data_lib as ldl
 from typing import (Dict, List, Set)
 
 
-def apply_aggregation(dashb: Dict[str, str],
-                      IOT: pd.DataFrame,
-                      activities_mapping: Dict[str, List[str]]
-                      ) -> (pd.DataFrame, Dict[str, List[str]]):
-    if dashb['AGG_type'] == '':
-        return IOT, activities_mapping
+def apply_value_aggregation(dashb: Dict[str, str],
+                            IOT: pd.DataFrame,
+                            activities_mapping: Dict[str, List[str]]
+                            ) -> (pd.DataFrame, Dict[str, List[str]]):
+    values_aggregation = None
+    if not dashb['AGG_type']:
+        return IOT, activities_mapping, values_aggregation
     keys_aggregation, values_aggregation = read_aggregation(dashb)
     aggregated_IOT = aggregate_IOT(IOT, keys_aggregation)
     aggregated_activities_mapping = aggregate_activities_mapping(activities_mapping,
                                                                  values_aggregation,
                                                                  ldl.get_headers_from(aggregated_IOT))
-    return aggregated_IOT, aggregated_activities_mapping
+    return aggregated_IOT, aggregated_activities_mapping, keys_aggregation
 
 
 def read_aggregation(dashb: Dict[str, str]
