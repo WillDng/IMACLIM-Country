@@ -84,3 +84,16 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
 
     return ld.extract_IOTs_from(IOT_quantity, quantity_coord), quantity_coord
 
+
+def get_IOT_prices(study_dashb: Dict[str, str],
+                   keys_aggregation: Union[Dict[str, str], None],
+                   quantity_coord: Dict[str, Tuple[List[str], List[str]]]
+                   ) -> Dict[str, pd.DataFrame]:
+    IOT_prices = ld.read_table(study_dashb['studydata_dir'] / 'IOT_Prices.csv',
+                               delimiter=';',
+                               skipfooter=1,
+                               engine='python')
+    if keys_aggregation:
+        IOT_prices = Agg.aggregate_IOT(IOT_prices,
+                                       keys_aggregation)
+    return ld.extract_IOTs_from(IOT_prices, quantity_coord)
