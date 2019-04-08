@@ -48,3 +48,39 @@ def get_IOT_values(study_dashb: Dict[str, str]
                        IOT_val, value_coord)
     return ld.extract_IOTs_from(IOT_val, value_coord), common_activities_mapping, keys_aggregation
 
+
+def get_IOT_quantities(study_dashb: Dict[str, str],
+                       common_activities_mapping: Dict[str, List[str]],
+                       keys_aggregation: Union[Dict[str, str], None]
+                       ) -> Dict[str, pd.DataFrame]:
+    IOT_quantity = ld.read_table(study_dashb['studydata_dir'] / 'IOT_Qtities.csv',
+                                 delimiter=';',
+                                 skipfooter=1,
+                                 engine='python')
+    if keys_aggregation:
+        IOT_quantity = Agg.aggregate_IOT(IOT_quantity, keys_aggregation)
+    quantity_activities_mapping = ld.extend_activities_mapping(study_dashb['studydata_dir'] / 'quantity_activities_mapping.csv',
+                                                               IOT_quantity,
+                                                               common_activities_mapping)
+    quantity_coord = ld.get_categories_coordinates(study_dashb['studydata_dir'] / 'quantity_categories_coordinates.csv',
+                                                   quantity_activities_mapping)
+    quantity_coord = ld.disaggregate_in_coordinates(quantity_coord,
+                                                    ['FC'], 'IC')
+    quantity_ressource_categories = ['M', 'Y']
+    ld.is_IOT_balanced(use_categories, quantity_ressource_categories,
+                       IOT_quantity, quantity_coord)
+    current_ERE = ld.get_ERE(use_categories, quantity_ressource_categories,
+                             IOT_quantity, quantity_coord)
+    quantity_uses_to_correct = {'Y': (IOT_quantity.loc[quantity_coord['Y']] != 0,
+                                      IOT_quantity.loc[quantity_coord['Y']] + current_ERE),
+                                'X': (IOT_quantity.loc[quantity_coord['Y']] == 0,
+                                      IOT_quantity.loc[quantity_coord['X']] - current_ERE)}
+    for use_to_correct, correction_info in quantity_uses_to_correct.items():
+        correction_condition, correction_value = correction_info
+        ld.modify_activity_value(IOT_quantity, quantity_coord[use_to_correct],
+                                 correction_condition, correction_value)
+    ld.is_IOT_balanced(use_categories, quantity_ressource_categories,
+                       IOT_quantity, quantity_coord)
+
+    return ld.extract_IOTs_from(IOT_quantity, quantity_coord), quantity_coord
+
