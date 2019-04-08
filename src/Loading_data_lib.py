@@ -308,6 +308,14 @@ def extend_activities_mapping(to_extend_activities_mapping_path: str,
     return dict(common_mapping, **cu.unpack_nested_dict(new_activities_mapping))
 
 
+def get_categories_coordinates(categories_coord_path,
+                               activities_mapping):
+    categories_coord = read_categories_coordinates(categories_coord_path,
+                                                   delimiter=',')
+    return map_categories_to_activities_coordinates(categories_coord,
+                                                    activities_mapping)
+
+
 # def _to_list_iter(entry: Any) -> Any:
 #     if not hasattr(entry, '__iter__'):
 #         return iter([entry])
