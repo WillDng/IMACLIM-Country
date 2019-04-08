@@ -97,3 +97,22 @@ def get_IOT_prices(study_dashb: Dict[str, str],
         IOT_prices = Agg.aggregate_IOT(IOT_prices,
                                        keys_aggregation)
     return ld.extract_IOTs_from(IOT_prices, quantity_coord)
+
+
+def get_IOT_CO2(study_dashb: Dict[str, str],
+                common_activities_mapping: Dict[str, List[str]],
+                keys_aggregation: Union[Dict[str, str], None],
+                ) -> Dict[str, pd.DataFrame]:
+    IOT_CO2 = ld.read_table(study_dashb['studydata_dir'] / 'IOT_CO2.csv',
+                            delimiter=';',
+                            skipfooter=1,
+                            engine='python')
+    if keys_aggregation:
+        IOT_CO2 = Agg.aggregate_IOT(IOT_CO2,
+                                    keys_aggregation)
+    CO2_activities_mapping = ld.extend_activities_mapping(study_dashb['studydata_dir'] / 'CO2_activities_mapping.csv',
+                                                          IOT_CO2,
+                                                          common_activities_mapping)
+    CO2_activities_coord = ld.get_categories_coordinates(study_dashb['studydata_dir'] / 'CO2_categories_coordinates.csv',
+                                                         CO2_activities_mapping)
+    return ld.extract_IOTs_from(IOT_CO2, CO2_activities_coord)
