@@ -5,7 +5,6 @@ import pytest
 import pandas as pd
 from src import Loading_data_lib as ld
 from src.parameters import linebreaker
-import sys
 
 mock_data_dir = 'tests/mock_data/'
 IOT_delimiter = ';'
@@ -125,7 +124,7 @@ def test_get_matching_header_for(ill_ordered_activities, IOT_part_headers):
 
 def test_change_order_of(ill_ordered_activities, IOT_part_headers):
     assert ld.change_order_of(ill_ordered_activities,
-                               IOT_part_headers[1]) == ['Coking_coal', 'Crude_oil', 'Natural_gas', 'X']
+                              IOT_part_headers[1]) == ['Coking_coal', 'Crude_oil', 'Natural_gas', 'X']
 
 
 @pytest.fixture()
@@ -161,15 +160,8 @@ def activities_coordinates_mapping():
 def test_map_categories_to_activities_coordinates(categories_coordinates_mapping,
                                                   ordered_activities_mapping,
                                                   activities_coordinates_mapping):
-    grouped_ordered_activities_mapping = {'Type': {'Commodities': ['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                                                   'OthPart_IOT': ['Labour_Tax', 'Labour_income'],
-                                                   'Sectors': ['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                                                   'FC': ['I', 'X']},
-                                          'Sub-type': {'EnerSect': ['Coking_coal', 'Crude_oil', 'Natural_gas'],
-                                                       'Value_Added': ['Labour_Tax', 'Labour_income'],
-                                                       'NonSupplierSect': ['Coking_coal', 'Crude_oil', 'Natural_gas']}}
     mapped_activities_coordinates_mapping = ld.map_categories_to_activities_coordinates(categories_coordinates_mapping,
-                                                                                        grouped_ordered_activities_mapping)
+                                                                                        ordered_activities_mapping)
     assert mapped_activities_coordinates_mapping == activities_coordinates_mapping
 
 
