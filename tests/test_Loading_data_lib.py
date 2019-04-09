@@ -275,3 +275,10 @@ def test_extract_households_accounts():
                              'Other_Transfers': 2.48562610e+07,
                              'Income_Tax': 1.42634000e+08}
     assert ld.extract_households_accounts(DataAccount, selected_accounts) == expected_data_account
+
+
+def test_filter_accounts_type():
+    to_pick_accounts, to_delete_accounts = ld.filter_accounts_type(selected_accounts)
+    assert ((to_pick_accounts == {'Income_Tax': 'Households',
+                                  'Corporate_Tax': 'Corporations'}) and
+            (to_delete_accounts == {'GFCF_byAgent': 'RestOfWorld'}))
