@@ -297,6 +297,16 @@ def extract_table_variables(table: pd.DataFrame, to_extract_variables: List[str]
         output_variables[to_extract_variable] = table.loc[to_extract_variable, interest_variable]
     return output_variables
 
+def trim_selected_accounts(account_table: pd.DataFrame,
+                           to_trim_accounts: Dict[str, str]
+                           ) -> Dict[str, pd.Series]:
+    trimmed_accounts = dict()
+    for to_trim_account, account_category in to_trim_accounts.items():
+        trimmed_categories = list(account_table.columns)
+        trimmed_categories.remove(account_category)
+        trimmed_accounts[to_trim_account] = account_table.loc[(to_trim_account, trimmed_categories)]
+    return trimmed_accounts
+
 
 def map_list_to_dict(interest_list: List[str],
                      mapping_dictionary: Dict[str, Any]
