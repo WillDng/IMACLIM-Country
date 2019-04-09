@@ -304,17 +304,26 @@ def test_filter_accounts_type():
             (to_trim_accounts == to_trim_accounts_ref))
 
 
-def assert_dict_series(left: Dict[str, pd.Series],
-                       right: Dict[str, pd.Series]
-                       ) -> bool:
-    for item, series in left.items():
-        pd.testing.assert_series_equal(left[item], right[item])
+assertions_func = {pd.DataFrame: pd.testing.assert_frame_equal,
+                   pd.Series: pd.testing.assert_series_equal,
+                   pd.Index: pd.testing.assert_index_equal}
+
+
+def assert_dicts_equals(left: Dict[str, Any],
+                        right: Dict[str, Any]
+                        ) -> bool:
+    for item, left_object in left.items():
+        object_type = type(left_object)
+        if object_type in assertions_func:
+            assertions_func[object_type](left_object, right[item])
+        else:
+            assert left_object == right[item]
 
 
 def test_trim_selected_accounts():
     expected_trimmed_accounts = {'GFCF_byAgent': pd.Series(np.array([200125000, 64284000, 112312000]),
                                                            index=institutions[:3],
                                                            name='GFCF_byAgent')}
-    assert_dict_series(ld.trim_selected_accounts(account_table,
-                                                 to_trim_accounts_ref),
-                       expected_trimmed_accounts)
+    assert_dicts_equals(ld.trim_selected_accounts(account_table,
+                                                  to_trim_accounts_ref),
+                        expected_trimmed_accounts)
