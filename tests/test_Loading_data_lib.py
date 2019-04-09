@@ -5,6 +5,7 @@ import pytest
 import pandas as pd
 from src import Loading_data_lib as ld
 from src.parameters import linebreaker
+from typing import Dict
 
 mock_data_dir = 'tests/mock_data/'
 IOT_delimiter = ';'
@@ -275,13 +276,33 @@ def test_extract_households_accounts():
                              'Other_Transfers': 2.48562610e+07,
                              'Income_Tax': 1.42634000e+08}
     assert ld.extract_households_accounts(DataAccount, selected_accounts) == expected_data_account
+data_account_data = np.array([[0, 36613000, 0, 0],
+                              [0, 142634000, -142634000, 0],
+                              [-36683000, 36683000, 0, 0],
+                              [0, 21618000, -21618000, 0],
+                              [200125000, 64284000, 112312000, 0]])
+accounts = ['OtherIndirTax_byAgent', 'Income_Tax',
+            'Corporate_Tax', 'Other_Direct_Tax',
+            'GFCF_byAgent']
+institutions = ['Corporations', 'Government', 'Households', 'RestOfWorld']
+account_table = pd.DataFrame(data_account_data, index=accounts, columns=institutions)
+selected_accounts = {'Income_Tax': 'Households',
+                     'Corporate_Tax': 'Corporations',
+                     'GFCF_byAgent': '  RestOfWorld'}
+
+
+
+to_pick_accounts_ref = {'Income_Tax': 'Households',
+                        'Corporate_Tax': 'Corporations'}
+to_trim_accounts_ref = {'GFCF_byAgent': 'RestOfWorld'}
+
 
 
 def test_filter_accounts_type():
-    to_pick_accounts, to_delete_accounts = ld.filter_accounts_type(selected_accounts)
-    assert ((to_pick_accounts == {'Income_Tax': 'Households',
-                                  'Corporate_Tax': 'Corporations'}) and
-            (to_delete_accounts == {'GFCF_byAgent': 'RestOfWorld'}))
+    to_pick_accounts, to_trim_accounts = ld.filter_accounts_type(selected_accounts)
+    assert ((to_pick_accounts == to_pick_accounts_ref) and
+            (to_trim_accounts == to_trim_accounts_ref))
+
 
 def assert_dict_series(left: Dict[str, pd.Series],
                        right: Dict[str, pd.Series]

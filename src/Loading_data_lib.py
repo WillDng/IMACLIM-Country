@@ -281,13 +281,14 @@ def extract_households_accounts(data_account: pd.DataFrame, to_extract_accounts:
 def filter_accounts_type(to_modify_accounts: Dict[str, str]
                          ) -> (Dict[str, str], Dict[str, str]):
     to_pick_accounts = copy.deepcopy(to_modify_accounts)
-    to_delete_accounts = dict()
+    to_trim_accounts = dict()
     to_delete_marker = '  '
     for to_modify_account, account_category in to_modify_accounts.items():
         if account_category.startswith(to_delete_marker):
-            to_delete_accounts[to_modify_account] = account_category.lstrip(to_delete_marker)
+            to_trim_accounts[to_modify_account] = account_category.lstrip(to_delete_marker)
             del to_pick_accounts[to_modify_account]
-    return to_pick_accounts, to_delete_accounts
+    return to_pick_accounts, to_trim_accounts
+
 
 def pick_selected_accounts(account_table: pd.DataFrame,
                            to_pick_accounts: Dict[str, str]
