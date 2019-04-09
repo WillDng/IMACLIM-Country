@@ -7,28 +7,6 @@ from src.parameters import (linebreaker, file_delimiter)
 from typing import (Any, Dict, Iterator, List, Tuple)
 
 
-def read_dict(path: pl.Path, value_col: int, key_col: int = 0,
-              delimiter: str = '|', overwrite: bool = False,
-              raises: bool = False) -> Dict[str, str]:
-    iter_data = _read_csv(path, delimiter)
-    if not overwrite:
-        iter_data, duplicates = filter_list_duplicate(iter_data,
-                                                      key_col=key_col)
-        if raises:
-            raise_if_duplicates(duplicates, path)
-    return fill_dict(iter_data, key_col, value_col)
-
-
-def fill_dict(entry_data: Iterator,
-              value_col: int,
-              key_col: int = 0
-              ) -> Dict[str, str]:
-    out_dict = dict()
-    for row in entry_data:
-        out_dict[row[key_col]] = row[value_col]
-    return out_dict
-
-
 def _read_csv(path: pl.Path,
               delimiter: str,
               remove_blanks: bool = True) -> Iterator[List[str]]:
@@ -55,6 +33,18 @@ def _remove_trailing_blanks(file_content: List[List[str]]):
     return clean_file_content
 
 
+def read_dict(path: pl.Path, value_col: int, key_col: int = 0,
+              delimiter: str = '|', overwrite: bool = False,
+              raises: bool = False) -> Dict[str, str]:
+    iter_data = _read_csv(path, delimiter)
+    if not overwrite:
+        iter_data, duplicates = filter_list_duplicate(iter_data,
+                                                      key_col=key_col)
+        if raises:
+            raise_if_duplicates(duplicates, path)
+    return fill_dict(iter_data, value_col, key_col)
+
+
 def filter_list_duplicate(entry_iter_list: Iterator[List[Any]],
                           key_col: int = 0) -> Tuple[Iterator[List[Any]], List[str]]:
     out_list = list()
@@ -76,6 +66,16 @@ def raise_if_duplicates(duplicates: List[str],
     if duplicates:
         raise InputError(', '.join(duplicates) + ' have duplicates in ' +
                          str(path))
+
+
+def fill_dict(entry_data: Iterator,
+              value_col: int,
+              key_col: int = 0
+              ) -> Dict[str, str]:
+    out_dict = dict()
+    for row in entry_data:
+        out_dict[row[key_col]] = row[value_col]
+    return out_dict
 
 
 class Error(Exception):
