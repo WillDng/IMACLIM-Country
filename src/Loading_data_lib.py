@@ -261,7 +261,8 @@ def modify_activity_value(IOT, coordinates: Coordinates,
     IOT.update(IOT.loc[coordinates].where(~condition, fill_values))
 
 
-def read_list(path: str, delimiter: str = ',') -> List[str]:
+def read_list(path: str, delimiter: str = ','
+              ) -> List[str]:
     iter_raw_data = cu._read_csv(path, delimiter)
     return list(itertools.chain.from_iterable(iter_raw_data))
 
@@ -276,6 +277,13 @@ def extract_accounts(data_account: pd.DataFrame) -> Dict[str, pd.Series]:
 def extract_households_accounts(data_account: pd.DataFrame, to_extract_accounts: List[str]
                                 ) -> Dict[str, float]:
     return extract_table_variables(data_account.apply(abs), to_extract_accounts, 'Households')
+def extract_selected_accounts(account_table: pd.DataFrame,
+                              to_modify_accounts: Dict[str, str],
+                              ) -> Dict[str, Union[pd.Series, float]]:
+    to_pick_accounts, to_trim_accounts = filter_accounts_type(to_modify_accounts)
+    picked_accounts = pick_selected_accounts(account_table, to_pick_accounts)
+    trimmed_accounts = trim_selected_accounts(account_table, to_trim_accounts)
+    return dict(picked_accounts, **trimmed_accounts)
 
 
 def filter_accounts_type(to_modify_accounts: Dict[str, str]

@@ -5,7 +5,7 @@ import pytest
 import pandas as pd
 from src import Loading_data_lib as ld
 from src.parameters import linebreaker
-from typing import Dict
+from typing import (Any, Dict)
 
 mock_data_dir = 'tests/mock_data/'
 IOT_delimiter = ';'
@@ -296,6 +296,16 @@ to_pick_accounts_ref = {'Income_Tax': 'Households',
                         'Corporate_Tax': 'Corporations'}
 to_trim_accounts_ref = {'GFCF_byAgent': 'RestOfWorld'}
 
+
+def test_extract_selected_accounts():
+    expected_selected_accounts = {'Income_Tax': 142634000,
+                                  'Corporate_Tax': 3.66830000e+07,
+                                  'GFCF_byAgent': pd.Series(np.array([200125000, 64284000, 112312000]),
+                                                            index=institutions[:3],
+                                                            name='GFCF_byAgent')}
+    assert_dicts_equals(ld.extract_selected_accounts(account_table.apply(abs),
+                                                     selected_accounts),
+                        expected_selected_accounts)
 
 
 def test_filter_accounts_type():
