@@ -1,8 +1,9 @@
 # coding : utf-8
 
 import pandas as pd
-import src.Loading_data_lib as ld
-import src.Aggregation as Agg
+from src import (common_utils as cu,
+                 Aggregation as Agg,
+                 Loading_data_lib as ld)
 from typing import (Dict, List, Tuple, Union)
 import ipdb
 
@@ -116,3 +117,14 @@ def get_IOT_CO2(study_dashb: Dict[str, str],
     CO2_activities_coord = ld.get_categories_coordinates(study_dashb['studydata_dir'] / 'CO2_categories_coordinates.csv',
                                                          CO2_activities_mapping)
     return ld.extract_IOTs_from(IOT_CO2, CO2_activities_coord)
+
+
+def get_Account(study_dashb: Dict[str, str]):
+    account_table = ld.read_table(study_dashb['studydata_dir'] / 'DataAccountTable.csv',
+                                  delimiter=';',
+                                  skipfooter=1,
+                                  engine='python')
+    selected_accounts = cu.read_dict(study_dashb['studydata_dir'] / study_dashb['DataAccount_params'],
+                                     value_col=1,
+                                     delimiter=';')
+    return ld.extract_accounts(account_table, selected_accounts)

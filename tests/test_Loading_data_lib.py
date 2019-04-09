@@ -288,7 +288,8 @@ def test_extract_accounts():
                              'GFCF_byAgent': pd.Series(np.array([200125000, 64284000, 112312000]),
                                                        index=institutions[:3],
                                                        name='GFCF_byAgent')}
-    assert_dicts_equals(ld.extract_accounts(account_table, selected_accounts),
+    assert_dicts_equals(ld.extract_accounts(account_table,
+                                            selected_accounts),
                         expected_data_account)
 
 
