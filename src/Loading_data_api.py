@@ -128,3 +128,10 @@ def get_Account(study_dashb: Dict[str, str]):
                                      value_col=1,
                                      delimiter=';')
     return ld.extract_accounts(account_table, selected_accounts)
+
+
+def get_labour(study_dashb):
+    return ld.read_table(study_dashb['studydata_dir'] / 'Labour.csv',
+                         delimiter=';',
+                         skipfooter=1,
+                         engine='python')
