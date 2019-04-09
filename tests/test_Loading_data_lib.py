@@ -261,21 +261,6 @@ def test_modify_activity_value(part_IOT, activities_coordinates_with_activities)
     pd.testing.assert_frame_equal(part_IOT, expected_modified_IOT)
 
 
-def test_extract_households_accounts():
-    data_account_data = np.array([[ 0.00000000e+00, -9.42450000e+07,  9.42450000e+07, 0.00000000e+00],
-                                  [ 0.00000000e+00,  0.00000000e+00,  0.00000000e+00, 0.00000000e+00],
-                                  [-9.05024286e+07,  5.80836174e+07,  2.48562610e+07, 7.56255024e+06],
-                                  [ 0.00000000e+00,  1.42634000e+08, -1.42634000e+08, 0.00000000e+00],
-                                  [-3.66830000e+07,  3.66830000e+07,  0.00000000e+00, 0.00000000e+00]])
-    accounts = ['Other_social_transfers', 'ClimPolicyCompens',
-                'Other_Transfers', 'Income_Tax', 'Corporate_Tax']
-    institutions = ['Corporations', 'Government', 'Households', 'RestOfWorld']
-    selected_accounts = ['Other_social_transfers', 'Other_Transfers', 'Income_Tax']
-    DataAccount = pd.DataFrame(data_account_data, index=accounts, columns=institutions)
-    expected_data_account = {'Other_social_transfers': 9.42450000e+07,
-                             'Other_Transfers': 2.48562610e+07,
-                             'Income_Tax': 1.42634000e+08}
-    assert ld.extract_households_accounts(DataAccount, selected_accounts) == expected_data_account
 data_account_data = np.array([[0, 36613000, 0, 0],
                               [0, 142634000, -142634000, 0],
                               [-36683000, 36683000, 0, 0],
@@ -290,6 +275,21 @@ selected_accounts = {'Income_Tax': 'Households',
                      'Corporate_Tax': 'Corporations',
                      'GFCF_byAgent': '  RestOfWorld'}
 
+
+def test_extract_accounts():
+    expected_data_account = {'OtherIndirTax_byAgent': pd.Series(np.array([0, 36613000, 0, 0]),
+                                                                index=institutions,
+                                                                name='OtherIndirTax_byAgent'),
+                             'Income_Tax': 142634000,
+                             'Corporate_Tax': 3.66830000e+07,
+                             'Other_Direct_Tax': pd.Series(np.array([0, 21618000, -21618000, 0]),
+                                                           index=institutions,
+                                                           name='Other_Direct_Tax'),
+                             'GFCF_byAgent': pd.Series(np.array([200125000, 64284000, 112312000]),
+                                                       index=institutions[:3],
+                                                       name='GFCF_byAgent')}
+    assert_dicts_equals(ld.extract_accounts(account_table, selected_accounts),
+                        expected_data_account)
 
 
 to_pick_accounts_ref = {'Income_Tax': 'Households',

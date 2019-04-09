@@ -267,16 +267,24 @@ def read_list(path: str, delimiter: str = ','
     return list(itertools.chain.from_iterable(iter_raw_data))
 
 
-def extract_accounts(data_account: pd.DataFrame) -> Dict[str, pd.Series]:
+def extract_accounts(account_table: pd.DataFrame,
+                     to_modify_accounts: Dict[str, str]
+                     ) -> Dict[str, Union[pd.Series, float]]:
+    extracted_accounts = extract_all_accounts(account_table)
+    modified_accounts = extract_selected_accounts(account_table.apply(abs),
+                                                  to_modify_accounts)
+    extracted_accounts.update(modified_accounts)
+    return extracted_accounts
+
+
+def extract_all_accounts(account_table: pd.DataFrame
+                         ) -> Dict[str, pd.Series]:
     output_data_account = dict()
-    for account in data_account.index:
-        output_data_account[account] = data_account.loc[account, ]
+    for account in account_table.index:
+        output_data_account[account] = account_table.loc[account, ]
     return output_data_account
 
 
-def extract_households_accounts(data_account: pd.DataFrame, to_extract_accounts: List[str]
-                                ) -> Dict[str, float]:
-    return extract_table_variables(data_account.apply(abs), to_extract_accounts, 'Households')
 def extract_selected_accounts(account_table: pd.DataFrame,
                               to_modify_accounts: Dict[str, str],
                               ) -> Dict[str, Union[pd.Series, float]]:
@@ -306,12 +314,6 @@ def pick_selected_accounts(account_table: pd.DataFrame,
         picked_accounts[to_pick_account] = account_table.loc[to_pick_account, account_category]
     return picked_accounts
 
-def extract_table_variables(table: pd.DataFrame, to_extract_variables: List[str],
-                            interest_variable: str) -> Dict[str, float]:
-    output_variables = dict()
-    for to_extract_variable in to_extract_variables:
-        output_variables[to_extract_variable] = table.loc[to_extract_variable, interest_variable]
-    return output_variables
 
 def trim_selected_accounts(account_table: pd.DataFrame,
                            to_trim_accounts: Dict[str, str]
