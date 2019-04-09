@@ -289,7 +289,7 @@ def extract_selected_accounts(account_table: pd.DataFrame,
                               to_modify_accounts: Dict[str, str],
                               ) -> Dict[str, Union[pd.Series, float]]:
     to_pick_accounts, to_trim_accounts = filter_accounts_type(to_modify_accounts)
-    picked_accounts = pick_selected_accounts(account_table, to_pick_accounts)
+    picked_accounts = pick_selection(account_table, to_pick_accounts)
     trimmed_accounts = trim_selected_accounts(account_table, to_trim_accounts)
     return dict(picked_accounts, **trimmed_accounts)
 
@@ -306,13 +306,13 @@ def filter_accounts_type(to_modify_accounts: Dict[str, str]
     return to_pick_accounts, to_trim_accounts
 
 
-def pick_selected_accounts(account_table: pd.DataFrame,
-                           to_pick_accounts: Dict[str, str]
-                           ) -> Dict[str, float]:
-    picked_accounts = dict()
-    for to_pick_account, account_category in to_pick_accounts.items():
-        picked_accounts[to_pick_account] = account_table.loc[to_pick_account, account_category]
-    return picked_accounts
+def pick_selection(table: pd.DataFrame,
+                   to_pick_variables: Dict[str, str]
+                   ) -> Dict[str, float]:
+    picked_variables = dict()
+    for to_pick_line, to_pick_column in to_pick_variables.items():
+        picked_variables[to_pick_line] = table.loc[to_pick_line, to_pick_column]
+    return picked_variables
 
 
 def trim_selected_accounts(account_table: pd.DataFrame,

@@ -119,7 +119,8 @@ def get_IOT_CO2(study_dashb: Dict[str, str],
     return ld.extract_IOTs_from(IOT_CO2, CO2_activities_coord)
 
 
-def get_Account(study_dashb: Dict[str, str]):
+def get_account_table(study_dashb: Dict[str, str]
+                      ) -> Dict[str, Union[pd.Series, float]]:
     account_table = ld.read_table(study_dashb['studydata_dir'] / 'DataAccountTable.csv',
                                   delimiter=';',
                                   skipfooter=1,
@@ -130,7 +131,8 @@ def get_Account(study_dashb: Dict[str, str]):
     return ld.extract_accounts(account_table, selected_accounts)
 
 
-def get_labour(study_dashb):
+def get_labour(study_dashb: Dict[str, str]
+               ) -> pd.Series:
     return ld.read_table(study_dashb['studydata_dir'] / 'Labour.csv',
                          delimiter=';',
                          skipfooter=1,
