@@ -131,12 +131,17 @@ def get_account_table(study_dashb: Dict[str, str]
     return ld.extract_accounts(account_table, selected_accounts)
 
 
-def get_labour(study_dashb: Dict[str, str]
+def get_labour(study_dashb: Dict[str, str],
+               keys_aggregation: Union[Dict[str, str], None]
                ) -> pd.Series:
-    return ld.read_table(study_dashb['studydata_dir'] / 'Labour.csv',
-                         delimiter=';',
-                         skipfooter=1,
-                         engine='python')
+    IOT_labour = ld.read_table(study_dashb['studydata_dir'] / 'Labour.csv',
+                               delimiter=';',
+                               skipfooter=1,
+                               engine='python')
+    if keys_aggregation:
+        IOT_labour = Agg.aggregate_IOT(IOT_labour,
+                                       keys_aggregation)
+    return IOT_labour
 
 
 def get_demography(study_dashb: Dict[str, str]
