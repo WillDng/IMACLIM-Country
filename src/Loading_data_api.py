@@ -137,3 +137,14 @@ def get_labour(study_dashb: Dict[str, str]
                          delimiter=';',
                          skipfooter=1,
                          engine='python')
+
+
+def get_demography(study_dashb: Dict[str, str]
+                   ) -> Dict[str, float]:
+    demography_table = ld.read_table(study_dashb['studydata_dir'] / 'Demography.csv',
+                                     delimiter=';',
+                                     skipfooter=1,
+                                     engine='python')
+    to_extract_demography = {line: demography_table.columns[0] for line in demography_table.index}
+    return ld.pick_selection(demography_table,
+                             to_extract_demography)
