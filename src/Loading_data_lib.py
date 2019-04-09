@@ -289,6 +289,13 @@ def filter_accounts_type(to_modify_accounts: Dict[str, str]
             del to_pick_accounts[to_modify_account]
     return to_pick_accounts, to_delete_accounts
 
+def pick_selected_accounts(account_table: pd.DataFrame,
+                           to_pick_accounts: Dict[str, str]
+                           ) -> Dict[str, float]:
+    picked_accounts = dict()
+    for to_pick_account, account_category in to_pick_accounts.items():
+        picked_accounts[to_pick_account] = account_table.loc[to_pick_account, account_category]
+    return picked_accounts
 
 def extract_table_variables(table: pd.DataFrame, to_extract_variables: List[str],
                             interest_variable: str) -> Dict[str, float]:
