@@ -16,14 +16,16 @@ use_categories = ['IC', 'FC']
 def get_IOT_values(study_dashb: Dict[str, str]
                    ) -> (Dict[str, pd.DataFrame],
                          Dict[str, List[str]],
-                         Union[Dict[str, str], None]):
-    IOT_val = ld.read_table(study_dashb['studydata_dir'] / 'IOT_Val.csv',
-                            delimiter=';')
+                         Union[Dict[str, str], None],
+                         Dict[str, Coordinates],
+                         pd.DataFrame):
+    IOT_val_disagg = ld.read_table(study_dashb['studydata_dir'] / 'IOT_Val.csv',
+                                   delimiter=';')
     common_activities_mapping = ld.read_activities_mapping(study_dashb['studydata_dir'] / 'common_activities_mapping.csv',
                                                            delimiter=',',
-                                                           headers=ld.get_headers_from(IOT_val))
+                                                           headers=ld.get_headers_from(IOT_val_disagg))
     IOT_val, common_activities_mapping, keys_aggregation = Agg.apply_value_aggregation(study_dashb,
-                                                                                       IOT_val,
+                                                                                       IOT_val_disagg,
                                                                                        common_activities_mapping)
     value_activities_mapping = ld.extend_activities_mapping(study_dashb['studydata_dir'] / 'value_activities_mapping.csv',
                                                             IOT_val,
@@ -47,7 +49,9 @@ def get_IOT_values(study_dashb: Dict[str, str]
                                  correction_condition, correction_value)
     ld.is_IOT_balanced(use_categories, value_ressource_categories,
                        IOT_val, value_coord)
-    return ld.extract_IOTs_from(IOT_val, value_coord), common_activities_mapping, keys_aggregation
+    return (ld.extract_IOTs_from(IOT_val, value_coord),
+            common_activities_mapping, keys_aggregation,
+            value_coord, IOT_val_disagg)
 
 
 def get_IOT_quantities(study_dashb: Dict[str, str],
@@ -94,9 +98,9 @@ def get_IOT_prices(study_dashb: Dict[str, str],
                                delimiter=';',
                                skipfooter=1,
                                engine='python')
-    if keys_aggregation:
-        IOT_prices = Agg.aggregate_IOT(IOT_prices,
-                                       keys_aggregation)
+    # if keys_aggregation:
+    #     IOT_prices = Agg.aggregate_IOT(IOT_prices,
+    #                                    keys_aggregation)
     return ld.extract_IOTs_from(IOT_prices, quantity_coord)
 
 
@@ -153,3 +157,20 @@ def get_demography(study_dashb: Dict[str, str]
     to_extract_demography = {line: demography_table.columns[0] for line in demography_table.index}
     return ld.pick_selection(demography_table,
                              to_extract_demography)
+
+
+def get_import_rates(study_dashb: Dict[str, str],
+                     IOT_val: pd.DataFrame,
+                     keys_aggregation: Union[Dict[str, str], None],
+                     value_coord: Dict[str, Coordinates]
+                     ) -> Dict[str, float]:
+    IOT_import_rate = ld.read_table(study_dashb['studydata_dir'] / 'IOT_Import_rate.csv',
+                                    delimiter=';')
+    IOT_import_value = IOT_val * IOT_import_rate
+    if keys_aggregation:
+        IOT_import_rate = Agg.aggregate_IOT(IOT_import_value,
+                                            keys_aggregation)
+    import_rate_coord = ld.map_list_to_dict(use_categories, value_coord)
+    import_rate_coord = ld.disaggregate_in_coordinates(import_rate_coord,
+                                                       ['FC'], 'IC')
+    return ld.extract_IOTs_from(IOT_import_rate, import_rate_coord)
