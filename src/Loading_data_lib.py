@@ -48,31 +48,14 @@ def read_activities_mapping(mapping_path: pl.Path, delimiter: str = '|',
     mapping_raw_data = list(mapping_raw_data)
     activities_mapping = dict()
     for grouping_index, grouping_name in enumerate(file_header):
-        read_mapping = extract_activities_mapping(mapping_raw_data,
-                                                  mapping_path,
-                                                  col=grouping_index + 1)
+        read_mapping = cu.extract_aggregation_mapping(mapping_raw_data,
+                                                      col=grouping_index + 1)
         if read_mapping.get('', None):
             del read_mapping['']
         if headers:
             read_mapping = _change_activities_order_in(read_mapping, headers)
         activities_mapping[grouping_name] = read_mapping
     return activities_mapping
-
-
-def extract_activities_mapping(activities_mapping: Iterator[List[str]],
-                               mapping_filpath: str,
-                               col: Union[int, None] = None
-                               ) -> Dict[str, List[str]]:
-    read_mapping = dict()
-    for activity_description in activities_mapping:
-        activity = activity_description[0]
-        if col is None:
-            categories = activity_description[1:]
-        else:
-            categories = [activity_description[col]]
-        for category in categories:
-            read_mapping.setdefault(category, list()).append(activity)
-    return read_mapping
 
 
 def _change_activities_order_in(input_mapping: Dict[str, List[str]],

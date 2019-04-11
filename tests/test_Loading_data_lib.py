@@ -34,35 +34,6 @@ def activities_mapping_part():
             'NonSupplierSect': ['Crude_oil', 'Natural_gas', 'Coking_coal']}
 
 
-@pytest.fixture()
-def activities_mapping():
-  return [['Crude_oil', 'Commodities', 'EnerSect'],
-          ['Natural_gas', 'Commodities', 'EnerSect'],
-          ['Coking_coal', 'Commodities', 'EnerSect'],
-          ['Labour_income', 'OthPart_IOT', 'Value_Added'],
-          ['Labour_Tax', 'OthPart_IOT', 'Value_Added'],
-          ['Crude_oil', 'Sectors', 'NonSupplierSect'],
-          ['Natural_gas', 'Sectors', 'NonSupplierSect'],
-          ['Coking_coal', 'Sectors', 'NonSupplierSect'],
-          ['I', 'FC'],
-          ['X', 'FC']]
-
-
-def test_extract_activities_mapping(activities_mapping_part, activities_mapping):
-    assert ld.extract_activities_mapping(activities_mapping,
-                                         'path/to/file') == activities_mapping_part
-
-
-def test_partial_extract_activities_mapping(activities_mapping):
-    expected_partial_mapping = {'Commodities': ['Crude_oil', 'Natural_gas', 'Coking_coal'],
-                                'OthPart_IOT': ['Labour_income', 'Labour_Tax'],
-                                'Sectors': ['Crude_oil', 'Natural_gas', 'Coking_coal'],
-                                'FC': ['I', 'X']}
-    assert ld.extract_activities_mapping(activities_mapping,
-                                         'path/to/file',
-                                         col=1) == expected_partial_mapping
-
-
 full_IOT_path = mock_data_dir + 'IOT_Val.csv'
 
 

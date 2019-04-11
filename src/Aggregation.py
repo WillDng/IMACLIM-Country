@@ -33,8 +33,7 @@ def read_aggregation(dashb: Dict[str, str]
         raise KeyError('Chosen aggregation is not available at ' + agg_filepath)
     agg_index = agg_header.index(chosen_aggregation) + 1
     agg_keys = cu.fill_dict(aggregation_raw_data, agg_index)
-    agg_values = ldl.extract_activities_mapping(aggregation_raw_data,
-                                                agg_filepath,
+    agg_values = cu.extract_aggregation_mapping(aggregation_raw_data,
                                                 col=agg_index)
     return agg_keys, agg_values
 

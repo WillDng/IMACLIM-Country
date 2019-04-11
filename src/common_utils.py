@@ -4,7 +4,7 @@ import sys
 import csv
 import pathlib as pl
 from src.parameters import (linebreaker, file_delimiter)
-from typing import (Any, Dict, Iterator, List, Tuple)
+from typing import (Any, Dict, Iterator, List, Union, Tuple)
 
 
 def _read_csv(path: pl.Path,
@@ -99,3 +99,18 @@ def unpack_nested_dict(nested_dict):
     for k1, v1 in nested_dict.items():
         unpacked_dict.update(v1)
     return unpacked_dict
+
+
+def extract_aggregation_mapping(aggregation_mapping: Iterator[List[str]],
+                                col: Union[int, None] = None
+                                ) -> Dict[str, List[str]]:
+    read_mapping = dict()
+    for variable_description in aggregation_mapping:
+        interest_variable = variable_description[0]
+        if col is None:
+            categories = filter(None, variable_description[1:])
+        else:
+            categories = [variable_description[col]]
+        for category in categories:
+            read_mapping.setdefault(category, list()).append(interest_variable)
+    return read_mapping

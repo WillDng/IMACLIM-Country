@@ -87,7 +87,9 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
     ld.is_IOT_balanced(use_categories, quantity_ressource_categories,
                        IOT_quantity, quantity_coord)
 
-    return ld.extract_IOTs_from(IOT_quantity, quantity_coord), quantity_coord
+    return (ld.extract_IOTs_from(IOT_quantity,
+                                 quantity_coord),
+            quantity_coord)
 
 
 def get_IOT_prices(study_dashb: Dict[str, str],
@@ -101,7 +103,8 @@ def get_IOT_prices(study_dashb: Dict[str, str],
     # if keys_aggregation:
     #     IOT_prices = Agg.aggregate_IOT(IOT_prices,
     #                                    keys_aggregation)
-    return ld.extract_IOTs_from(IOT_prices, quantity_coord)
+    return ld.extract_IOTs_from(IOT_prices,
+                                quantity_coord)
 
 
 def get_IOT_CO2(study_dashb: Dict[str, str],
@@ -120,7 +123,8 @@ def get_IOT_CO2(study_dashb: Dict[str, str],
                                                           common_activities_mapping)
     CO2_activities_coord = ld.get_categories_coordinates(study_dashb['studydata_dir'] / 'CO2_categories_coordinates.csv',
                                                          CO2_activities_mapping)
-    return ld.extract_IOTs_from(IOT_CO2, CO2_activities_coord)
+    return ld.extract_IOTs_from(IOT_CO2,
+                                CO2_activities_coord)
 
 
 def get_account_table(study_dashb: Dict[str, str]
@@ -132,7 +136,8 @@ def get_account_table(study_dashb: Dict[str, str]
     selected_accounts = cu.read_dict(study_dashb['studydata_dir'] / study_dashb['DataAccount_params'],
                                      value_col=1,
                                      delimiter=';')
-    return ld.extract_accounts(account_table, selected_accounts)
+    return ld.extract_accounts(account_table,
+                               selected_accounts)
 
 
 def get_labour(study_dashb: Dict[str, str],
@@ -173,4 +178,5 @@ def get_import_rates(study_dashb: Dict[str, str],
     import_rate_coord = ld.map_list_to_dict(use_categories, value_coord)
     import_rate_coord = ld.disaggregate_in_coordinates(import_rate_coord,
                                                        ['FC'], 'IC')
-    return ld.extract_IOTs_from(IOT_import_rate, import_rate_coord)
+    return ld.extract_IOTs_from(IOT_import_rate,
+                                import_rate_coord)
