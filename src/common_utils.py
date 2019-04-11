@@ -101,6 +101,16 @@ def unpack_nested_dict(nested_dict):
     return unpacked_dict
 
 
+def read_aggregation_mapping(mapping_path: pl.Path,
+                             delimiter: str = ';',
+                             col: Union[int, None] = None
+                             ) -> Dict[str, List[str]]:
+    mapping_raw = _read_csv(mapping_path,
+                            delimiter=delimiter)
+    return extract_aggregation_mapping(mapping_raw,
+                                       col)
+
+
 def extract_aggregation_mapping(aggregation_mapping: Iterator[List[str]],
                                 col: Union[int, None] = None
                                 ) -> Dict[str, List[str]]:
