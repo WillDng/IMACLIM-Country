@@ -131,7 +131,6 @@ def test_disaggregate_account_table():
     pd.testing.assert_frame_equal(hhd.disaggregate_account_table('Households',
                                                                  account_data,
                                                                  account_data_rate,
-                                                                 'H10',
                                                                  accounts_mapping),
                                   expected_disagggregated_account_table,
                                   check_less_precise=True)
@@ -205,14 +204,13 @@ expected_disaggregated_households = pd.DataFrame(expected_disaggregated_househol
 def test_disaggregate_column_non_round_erred():
     pd.testing.assert_frame_equal(hhd.disaggregate_column_non_round_erred('Households',
                                                                           account_data,
-                                                                          account_data_rate,
-                                                                          'H10'),
+                                                                          account_data_rate),
                                   expected_disaggregated_households)
 
 
 def test_normalize_error_in_disaggregation():
     pd.testing.assert_frame_equal(hhd.normalize_error_in_disaggregation(expected_disaggregated_households_round_erred,
-                                                                        'H10',
+                                                                        None,
                                                                         account_data.loc[:, 'Households']),
                                   expected_disaggregated_households)
 

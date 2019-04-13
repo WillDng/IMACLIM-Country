@@ -7,8 +7,8 @@ from typing import (Dict, List, Union)
 def disaggregate_account_table(institution_to_disaggregate: str,
                                account_data: pd.DataFrame,
                                distribution_key: pd.DataFrame,
-                               item_normalize_onto: str,
-                               accounts_mapping: Dict[str, List[str]]
+                               accounts_mapping: Dict[str, List[str]],
+                               item_normalize_onto: Union[str, None] = None
                                ) -> pd.DataFrame:
     disaggregated_households = disaggregate_column_non_round_erred(institution_to_disaggregate,
                                                                    account_data,
@@ -40,7 +40,7 @@ def disaggregate_column(item_to_disaggregate: str,
 def disaggregate_column_non_round_erred(item_to_disaggregate: str,
                                         to_disaggregate_table: pd.DataFrame,
                                         distribution_key: pd.DataFrame,
-                                        item_normalize_onto: str
+                                        item_normalize_onto: Union[str, None] = None
                                         ) -> pd.DataFrame:
     round_erred_table = disaggregate_column(item_to_disaggregate,
                                             to_disaggregate_table,
@@ -51,27 +51,40 @@ def disaggregate_column_non_round_erred(item_to_disaggregate: str,
 
 
 def normalize_error_in_disaggregation(disaggregated_erred_table: pd.DataFrame,
-                                      item_normalize_onto: str,
+                                      item_normalize_onto: Union[str, None],
                                       reference: pd.Series
                                       ) -> pd.DataFrame:
+    item_normalize_onto, remaining_headers = identify_normalization_items(disaggregated_erred_table,
+                                                                          item_normalize_onto)
+    remaining_headers_sum = disaggregated_erred_table.loc[:, remaining_headers].sum(axis='columns')
     modified_disaggregated_table = disaggregated_erred_table.copy()
-    remaining_headers = disaggregated_erred_table.columns.tolist()
-    remaining_headers.remove(item_normalize_onto)
-    new_item_values = reference - disaggregated_erred_table.loc[:, remaining_headers].sum(axis='columns')
-    modified_disaggregated_table[item_normalize_onto] = new_item_values
+    modified_disaggregated_table[item_normalize_onto] = reference - remaining_headers_sum
     return modified_disaggregated_table
 
 
-def replace_disaggregated_column(institution: str,
+def identify_normalization_items(disaggregated_erred_table: pd.DataFrame,
+                                 item_normalize_onto: Union[str, None],
+                                 ) -> (str, List[str]):
+    remaining_headers = disaggregated_erred_table.columns.tolist()
+    if not item_normalize_onto:
+        item_normalize_onto = remaining_headers.pop()
+    else:
+        item_normalize_onto = remaining_headers.pop(remaining_headers.index(item_normalize_onto))
+    return item_normalize_onto, remaining_headers
+
+
+def replace_disaggregated_column(institution_to_disaggregate: str,
                                  account_data: pd.DataFrame,
                                  disaggregated_table: pd.DataFrame
                                  ) -> pd.DataFrame:
+    # FIXME might be more efficicient to directly concat DataFrames
+    #       account_data[:,[:index(institution_to_disaggregate)]] + disaggregated_table + account_data[:, [index(institution_to_disaggregate)+1:]]
     concatenated_account_data = pd.concat([account_data, disaggregated_table],
                                           axis='columns')
-    new_account_data_header = get_disaggregated_header(institution,
+    new_account_data_header = get_disaggregated_header(institution_to_disaggregate,
                                                        account_data.columns,
                                                        disaggregated_table.columns)
-    institution_dropped_concatenated_account_data = concatenated_account_data.drop(institution,
+    institution_dropped_concatenated_account_data = concatenated_account_data.drop(institution_to_disaggregate,
                                                                                    axis='columns')
     return institution_dropped_concatenated_account_data.reindex(new_account_data_header,
                                                                  axis='columns')
