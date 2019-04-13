@@ -4,31 +4,33 @@ import pandas as pd
 from typing import (Dict, List, Union)
 
 
-def disaggregate_account_table(institution: str,
+def disaggregate_account_table(institution_to_disaggregate: str,
                                account_data: pd.DataFrame,
-                               disaggregation_rate: pd.DataFrame,
+                               distribution_key: pd.DataFrame,
                                item_normalize_onto: str,
                                accounts_mapping: Dict[str, List[str]]
                                ) -> pd.DataFrame:
-    disaggregated_households = disaggregate_column_non_round_erred(institution,
+    disaggregated_households = disaggregate_column_non_round_erred(institution_to_disaggregate,
                                                                    account_data,
-                                                                   disaggregation_rate,
+                                                                   distribution_key,
                                                                    item_normalize_onto)
 
     modify_households(disaggregated_households,
                       accounts_mapping)
-    extended_account_table = replace_disaggregated_column(institution,
-                                                          account_data,
-                                                          disaggregated_households)
-    return extended_account_table
+    return replace_disaggregated_column(institution_to_disaggregate,
+                                        account_data,
+                                        disaggregated_households)
+
+# def check_aggregation_files_adequation(account_data: pd.DataFrame,
+#                                        ):
 
 
 def disaggregate_column(item_to_disaggregate: str,
                         to_disaggregate_table: pd.DataFrame,
-                        disaggregation_rate: pd.DataFrame
+                        distribution_key: pd.DataFrame
                         ) -> pd.DataFrame:
-    disaggregated_households = disaggregation_rate.multiply(to_disaggregate_table.loc[:, item_to_disaggregate],
-                                                            axis='index')
+    disaggregated_households = distribution_key.multiply(to_disaggregate_table.loc[:, item_to_disaggregate],
+                                                         axis='index')
     fill_value = 0.
     disaggregated_households = disaggregated_households.fillna(fill_value)
     return disaggregated_households.reindex(to_disaggregate_table.index,
@@ -37,12 +39,12 @@ def disaggregate_column(item_to_disaggregate: str,
 
 def disaggregate_column_non_round_erred(item_to_disaggregate: str,
                                         to_disaggregate_table: pd.DataFrame,
-                                        disaggregation_rate: pd.DataFrame,
+                                        distribution_key: pd.DataFrame,
                                         item_normalize_onto: str
                                         ) -> pd.DataFrame:
     round_erred_table = disaggregate_column(item_to_disaggregate,
                                             to_disaggregate_table,
-                                            disaggregation_rate)
+                                            distribution_key)
     return normalize_error_in_disaggregation(round_erred_table,
                                              item_normalize_onto,
                                              to_disaggregate_table.loc[:, item_to_disaggregate])
@@ -120,3 +122,16 @@ def update_row(index_to_update: str,
                ) -> None:
     dataframe_to_put = series_to_put.to_frame(index_to_update)
     dataframe_to_update.update(dataframe_to_put.T)
+
+
+def disaggregate_IOT_prices(activity_to_disaggregate: str,
+                            IOT: pd.DataFrame,
+                            distribution_key: pd.DataFrame
+                            ) -> pd.DataFrame:
+    disaggregated_activity = disaggregate_column_non_round_erred(activity_to_disaggregate,
+                                                                 IOT,
+                                                                 distribution_key.replace(distribution_key, 1.))
+    return replace_disaggregated_column(activity_to_disaggregate,
+                                        IOT,
+                                        disaggregated_activity)
+

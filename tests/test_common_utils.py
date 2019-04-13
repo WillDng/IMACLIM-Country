@@ -65,11 +65,11 @@ activities_mapping = [['Crude_oil', 'Commodities', 'EnerSect'],
                       ['X', 'FC']]
 
 
-def test_extract_aggregation_mapping(activities_mapping_part, activities_mapping):
+def test_extract_aggregation_mapping(activities_mapping_part):
     assert cu.extract_aggregation_mapping(activities_mapping) == activities_mapping_part
 
 
-def test_partial_extract_aggregation_mapping(activities_mapping):
+def test_partial_extract_aggregation_mapping():
     expected_partial_mapping = {'Commodities': ['Crude_oil', 'Natural_gas', 'Coking_coal'],
                                 'OthPart_IOT': ['Labour_income', 'Labour_Tax'],
                                 'Sectors': ['Crude_oil', 'Natural_gas', 'Coking_coal'],
