@@ -50,6 +50,16 @@ def disaggregate_column_non_round_erred(item_to_disaggregate: str,
                                              to_disaggregate_table.loc[:, item_to_disaggregate])
 
 
+
+
+def get_mistmatched_fill_value(fill_value: Union[float, None],
+                               distribution_key: pd.DataFrame
+                               ) -> None:
+    if fill_value is None:
+        fill_value = 1. / len(distribution_key.columns)
+    return fill_value
+
+
 def normalize_error_in_disaggregation(disaggregated_erred_table: pd.DataFrame,
                                       item_normalize_onto: Union[str, None],
                                       reference: pd.Series
