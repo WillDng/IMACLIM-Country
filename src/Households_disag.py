@@ -13,7 +13,8 @@ def disaggregate_account_table(institution_to_disaggregate: str,
     disaggregated_households = disaggregate_column_non_round_erred(institution_to_disaggregate,
                                                                    account_data,
                                                                    distribution_key,
-                                                                   item_normalize_onto)
+                                                                   fill_value=0.,
+                                                                   item_normalize_onto=item_normalize_onto)
 
     modify_households(disaggregated_households,
                       accounts_mapping)
@@ -25,31 +26,33 @@ def disaggregate_account_table(institution_to_disaggregate: str,
 #                                        ):
 
 
-def disaggregate_column(item_to_disaggregate: str,
-                        to_disaggregate_table: pd.DataFrame,
-                        distribution_key: pd.DataFrame
-                        ) -> pd.DataFrame:
-    disaggregated_households = distribution_key.multiply(to_disaggregate_table.loc[:, item_to_disaggregate],
-                                                         axis='index')
-    fill_value = 0.
-    disaggregated_households = disaggregated_households.fillna(fill_value)
-    return disaggregated_households.reindex(to_disaggregate_table.index,
-                                            index='index')
-
-
 def disaggregate_column_non_round_erred(item_to_disaggregate: str,
                                         to_disaggregate_table: pd.DataFrame,
                                         distribution_key: pd.DataFrame,
+                                        fill_value: Union[float, None] = None,
                                         item_normalize_onto: Union[str, None] = None
                                         ) -> pd.DataFrame:
     round_erred_table = disaggregate_column(item_to_disaggregate,
                                             to_disaggregate_table,
-                                            distribution_key)
+                                            distribution_key,
+                                            fill_value=fill_value)
     return normalize_error_in_disaggregation(round_erred_table,
                                              item_normalize_onto,
                                              to_disaggregate_table.loc[:, item_to_disaggregate])
 
 
+def disaggregate_column(item_to_disaggregate: str,
+                        to_disaggregate_table: pd.DataFrame,
+                        distribution_key: pd.DataFrame,
+                        fill_value: Union[float, None] = None
+                        ) -> pd.DataFrame:
+    disaggregated_households = distribution_key.multiply(to_disaggregate_table.loc[:, item_to_disaggregate],
+                                                         axis='index')
+    fill_value = get_mistmatched_fill_value(fill_value,
+                                            distribution_key)
+    disaggregated_households = disaggregated_households.fillna(fill_value)
+    return disaggregated_households.reindex(to_disaggregate_table.index,
+                                            index='index')
 
 
 def get_mistmatched_fill_value(fill_value: Union[float, None],
@@ -158,3 +161,16 @@ def disaggregate_IOT_prices(activity_to_disaggregate: str,
                                         IOT,
                                         disaggregated_activity)
 
+
+def disaggregate_IOT(activity_to_disaggregate: str,
+                     IOT: pd.DataFrame,
+                     distribution_key: pd.DataFrame,
+                     item_normalize_onto: Union[str, None] = None,
+                     ) -> pd.DataFrame:
+    disaggregated_activity = disaggregate_column_non_round_erred(activity_to_disaggregate,
+                                                                 IOT,
+                                                                 distribution_key,
+                                                                 item_normalize_onto)
+    return replace_disaggregated_column(activity_to_disaggregate,
+                                        IOT,
+                                        disaggregated_activity)
