@@ -38,6 +38,8 @@ def load_data(study_dashb: Dict[str, str]
                                              IOT_val_disagg,
                                              aggregation_items,
                                              value_coord)
+    Initial_CO2_tax = get_CO2_tax(quantity_coord)
+    ipdb.set_trace()
 
 
 def read_and_check_input_files(study_dashb: Dict[str, str]):
@@ -236,3 +238,21 @@ def get_import_rates(study_dashb: Dict[str, str],
                                                          ['FC'], 'IC')
     return ldl.extract_IOTs_from(IOT_import_value,
                                  import_value_coord)
+
+
+def get_CO2_tax(quantity_coord: Dict[str, Tuple[List[str], List[str]]]
+                ) -> Dict[str, pd.DataFrame]:
+    # FIXME, might be best to define CO2_tax coordinates according to Commodities and Consumption
+    CO2_tax_index, CO2_tax_columns = get_CO2_tax_indexes(quantity_coord)
+    return pd.DataFrame(np.zeros((len(CO2_tax_index), len(CO2_tax_columns))),
+                        index=CO2_tax_index,
+                        columns=CO2_tax_columns)
+
+
+def get_CO2_tax_indexes(quantity_coord: Dict[str, Tuple[List[str], List[str]]]
+                        ) -> Tuple[List[str], List[str]]:
+    CO2_tax_index = quantity_coord['IC'][0]
+    final_consumption_columns = quantity_coord['FC'][1]
+    government_index = final_consumption_columns.index('G')
+    CO2_tax_columns = quantity_coord['IC'][1] + final_consumption_columns[:government_index]
+    return CO2_tax_index, CO2_tax_columns
