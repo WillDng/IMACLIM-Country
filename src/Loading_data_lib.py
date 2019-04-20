@@ -58,6 +58,16 @@ def read_activities_mapping(mapping_path: pl.Path, delimiter: str = '|',
     return activities_mapping
 
 
+def change_activities_mapping_order(activities_mapping: Dict[str, Dict[str, List[str]]],
+                                    headers: List[List[str]]
+                                    ) -> Dict[str, Dict[str, List[str]]]:
+    changed_activities_mappping = dict()
+    for grouping_name, grouping_mapping in activities_mapping.items():
+        changed_activities_mappping[grouping_name] = _change_activities_order_in(grouping_mapping,
+                                                                                 headers)
+    return changed_activities_mappping
+
+
 def _change_activities_order_in(input_mapping: Dict[str, List[str]],
                                 reference_headers: List[List[str]]
                                 ) -> Dict[str, List[str]]:
