@@ -189,3 +189,17 @@ def disaggregate_IOT(activity_to_disaggregate: str,
     return replace_disaggregated_column(activity_to_disaggregate,
                                         IOT,
                                         disaggregated_activity)
+
+
+def disaggregate_row_non_round_erred(item_to_disaggregate: str,
+                                     to_disaggregate_table: pd.DataFrame,
+                                     distribution_key: pd.DataFrame,
+                                     fill_value: Union[float, None] = 0.,
+                                     item_normalize_onto: Union[str, None] = None
+                                     ) -> pd.DataFrame:
+    return disaggregate_column_non_round_erred(item_to_disaggregate,
+                                               to_disaggregate_table.T,
+                                               distribution_key,
+                                               fill_value=fill_value,
+                                               item_normalize_onto=item_normalize_onto).T
+
