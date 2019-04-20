@@ -176,6 +176,49 @@ def disaggregate_IOT_prices(activity_to_disaggregate: str,
                                         disaggregated_activity)
 
 
+def disaggregate_IOT_values(activity_to_disaggregate: str,
+                            IOT_values: pd.DataFrame,
+                            distribution_key: pd.DataFrame,
+                            disag_IOT_quantities: pd.DataFrame,
+                            disag_IOT_prices: pd.DataFrame,
+                            fill_value: Union[float, None] = 0.,
+                            item_normalize_onto: Union[str, None] = None
+
+                            ) -> pd.DataFrame:
+    disaggregated_column_activity = disaggregate_value_column(disag_IOT_quantities,
+                                                              disag_IOT_prices,
+                                                              distribution_key,
+                                                              fill_value=fill_value)
+    disaggregated_column_IOT_values = replace_disaggregated_column(activity_to_disaggregate,
+                                                                   IOT_values,
+                                                                   disaggregated_column_activity,
+                                                                   fill_value=fill_value)
+
+    SpeMarg_to_disaggregate = 'SpeMarg_' + activity_to_disaggregate
+    disaggregated_row_activity = disaggregate_row_non_round_erred(SpeMarg_to_disaggregate,
+                                                                  disaggregated_column_IOT_values,
+                                                                  distribution_key,
+                                                                  fill_value=fill_value,
+                                                                  item_normalize_onto=item_normalize_onto)
+    return replace_disaggregated_row(SpeMarg_to_disaggregate,
+                                     disaggregated_column_IOT_values,
+                                     disaggregated_row_activity,
+                                     fill_value=fill_value)
+
+
+def disaggregate_value_column(disag_IOT_quantities: pd.DataFrame,
+                              disag_IOT_prices: pd.DataFrame,
+                              distribution_key: pd.DataFrame,
+                              fill_value: Union[float, None] = 0.
+                              ) -> pd.DataFrame:
+    disaggregated_IOT_values = disag_IOT_quantities.multiply(disag_IOT_prices)
+    disaggregated_value = disaggregated_IOT_values.reindex(index=distribution_key.index,
+                                                           columns=distribution_key.columns)
+    return fill_na(disaggregated_value,
+                   fill_value,
+                   distribution_key)
+
+
 def disaggregate_IOT(activity_to_disaggregate: str,
                      IOT: pd.DataFrame,
                      distribution_key: pd.DataFrame,
@@ -204,3 +247,13 @@ def disaggregate_row_non_round_erred(item_to_disaggregate: str,
                                                fill_value=fill_value,
                                                item_normalize_onto=item_normalize_onto).T
 
+
+def replace_disaggregated_row(activity_to_disaggregate: str,
+                              IOT_insert_into: pd.DataFrame,
+                              disaggregated_activity_table: pd.DataFrame,
+                              fill_value: Union[float, None] = 0.
+                              ) -> pd.DataFrame:
+    return replace_disaggregated_column(activity_to_disaggregate,
+                                        IOT_insert_into.T,
+                                        disaggregated_activity_table.T,
+                                        fill_value=fill_value).T
