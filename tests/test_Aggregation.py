@@ -6,10 +6,10 @@ from src import Aggregation
 
 def test_complete_missing_keys():
     headers = ['a', 'b', 'c', 'd']
-    dict_to_complete = {'a':'z', 'e':'f', 'i':'j'}
-    expected_completed_dict = {'a':'z', 'e':'f', 'i':'j',
-                               'b':'b', 'c':'c', 'd':'d'}
-    assert Aggregation.complete_missing_keys(dict_to_complete, headers)
+    dict_to_complete = {'a': 'z', 'e': 'f', 'i': 'j'}
+    expected_completed_dict = {'a': 'z', 'e': 'f', 'i': 'j',
+                               'b': 'b', 'c': 'c', 'd': 'd'}
+    assert Aggregation.complete_missing_keys(dict_to_complete, headers) == expected_completed_dict
 
 
 list_to_aggregate = ['Crude_oil', 'Natural_gas', 'Coking_coal', 'Bituminous_coal',
@@ -39,6 +39,7 @@ expected_aggregated_list = ['Crude_oil', 'Natural_gas', 'Coal', 'AllFuels',
                             'Work_constr', 'Automobile', 'OthSectors', 'Load_PipeTransp',
                             'PassTransp', 'Agri_Food_industry', 'Property_business']
 
+
 def test_aggregate_in_list():
     unordered_activities, remaining_activities = Aggregation.aggregate_in_list(list_to_aggregate,
                                                                                aggregation_mapping)
@@ -66,8 +67,8 @@ def test_treat_remaining():
                           'Agri_Food_industry': ['Agri_Forestry', 'Fishing', 'Food_industry'],
                           'Property_business': ['Property_business']}
     partial_agg_activities_mapping = {'HybridCommod': ['Crude_oil', 'Natural_gas', 'Coal', 'AllFuels',
-                                                    'Electricity', 'HeatGeoSol_Th', 'Automobile', 'Load_PipeTransp',
-                                                    'PassTransp', 'Property_business'],
+                                                       'Electricity', 'HeatGeoSol_Th', 'Automobile', 'Load_PipeTransp',
+                                                       'PassTransp', 'Property_business'],
                                       'NonHybridCommod': ['Buildings_constr', 'Work_constr', 'Agri_Food_industry']}
     ordering_header = pd.Index(['Crude_oil', 'Natural_gas', 'Coal', 'AllFuels', 'Electricity',
                                 'HeatGeoSol_Th', 'Heavy_Industry', 'Buildings_constr', 'Work_constr',
@@ -90,7 +91,7 @@ def test_treat_remaining():
                                 'SpeMarg_C', 'SpeMarg_G', 'SpeMarg_I', 'SpeMarg_X', 'VA_Tax',
                                 'Energy_Tax_IC', 'Energy_Tax_FC', 'ClimPolCompensbySect',
                                 'OtherIndirTax'],
-                                 dtype='object')
+                               dtype='object')
     new_aggregated_mapping = Aggregation.treat_remaining('Hybrid',
                                                          remaining_activities,
                                                          values_aggregation,
@@ -99,6 +100,6 @@ def test_treat_remaining():
     expected_agg_activities_mapping = {'HybridCommod': ['Crude_oil', 'Natural_gas', 'Coal', 'AllFuels',
                                                         'Electricity', 'HeatGeoSol_Th', 'Automobile', 'Load_PipeTransp',
                                                         'PassTransp', 'Property_business'],
-                                       'NonHybridCommod': ['Heavy_Industry','Buildings_constr', 'Work_constr',
+                                       'NonHybridCommod': ['Heavy_Industry', 'Buildings_constr', 'Work_constr',
                                                            'OthSectors', 'Agri_Food_industry']}
     assert new_aggregated_mapping == expected_agg_activities_mapping

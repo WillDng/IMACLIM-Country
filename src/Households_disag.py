@@ -29,7 +29,7 @@ def disaggregate_account_table(institution_to_disaggregate: str,
 def disaggregate_column_non_round_erred(item_to_disaggregate: str,
                                         to_disaggregate_table: pd.DataFrame,
                                         distribution_key: pd.DataFrame,
-                                        fill_value: Union[float, None] = None,
+                                        fill_value: Union[float, None] = 0.,
                                         item_normalize_onto: Union[str, None] = None
                                         ) -> pd.DataFrame:
     round_erred_table = disaggregate_column(item_to_disaggregate,
@@ -44,15 +44,24 @@ def disaggregate_column_non_round_erred(item_to_disaggregate: str,
 def disaggregate_column(item_to_disaggregate: str,
                         to_disaggregate_table: pd.DataFrame,
                         distribution_key: pd.DataFrame,
-                        fill_value: Union[float, None] = None
+                        fill_value: Union[float, None] = 0.
                         ) -> pd.DataFrame:
     disaggregated_households = distribution_key.multiply(to_disaggregate_table.loc[:, item_to_disaggregate],
                                                          axis='index')
+    disaggregated_households = fill_na(disaggregated_households,
+                                       fill_value,
+                                       distribution_key)
+    return disaggregated_households.reindex(index=to_disaggregate_table.index)
+
+
+def fill_na(IOT_to_fill: pd.DataFrame,
+            fill_value: Union[float, None],
+            distribution_key: pd.DataFrame
+            ) -> pd.DataFrame:
+    # FIXME should apply to share rate not to final results
     fill_value = get_mistmatched_fill_value(fill_value,
                                             distribution_key)
-    disaggregated_households = disaggregated_households.fillna(fill_value)
-    return disaggregated_households.reindex(to_disaggregate_table.index,
-                                            index='index')
+    return IOT_to_fill.fillna(fill_value)
 
 
 def get_mistmatched_fill_value(fill_value: Union[float, None],
@@ -86,21 +95,25 @@ def identify_normalization_items(disaggregated_erred_table: pd.DataFrame,
     return item_normalize_onto, remaining_headers
 
 
-def replace_disaggregated_column(institution_to_disaggregate: str,
-                                 account_data: pd.DataFrame,
-                                 disaggregated_table: pd.DataFrame
+def replace_disaggregated_column(activity_to_disaggregate: str,
+                                 IOT_insert_into: pd.DataFrame,
+                                 disaggregated_activity_table: pd.DataFrame,
+                                 fill_value: Union[float, None] = 0.,
                                  ) -> pd.DataFrame:
     # FIXME might be more efficicient to directly concat DataFrames
-    #       account_data[:,[:index(institution_to_disaggregate)]] + disaggregated_table + account_data[:, [index(institution_to_disaggregate)+1:]]
-    concatenated_account_data = pd.concat([account_data, disaggregated_table],
-                                          axis='columns')
-    new_account_data_header = get_disaggregated_header(institution_to_disaggregate,
-                                                       account_data.columns,
-                                                       disaggregated_table.columns)
-    institution_dropped_concatenated_account_data = concatenated_account_data.drop(institution_to_disaggregate,
-                                                                                   axis='columns')
-    return institution_dropped_concatenated_account_data.reindex(new_account_data_header,
-                                                                 axis='columns')
+    #       IOT_insert_into[:,[:index(activity_to_disaggregate)]] + disaggregated_activity_table + IOT_insert_into[:, [index(activity_to_disaggregate)+1:]]
+    concatenated_IOT = pd.concat([IOT_insert_into, disaggregated_activity_table],
+                                 axis='columns',
+                                 sort=False)
+    if ((concatenated_IOT.isna().values.any()) and
+        (fill_value is not None)):
+        concatenated_IOT = concatenated_IOT.fillna(fill_value)
+    new_IOT_header = get_disaggregated_header(activity_to_disaggregate,
+                                              IOT_insert_into.columns,
+                                              disaggregated_activity_table.columns)
+    activity_dropped_concatenated_IOT = concatenated_IOT.drop(activity_to_disaggregate,
+                                                              axis='columns')
+    return activity_dropped_concatenated_IOT.reindex(columns=new_IOT_header)
 
 
 def get_disaggregated_header(item_to_replace: 'str',
@@ -165,12 +178,14 @@ def disaggregate_IOT_prices(activity_to_disaggregate: str,
 def disaggregate_IOT(activity_to_disaggregate: str,
                      IOT: pd.DataFrame,
                      distribution_key: pd.DataFrame,
-                     item_normalize_onto: Union[str, None] = None,
+                     fill_value: Union[float, None] = 0.,
+                     item_normalize_onto: Union[str, None] = None
                      ) -> pd.DataFrame:
     disaggregated_activity = disaggregate_column_non_round_erred(activity_to_disaggregate,
                                                                  IOT,
                                                                  distribution_key,
-                                                                 item_normalize_onto)
+                                                                 fill_value=fill_value,
+                                                                 item_normalize_onto=item_normalize_onto)
     return replace_disaggregated_column(activity_to_disaggregate,
                                         IOT,
                                         disaggregated_activity)

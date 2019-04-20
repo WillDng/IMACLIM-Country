@@ -7,21 +7,6 @@ import src.Loading_data_lib as ldl
 from typing import (Dict, List, Set)
 
 
-def apply_value_aggregation(dashb: Dict[str, str],
-                            IOT: pd.DataFrame,
-                            activities_mapping: Dict[str, List[str]]
-                            ) -> (pd.DataFrame, Dict[str, List[str]]):
-    values_aggregation = None
-    if not dashb['AGG_type']:
-        return IOT, activities_mapping, values_aggregation
-    keys_aggregation, values_aggregation = read_aggregation(dashb)
-    aggregated_IOT = aggregate_IOT(IOT, keys_aggregation)
-    aggregated_activities_mapping = aggregate_activities_mapping(activities_mapping,
-                                                                 values_aggregation,
-                                                                 ldl.get_headers_from(aggregated_IOT))
-    return aggregated_IOT, aggregated_activities_mapping, keys_aggregation
-
-
 def read_aggregation(dashb: Dict[str, str]
                      ) -> (Dict[str, str], Dict[str, List[str]]):
     agg_filepath = dashb['studydata_dir'] / 'aggregation.csv'
@@ -139,4 +124,25 @@ def hybrid_treatment(remaining_activities: List[str],
 
 has_remaining_treatment = {'Hybrid': hybrid_treatment}
 
+
+def is_aggregation(aggregation_items: (Dict[str, str],
+                                       Dict[str, List[str]])):
+    if aggregation_items[0] is not None:
+        return True
+    return False
+
+
+def aggregate_IOT_and_activities_mapping(entry_IOT: pd.DataFrame,
+                                         aggregation_items: (Dict[str, str],
+                                                             Dict[str, List[str]]),
+                                         # keys_aggregation: Dict[str, List[str]],
+                                         common_activities_mapping: Dict[str, Dict[str, List[str]]]
+                                         ) -> (pd.DataFrame, Dict[str, List[str]]):
+    keys_aggregation, values_aggregation = aggregation_items
+    aggregated_IOT = aggregate_IOT(entry_IOT,
+                                   keys_aggregation)
+    common_activities_mapping = aggregate_activities_mapping(common_activities_mapping,
+                                                             values_aggregation,
+                                                             ldl.get_headers_from(aggregated_IOT))
+    return aggregated_IOT, common_activities_mapping
 
