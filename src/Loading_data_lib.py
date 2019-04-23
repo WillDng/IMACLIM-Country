@@ -293,7 +293,8 @@ def filter_accounts_type(to_modify_accounts: Dict[str, str]
     to_trim_accounts = dict()
     to_delete_marker = '  '
     for to_modify_account, account_category in to_modify_accounts.items():
-        if account_category.startswith(to_delete_marker):
+        if ((isinstance(account_category, str)) and
+            (account_category.startswith(to_delete_marker))):
             to_trim_accounts[to_modify_account] = account_category.lstrip(to_delete_marker)
             del to_pick_accounts[to_modify_account]
     return to_pick_accounts, to_trim_accounts

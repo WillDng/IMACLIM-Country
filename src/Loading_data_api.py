@@ -1,8 +1,10 @@
 # coding : utf-8
 
-from src import (common_utils as cu,
-                 Aggregation as Agg,
+from src import (Aggregation as Agg,
+                 common_utils as cu,
+                 Households_disag as hhd,
                  Loading_data_lib as ldl)
+import numpy as np
 import pandas as pd
 from typing import (Dict, List, Tuple, Union)
 import ipdb
@@ -11,6 +13,7 @@ Coordinates = Tuple[List[str], List[str]]
 
 
 use_categories = ['IC', 'FC']
+account_to_disaggregate = 'Households'
 
 
 def load_data(study_dashb: Dict[str, str]
@@ -22,7 +25,8 @@ def load_data(study_dashb: Dict[str, str]
                                                              aggregation_items)
     Initial_prices = get_IOT_prices(study_dashb,
                                     quantity_coord)
-    Initial_DataAccount = get_account_table(study_dashb)
+    Initial_DataAccount = get_account_table(study_dashb,
+                                            disaggregation)
     (Initial_values, value_coord, IOT_val) = get_IOT_values(study_dashb,
                                                             IOT_val_disagg,
                                                             common_activities_mapping,
@@ -120,7 +124,8 @@ def get_IOT_prices(study_dashb: Dict[str, str],
                                  quantity_coord)
 
 
-def get_account_table(study_dashb: Dict[str, str]
+def get_account_table(study_dashb: Dict[str, str],
+                      disaggregation: Union[str, None]
                       ) -> Dict[str, Union[pd.Series, float]]:
     account_table = ldl.read_table(study_dashb['studydata_dir'] / 'DataAccountTable.csv',
                                    delimiter=';',
@@ -129,6 +134,21 @@ def get_account_table(study_dashb: Dict[str, str]
     selected_accounts = cu.read_dict(study_dashb['studydata_dir'] / study_dashb['DataAccount_params'],
                                      value_col=1,
                                      delimiter=';')
+    if disaggregation:
+        account_table_disagregation_dir = study_dashb['disaggregation_dir'] / 'DataAccountTable'
+        disagg_level_account_table_rate = 'DataAccount_rate_' + study_dashb['H_DISAGG'] + '.csv'
+        account_table_rate = ldl.read_table(account_table_disagregation_dir / disagg_level_account_table_rate,
+                                            delimiter=';')
+        account_table_mapping = cu.read_aggregation_mapping(account_table_disagregation_dir / 'Index_EconData.csv')
+        hhd.modify_account_table_mapping(account_table_mapping,
+                                         disaggregation)
+        account_table = hhd.disaggregate_account_table(account_to_disaggregate,
+                                                       account_table,
+                                                       account_table_rate,
+                                                       account_table_mapping)
+        selected_accounts = hhd.replace_disaggregated_in_(selected_accounts,
+                                                          account_to_disaggregate,
+                                                          disaggregation)
     return ldl.extract_accounts(account_table,
                                 selected_accounts)
 
