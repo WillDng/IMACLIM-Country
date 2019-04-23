@@ -19,6 +19,14 @@ def get_households(chosen_disaggregation: str
     return households_list
 
 
+def modify_account_table_mapping(account_table_mapping: Dict[str, List[str]],
+                                 disaggregation_classes: List[str]
+                                 ) -> None:
+    account_table_mapping['Households'] = disaggregation_classes
+    accounts_mapping_to_extend = ['DomesticAgents', 'InstitAgents']
+    for account_mapping_to_extend in accounts_mapping_to_extend:
+        account_table_mapping[account_mapping_to_extend].extend(disaggregation_classes)
+
 
 def disaggregate_account_table(institution_to_disaggregate: str,
                                account_data: pd.DataFrame,
