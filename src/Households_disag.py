@@ -1,7 +1,8 @@
 # coding : utf-8
 
 import pandas as pd
-from typing import (Dict, List, Union)
+from typing import (Dict, Iterable, List, Union)
+
 
 def read_disaggregation(study_dashb: Dict[str, str]
                         ) -> List[str]:
@@ -281,3 +282,15 @@ def replace_disaggregated_row(activity_to_disaggregate: str,
                                         IOT_insert_into.T,
                                         disaggregated_activity_table.T,
                                         fill_value=fill_value).T
+
+
+def replace_disaggregated_in_(entry_dictionnary: Dict[str, Union[str, Iterable[str]]],
+                              item_to_replace: str,
+                              item_to_replace_with: Union[str, List[str]]
+                              ) -> Iterable:
+    replaced_dictionnary = dict()
+    substitution_dictionnary = dict()
+    substitution_dictionnary[item_to_replace] = item_to_replace_with
+    for key, value in entry_dictionnary.items():
+        replaced_dictionnary[key] = substitution_dictionnary.get(value, value)
+    return replaced_dictionnary
