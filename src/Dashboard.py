@@ -17,6 +17,8 @@ def read_(study_ISO: str) -> Dict[str, str]:
     dashboard = convert_boolean_in_dict(dashboard)
     add_frame_data_path(dashboard,
                         study_ISO)
+    add_disaggregation_path(dashboard,
+                            dashboard['studydata_dir'])
     return dashboard
 
 
@@ -138,3 +140,9 @@ def add_frame_data_path(dashb: Dict[str, str],
                         study_ISO: str) -> None:
     dashb['studyframe_dir'] = study_frames_dir / study_ISO
     dashb['studydata_dir'] = data_dir / study_ISO
+
+
+def add_disaggregation_path(dashb: Dict[str, str],
+                            fram_data_path: str
+                            ) -> None:
+    dashb['disaggregation_dir'] = fram_data_path / 'disaggregation'

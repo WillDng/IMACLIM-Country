@@ -8,13 +8,13 @@ import src.Loading_data_lib as ldl
 from typing import (Dict, List, Set, Tuple, Union)
 
 
-def read_aggregation(dashb: Dict[str, str]
+def read_aggregation(study_dashb: Dict[str, str]
                      ) -> (Dict[str, str], Dict[str, List[str]]):
-    agg_filepath = dashb['studydata_dir'] / 'aggregation.csv'
-    aggregation_raw_data = cu._read_csv(agg_filepath, delimiter=';')
+    agg_filepath = study_dashb['studydata_dir'] / 'aggregation.csv'
     # FIXME delimiter is hardcoded
+    aggregation_raw_data = cu._read_csv(agg_filepath, delimiter=';')
     agg_header, aggregation_raw_data = list(filter(None, aggregation_raw_data.__next__())), list(aggregation_raw_data)
-    chosen_aggregation = dashb.get('AGG_type', None)
+    chosen_aggregation = study_dashb.get('AGG_type', None)
     return get_aggregation_items(chosen_aggregation,
                                  agg_header,
                                  agg_filepath,
