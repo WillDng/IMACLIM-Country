@@ -2,9 +2,10 @@
 
 import copy
 import pandas as pd
+import pathlib as pl
 import src.common_utils as cu
 import src.Loading_data_lib as ldl
-from typing import (Dict, List, Set)
+from typing import (Dict, List, Set, Tuple, Union)
 
 
 def read_aggregation(dashb: Dict[str, str]
@@ -13,10 +14,24 @@ def read_aggregation(dashb: Dict[str, str]
     aggregation_raw_data = cu._read_csv(agg_filepath, delimiter=';')
     # FIXME delimiter is hardcoded
     agg_header, aggregation_raw_data = list(filter(None, aggregation_raw_data.__next__())), list(aggregation_raw_data)
-    chosen_aggregation = dashb['AGG_type']
-    if chosen_aggregation not in agg_header:
-        raise KeyError('Chosen aggregation is not available at ' + agg_filepath)
-    agg_index = agg_header.index(chosen_aggregation) + 1
+    chosen_aggregation = dashb.get('AGG_type', None)
+    return get_aggregation_items(chosen_aggregation,
+                                 agg_header,
+                                 agg_filepath,
+                                 aggregation_raw_data)
+
+
+def get_aggregation_items(chosen_aggregation: str,
+                          aggregation_header: List[str],
+                          aggregation_filepath: pl.Path,
+                          aggregation_raw_data: List[List[str]]
+                          ) -> Union[Tuple[Dict[str, str], Dict[str, List[str]]],
+                                     Tuple[None, None]]:
+    if chosen_aggregation is None:
+        return None, None
+    if chosen_aggregation not in aggregation_header:
+        raise KeyError('Chosen aggregation is not available at ' + aggregation_filepath)
+    agg_index = aggregation_header.index(chosen_aggregation) + 1
     agg_keys = cu.fill_dict(aggregation_raw_data, agg_index)
     agg_values = cu.extract_aggregation_mapping(aggregation_raw_data,
                                                 col=agg_index)
