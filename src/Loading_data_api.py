@@ -16,7 +16,7 @@ use_categories = ['IC', 'FC']
 def load_data(study_dashb: Dict[str, str]
               ) -> Dict[str, pd.DataFrame]:
     (aggregation_items, IOT_val_disagg,
-     common_activities_mapping) = read_and_check_input_files(study_dashb)
+     common_activities_mapping, disaggregation) = read_and_check_input_files(study_dashb)
     Initial_quantitites, quantity_coord = get_IOT_quantities(study_dashb,
                                                              common_activities_mapping,
                                                              aggregation_items)
@@ -48,9 +48,10 @@ def read_and_check_input_files(study_dashb: Dict[str, str]):
                                     delimiter=';')
     common_activities_mapping = get_common_activies_mapping(study_dashb,
                                                             IOT_val_disagg)
+    disaggregation = hhd.read_disaggregation(study_dashb)
     check_files_consistency()
     return (aggregation_items, IOT_val_disagg,
-            common_activities_mapping)
+            common_activities_mapping, disaggregation)
 
 
 def get_common_activies_mapping(study_dashb: Dict[str, str],

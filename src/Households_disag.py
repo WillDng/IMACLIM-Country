@@ -3,6 +3,22 @@
 import pandas as pd
 from typing import (Dict, List, Union)
 
+def read_disaggregation(study_dashb: Dict[str, str]
+                        ) -> List[str]:
+    chosen_disaggregation = study_dashb.get('H_DISAGG', None)
+    if chosen_disaggregation is None:
+        return None
+    return get_households(chosen_disaggregation)
+
+
+def get_households(chosen_disaggregation: str
+                   ) -> List[str]:
+    households_prefix = 'H'
+    disaggregation_level = chosen_disaggregation.lstrip(households_prefix)
+    households_list = [households_prefix + str(i) for i in range(1, int(disaggregation_level) + 1)]
+    return households_list
+
+
 
 def disaggregate_account_table(institution_to_disaggregate: str,
                                account_data: pd.DataFrame,
