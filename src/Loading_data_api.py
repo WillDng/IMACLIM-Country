@@ -7,7 +7,7 @@ from src import (Aggregation as Agg,
 import numpy as np
 import pandas as pd
 from typing import (Dict, List, Tuple, Union)
-import ipdb
+
 
 Coordinates = Tuple[List[str], List[str]]
 
@@ -43,7 +43,6 @@ def load_data(study_dashb: Dict[str, str]
                                              aggregation_items,
                                              value_coord)
     Initial_CO2_tax = get_CO2_tax(quantity_coord)
-    ipdb.set_trace()
 
 
 def read_and_check_input_files(study_dashb: Dict[str, str]):
@@ -53,7 +52,6 @@ def read_and_check_input_files(study_dashb: Dict[str, str]):
     common_activities_mapping = get_common_activies_mapping(study_dashb,
                                                             IOT_val_disagg)
     disaggregation = hhd.read_disaggregation(study_dashb)
-    check_files_consistency()
     return (aggregation_items, IOT_val_disagg,
             common_activities_mapping, disaggregation)
 
@@ -117,6 +115,7 @@ def get_IOT_prices(study_dashb: Dict[str, str],
                                 delimiter=';',
                                 skipfooter=1,
                                 engine='python')
+    # FIXME doesn't work when is aggregated
     # if keys_aggregation:
     #     IOT_prices = Agg.aggregate_IOT(IOT_prices,
     #                                    keys_aggregation)
