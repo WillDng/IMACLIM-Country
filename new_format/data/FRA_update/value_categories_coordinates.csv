@@ -1,0 +1,11 @@
+IC,Commodities,Sectors
+FC,Commodities,FC
+OthPart_IOT,OthPart_IOT,Sectors
+Value_Added,Value_Added,Sectors
+Margins,Margins,Sectors
+SpeMarg,SpeMarg,Sectors
+SpeMarg_FC,SpeMarg_FC,Sectors
+SpeMarg_IC,SpeMarg_IC,Sectors
+Taxes,Taxes,Sectors
+I,Commodities,I
+X,Commodities,X

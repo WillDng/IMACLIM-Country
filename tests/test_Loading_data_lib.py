@@ -7,7 +7,6 @@ from src import Loading_data_lib as ld
 from src.parameters import linebreaker
 from typing import (Any, Dict)
 
-mock_data_dir = 'tests/mock_data/'
 IOT_delimiter = ';'
 
 
@@ -34,7 +33,8 @@ def activities_mapping_part():
             'NonSupplierSect': ['Crude_oil', 'Natural_gas', 'Coking_coal']}
 
 
-full_IOT_path = mock_data_dir + 'IOT_Val.csv'
+new_format_dir = 'new_format/data/FRA_update/'
+full_IOT_path = new_format_dir + 'IOT_Val.csv'
 
 
 @pytest.fixture()
