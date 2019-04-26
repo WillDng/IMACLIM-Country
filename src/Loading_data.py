@@ -23,13 +23,14 @@ def load_data(study_dashb: Dict[str, str]
               ) -> Dict[str, pd.DataFrame]:
     (aggregation_items, IOT_val_disagg,
      common_activities_mapping, disaggregation_rate) = read_and_check_input_files(study_dashb)
-    Initial_quantitites, quantity_coord = get_IOT_quantities(study_dashb,
-                                                             common_activities_mapping,
-                                                             aggregation_items,
-                                                             disaggregation_rate)
     Initial_prices = get_IOT_prices(study_dashb,
                                     quantity_coord,
                                     disaggregation_rate)
+    (Initial_quantitites, quantity_coord,
+     IOT_quantity_disagg) = get_IOT_quantities(study_dashb,
+                                               common_activities_mapping,
+                                               aggregation_items,
+                                               disaggregation_rate)
     Initial_DataAccount = get_account_table(study_dashb,
                                             disaggregation_rate)
     (Initial_values, value_coord, IOT_val) = get_IOT_values(study_dashb,
@@ -77,7 +78,8 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
                                            Dict[str, str]),
                        disaggregation_rate: pd.Index
                        ) -> (Dict[str, pd.DataFrame],
-                             List[str], List[str]):
+                             List[str], List[str],
+                             pd.DataFrame):
     IOT_quantity = cu.read_table(study_dashb['studydata_dir'] / 'IOT_Qtities.csv',
                                  delimiter=file_delimiter,
                                  skipfooter=1,
@@ -118,7 +120,8 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
 
     return (ldl.extract_IOTs_from(IOT_quantity,
                                   quantity_coord),
-            quantity_coord)
+            quantity_coord,
+            IOT_quantity)
 
 
 def get_IOT_prices(study_dashb: Dict[str, str],
@@ -152,7 +155,7 @@ def get_account_table(study_dashb: Dict[str, str],
                                      value_col=1,
                                      delimiter=file_delimiter)
     if disaggregation_rate is not None:
-        account_table_disagregation_dir = study_dashb['disaggregation_rate_dir'] / 'DataAccountTable'
+        account_table_disagregation_dir = study_dashb['disaggregation_dir'] / 'DataAccountTable'
         disagg_level_account_table_rate = 'DataAccount_rate_' + study_dashb['H_DISAGG'] + '.csv'
         account_table_rate = cu.read_table(account_table_disagregation_dir / disagg_level_account_table_rate,
                                            delimiter=file_delimiter)
