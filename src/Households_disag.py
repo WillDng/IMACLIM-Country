@@ -2,14 +2,19 @@
 
 import pandas as pd
 from typing import (Dict, Iterable, List, Union)
+from src import common_utils as cu
+from src.parameters import file_delimiter
 
 
 def read_disaggregation(study_dashb: Dict[str, str]
-                        ) -> List[str]:
+                        ) -> pd.DataFrame:
     chosen_disaggregation = study_dashb.get('H_DISAGG', None)
     if chosen_disaggregation is None:
         return None
-    return get_households(chosen_disaggregation)
+    disaggregation_rate_dir = study_dashb['disaggregation_dir'] / 'rate'
+    disaggregation_level_rate = 'IOT_rate_' + chosen_disaggregation + '.csv'
+    return cu.read_table(disaggregation_rate_dir / disaggregation_level_rate,
+                         delimiter=file_delimiter)
 
 
 def get_households(chosen_disaggregation: str
@@ -21,8 +26,9 @@ def get_households(chosen_disaggregation: str
 
 
 def modify_account_table_mapping(account_table_mapping: Dict[str, List[str]],
-                                 disaggregation_classes: List[str]
+                                 disaggregation_classes: pd.Index
                                  ) -> None:
+    disaggregation_classes = disaggregation_classes.tolist()
     account_table_mapping['Households'] = disaggregation_classes
     accounts_mapping_to_extend = ['DomesticAgents', 'InstitAgents']
     for account_mapping_to_extend in accounts_mapping_to_extend:
@@ -46,9 +52,6 @@ def disaggregate_account_table(institution_to_disaggregate: str,
     return replace_disaggregated_column(institution_to_disaggregate,
                                         account_data,
                                         disaggregated_households)
-
-# def check_aggregation_files_adequation(account_data: pd.DataFrame,
-#                                        ):
 
 
 def disaggregate_column_non_round_erred(item_to_disaggregate: str,
@@ -141,7 +144,7 @@ def replace_disaggregated_column(activity_to_disaggregate: str,
     return activity_dropped_concatenated_IOT.reindex(columns=new_IOT_header)
 
 
-def get_disaggregated_header(item_to_replace: 'str',
+def get_disaggregated_header(item_to_replace: str,
                              original_header: pd.Index,
                              headers_to_insert: pd.Index
                              ) -> List[str]:
@@ -286,13 +289,14 @@ def replace_disaggregated_row(activity_to_disaggregate: str,
 
 def replace_disaggregated_in_(entry_dictionnary: Dict[str, Union[str, Iterable[str]]],
                               item_to_replace: str,
-                              item_to_replace_with: Union[str, List[str]]
+                              item_to_replace_with: pd.Index
                               ) -> Iterable:
     replaced_dictionnary = dict()
     substitution_dictionnary = dict()
-    substitution_dictionnary[item_to_replace] = item_to_replace_with
+    substitution_dictionnary[item_to_replace] = item_to_replace_with.tolist()
     for key, value in entry_dictionnary.items():
-        replaced_dictionnary[key] = substitution_dictionnary.get(value, value)
+        replaced_dictionnary[key] = substitute_dict_value(value,
+                                                          substitution_dictionnary)
     return replaced_dictionnary
 
 
