@@ -22,15 +22,16 @@ account_to_disaggregate = 'Households'
 def load_data(study_dashb: Dict[str, str]
               ) -> Dict[str, pd.DataFrame]:
     (aggregation_items, IOT_val_disagg,
-     common_activities_mapping, disaggregation) = read_and_check_input_files(study_dashb)
+     common_activities_mapping, disaggregation_rate) = read_and_check_input_files(study_dashb)
     Initial_quantitites, quantity_coord = get_IOT_quantities(study_dashb,
                                                              common_activities_mapping,
                                                              aggregation_items,
-                                                             disaggregation)
+                                                             disaggregation_rate)
     Initial_prices = get_IOT_prices(study_dashb,
-                                    quantity_coord)
+                                    quantity_coord,
+                                    disaggregation_rate)
     Initial_DataAccount = get_account_table(study_dashb,
-                                            disaggregation)
+                                            disaggregation_rate)
     (Initial_values, value_coord, IOT_val) = get_IOT_values(study_dashb,
                                                             IOT_val_disagg,
                                                             common_activities_mapping,
@@ -55,9 +56,9 @@ def read_and_check_input_files(study_dashb: Dict[str, str]):
                                    delimiter=file_delimiter)
     common_activities_mapping = get_common_activies_mapping(study_dashb,
                                                             IOT_val_disagg)
-    disaggregation = hhd.read_disaggregation(study_dashb)
+    disaggregation_rate = hhd.read_disaggregation_rate(study_dashb)
     return (aggregation_items, IOT_val_disagg,
-            common_activities_mapping, disaggregation)
+            common_activities_mapping, disaggregation_rate)
 
 
 def get_common_activies_mapping(study_dashb: Dict[str, str],
@@ -74,7 +75,7 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
                        common_activities_mapping: Dict[str, List[str]],
                        aggregation_items: (Dict[str, List[str]],
                                            Dict[str, str]),
-                       disaggregation: pd.Index
+                       disaggregation_rate: pd.Index
                        ) -> (Dict[str, pd.DataFrame],
                              List[str], List[str]):
     IOT_quantity = cu.read_table(study_dashb['studydata_dir'] / 'IOT_Qtities.csv',
@@ -88,14 +89,13 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
     quantity_activities_mapping = ldl.extend_activities_mapping(study_dashb['studydata_dir'] / 'quantity_activities_mapping.csv',
                                                                 IOT_quantity,
                                                                 common_activities_mapping)
-    if disaggregation is not None:
+    if disaggregation_rate is not None:
         IOT_quantity = hhd.disaggregate_IOT(FC_to_disaggregate,
                                             IOT_quantity,
-                                            disaggregation)
-        ipdb.set_trace()
+                                            disaggregation_rate)
         quantity_activities_mapping = hhd.replace_disaggregated_in_(quantity_activities_mapping,
                                                                     FC_to_disaggregate,
-                                                                    ldl.get_header_from(disaggregation))
+                                                                    ldl.get_header_from(disaggregation_rate))
     quantity_coord = ldl.get_categories_coordinates(study_dashb['studydata_dir'] / 'quantity_categories_coordinates.csv',
                                                     quantity_activities_mapping)
     quantity_coord = ldl.disaggregate_in_coordinates(quantity_coord,
@@ -123,6 +123,7 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
 
 def get_IOT_prices(study_dashb: Dict[str, str],
                    quantity_coord: Dict[str, Tuple[List[str], List[str]]],
+                   disaggregation_rate: pd.Index
                    ) -> Dict[str, pd.DataFrame]:
     IOT_prices = cu.read_table(study_dashb['studydata_dir'] / 'IOT_Prices.csv',
                                delimiter=file_delimiter,
@@ -132,12 +133,16 @@ def get_IOT_prices(study_dashb: Dict[str, str],
     # if keys_aggregation:
     #     IOT_prices = Agg.aggregate_IOT(IOT_prices,
     #                                    keys_aggregation)
+    if disaggregation_rate is not None:
+        IOT_prices = hhd.disaggregate_IOT_prices(FC_to_disaggregate,
+                                                 IOT_prices,
+                                                 disaggregation_rate)
     return ldl.extract_IOTs_from(IOT_prices,
                                  quantity_coord)
 
 
 def get_account_table(study_dashb: Dict[str, str],
-                      disaggregation: pd.DataFrame
+                      disaggregation_rate: pd.DataFrame
                       ) -> Dict[str, Union[pd.Series, float]]:
     account_table = cu.read_table(study_dashb['studydata_dir'] / 'DataAccountTable.csv',
                                   delimiter=file_delimiter,
@@ -146,21 +151,21 @@ def get_account_table(study_dashb: Dict[str, str],
     selected_accounts = cu.read_dict(study_dashb['studydata_dir'] / study_dashb['DataAccount_params'],
                                      value_col=1,
                                      delimiter=file_delimiter)
-    if disaggregation is not None:
-        account_table_disagregation_dir = study_dashb['disaggregation_dir'] / 'DataAccountTable'
+    if disaggregation_rate is not None:
+        account_table_disagregation_dir = study_dashb['disaggregation_rate_dir'] / 'DataAccountTable'
         disagg_level_account_table_rate = 'DataAccount_rate_' + study_dashb['H_DISAGG'] + '.csv'
         account_table_rate = cu.read_table(account_table_disagregation_dir / disagg_level_account_table_rate,
                                            delimiter=file_delimiter)
         account_table_mapping = cu.read_aggregation_mapping(account_table_disagregation_dir / 'Index_EconData.csv')
         hhd.modify_account_table_mapping(account_table_mapping,
-                                         ldl.get_header_from(disaggregation))
+                                         ldl.get_header_from(disaggregation_rate))
         account_table = hhd.disaggregate_account_table(account_to_disaggregate,
                                                        account_table,
                                                        account_table_rate,
                                                        account_table_mapping)
         selected_accounts = hhd.replace_disaggregated_in_(selected_accounts,
                                                           account_to_disaggregate,
-                                                          ldl.get_header_from(disaggregation))
+                                                          ldl.get_header_from(disaggregation_rate))
     return ldl.extract_accounts(account_table,
                                 selected_accounts)
 

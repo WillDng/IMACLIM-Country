@@ -6,8 +6,8 @@ from src import common_utils as cu
 from src.parameters import file_delimiter
 
 
-def read_disaggregation(study_dashb: Dict[str, str]
-                        ) -> pd.DataFrame:
+def read_disaggregation_rate(study_dashb: Dict[str, str]
+                             ) -> pd.DataFrame:
     chosen_disaggregation = study_dashb.get('H_DISAGG', None)
     if chosen_disaggregation is None:
         return None

@@ -144,4 +144,3 @@ def flatten_list(l):
             yield from flatten_list(el)
         else:
             yield el
-
