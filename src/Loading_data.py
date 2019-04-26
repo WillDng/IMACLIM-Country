@@ -23,14 +23,14 @@ def load_data(study_dashb: Dict[str, str]
               ) -> Dict[str, pd.DataFrame]:
     (aggregation_items, IOT_val_disagg,
      common_activities_mapping, disaggregation_rate) = read_and_check_input_files(study_dashb)
-    Initial_prices = get_IOT_prices(study_dashb,
-                                    quantity_coord,
-                                    disaggregation_rate)
     (Initial_quantitites, quantity_coord,
      IOT_quantity_disagg) = get_IOT_quantities(study_dashb,
                                                common_activities_mapping,
                                                aggregation_items,
                                                disaggregation_rate)
+    Initial_prices, IOT_prices_disagg = get_IOT_prices(study_dashb,
+                                                       quantity_coord,
+                                                       disaggregation_rate)
     Initial_DataAccount = get_account_table(study_dashb,
                                             disaggregation_rate)
     (Initial_values, value_coord, IOT_val) = get_IOT_values(study_dashb,
@@ -127,7 +127,8 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
 def get_IOT_prices(study_dashb: Dict[str, str],
                    quantity_coord: Dict[str, Tuple[List[str], List[str]]],
                    disaggregation_rate: pd.Index
-                   ) -> Dict[str, pd.DataFrame]:
+                   ) -> (Dict[str, pd.DataFrame],
+                         pd.DataFrame):
     IOT_prices = cu.read_table(study_dashb['studydata_dir'] / 'IOT_Prices.csv',
                                delimiter=file_delimiter,
                                skipfooter=1,
@@ -140,8 +141,9 @@ def get_IOT_prices(study_dashb: Dict[str, str],
         IOT_prices = hhd.disaggregate_IOT_prices(FC_to_disaggregate,
                                                  IOT_prices,
                                                  disaggregation_rate)
-    return ldl.extract_IOTs_from(IOT_prices,
-                                 quantity_coord)
+    return (ldl.extract_IOTs_from(IOT_prices,
+                                  quantity_coord),
+            IOT_prices)
 
 
 def get_account_table(study_dashb: Dict[str, str],
