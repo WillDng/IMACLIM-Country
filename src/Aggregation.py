@@ -10,11 +10,13 @@ from typing import (Dict, List, Set, Tuple, Union)
 
 def read_aggregation(study_dashb: Dict[str, str]
                      ) -> (Dict[str, str], Dict[str, List[str]]):
+    chosen_aggregation = study_dashb.get('AGG_type', None)
+    if chosen_aggregation is None:
+        return None, None
     agg_filepath = study_dashb['studydata_dir'] / 'aggregation.csv'
     # FIXME delimiter is hardcoded
     aggregation_raw_data = cu._read_csv(agg_filepath, delimiter=';')
     agg_header, aggregation_raw_data = list(filter(None, aggregation_raw_data.__next__())), list(aggregation_raw_data)
-    chosen_aggregation = study_dashb.get('AGG_type', None)
     return get_aggregation_items(chosen_aggregation,
                                  agg_header,
                                  agg_filepath,
@@ -27,8 +29,6 @@ def get_aggregation_items(chosen_aggregation: str,
                           aggregation_raw_data: List[List[str]]
                           ) -> Union[Tuple[Dict[str, str], Dict[str, List[str]]],
                                      Tuple[None, None]]:
-    if chosen_aggregation is None:
-        return None, None
     if chosen_aggregation not in aggregation_header:
         raise KeyError('Chosen aggregation is not available at ' + aggregation_filepath)
     agg_index = aggregation_header.index(chosen_aggregation) + 1
