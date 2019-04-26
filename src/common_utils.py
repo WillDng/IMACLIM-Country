@@ -1,6 +1,7 @@
 # coding : utf-8
 
 import sys
+import collections
 import csv
 import pandas as pd
 import pathlib as pl
@@ -135,4 +136,12 @@ def read_table(IOT_file_path: pl.Path, **kwargs) -> pd.DataFrame:
         sys.stderr.write("Warning : IOT delimiter might not be correctly informed in " +
                          str(IOT_file_path) + linebreaker)
     return read_table
+
+
+def flatten_list(l):
+    for el in l:
+        if isinstance(el, collections.abc.Sequence) and not isinstance(el, (str, bytes)):
+            yield from flatten_list(el)
+        else:
+            yield el
 
