@@ -2,6 +2,7 @@
 
 import sys
 import csv
+import pandas as pd
 import pathlib as pl
 from src.parameters import (linebreaker, file_delimiter)
 from typing import (Any, Dict, Iterator, List, Union, Tuple)
@@ -124,3 +125,14 @@ def extract_aggregation_mapping(aggregation_mapping: Iterator[List[str]],
         for category in categories:
             read_mapping.setdefault(category, list()).append(interest_variable)
     return read_mapping
+
+
+def read_table(IOT_file_path: pl.Path, **kwargs) -> pd.DataFrame:
+    read_table = pd.read_csv(IOT_file_path,
+                             index_col=0,
+                             **kwargs)
+    if read_table.empty:
+        sys.stderr.write("Warning : IOT delimiter might not be correctly informed in " +
+                         str(IOT_file_path) + linebreaker)
+    return read_table
+
