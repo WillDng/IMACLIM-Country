@@ -4,9 +4,9 @@
 # hence path_fix
 import path_fix
 from src import (Dashboard,
-                 Loading_data_api as lda)
+                 Loading_data as ld)
 
 ISO_selection = 'FRA_update'
 
 Dashboard = Dashboard.read_(ISO_selection)
-Initial_values = lda.load_data(Dashboard)
+Initial_values = ld.load_data(Dashboard)

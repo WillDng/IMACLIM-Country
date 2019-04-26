@@ -12,17 +12,8 @@ from src import common_utils as cu
 from src.parameters import (linebreaker, IOT_balance_tolerance)
 from typing import (Any, Dict, List, Iterator, Tuple, Union)
 
+
 Coordinates = Tuple[List[str], List[str]]
-
-
-def read_table(IOT_file_path: pl.Path, **kwargs) -> pd.DataFrame:
-    read_table = pd.read_csv(IOT_file_path,
-                             index_col=0,
-                             **kwargs)
-    if read_table.empty:
-        sys.stderr.write("Warning : IOT delimiter might not be correctly informed in " +
-                         str(IOT_file_path) + linebreaker)
-    return read_table
 
 
 def get_header_from(IOT: pd.DataFrame) -> pd.Index:
