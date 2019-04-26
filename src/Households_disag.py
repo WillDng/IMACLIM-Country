@@ -294,3 +294,13 @@ def replace_disaggregated_in_(entry_dictionnary: Dict[str, Union[str, Iterable[s
     for key, value in entry_dictionnary.items():
         replaced_dictionnary[key] = substitution_dictionnary.get(value, value)
     return replaced_dictionnary
+
+
+def substitute_dict_value(entry_value: Union[List[str], str],
+                          substitution_dictionnary: Dict[str, str]
+                          ) -> Union[List[str], str]:
+    def substitute_if(value):
+        return substitution_dictionnary.get(value, value)
+    if isinstance(entry_value, list):
+        return list(cu.flatten_list(map(substitute_if, entry_value)))
+    return substitute_if(entry_value)
