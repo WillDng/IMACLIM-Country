@@ -24,23 +24,23 @@ def load_data(study_dashb: Dict[str, str]
     (aggregation_items, IOT_val_non_agg,
      common_activities_mapping, disaggregation_rate) = read_and_check_input_files(study_dashb)
     (Initial_quantitites, quantity_coord,
-     IOT_quantity_disagg) = get_IOT_quantities(study_dashb,
-                                               common_activities_mapping,
-                                               aggregation_items,
-                                               disaggregation_rate)
+     IOT_quantities_disagg) = get_IOT_quantities(study_dashb,
+                                                 common_activities_mapping,
+                                                 aggregation_items,
+                                                 disaggregation_rate)
     Initial_prices, IOT_prices_disagg = get_IOT_prices(study_dashb,
                                                        quantity_coord,
                                                        disaggregation_rate)
-    Initial_DataAccount = get_account_table(study_dashb,
-                                            disaggregation_rate)
-    ipdb.set_trace()
-    (Initial_values, value_coord) = get_IOT_values(study_dashb,
-                                                   IOT_val_non_agg,
-                                                   common_activities_mapping,
-                                                   aggregation_items,
-                                                   disaggregation_rate,
-                                                   IOT_quantity_disagg,
-                                                   IOT_prices_disagg)
+    Initial_DataAccount, account_table = get_account_table(study_dashb,
+                                                           disaggregation_rate)
+    (Initial_values, value_coord,
+     IOT_values_disagg) = get_IOT_values(study_dashb,
+                                         IOT_val_non_agg,
+                                         common_activities_mapping,
+                                         aggregation_items,
+                                         disaggregation_rate,
+                                         IOT_quantities_disagg,
+                                         IOT_prices_disagg)
     Initial_CO2 = get_IOT_CO2(study_dashb,
                               common_activities_mapping,
                               aggregation_items)
@@ -82,22 +82,23 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
                        disaggregation_rate: pd.Index
                        ) -> (Dict[str, pd.DataFrame],
                              List[str], List[str],
+                             pd.DataFrame,
                              pd.DataFrame):
-    IOT_quantity = cu.read_table(study_dashb['studydata_dir'] / 'IOT_Qtities.csv',
-                                 delimiter=file_delimiter,
-                                 skipfooter=1,
-                                 engine='python')
+    IOT_quantities = cu.read_table(study_dashb['studydata_dir'] / 'IOT_Qtities.csv',
+                                   delimiter=file_delimiter,
+                                   skipfooter=1,
+                                   engine='python')
     if Agg.is_aggregation(aggregation_items):
-        IOT_quantity, common_activities_mapping = Agg.aggregate_IOT_and_activities_mapping(IOT_quantity,
-                                                                                           aggregation_items,
-                                                                                           common_activities_mapping)
+        IOT_quantities, common_activities_mapping = Agg.aggregate_IOT_and_activities_mapping(IOT_quantities,
+                                                                                             aggregation_items,
+                                                                                             common_activities_mapping)
     quantity_activities_mapping = ldl.extend_activities_mapping(study_dashb['studydata_dir'] / 'quantity_activities_mapping.csv',
-                                                                IOT_quantity,
+                                                                IOT_quantities,
                                                                 common_activities_mapping)
     if disaggregation_rate is not None:
-        IOT_quantity = hhd.disaggregate_IOT(FC_to_disaggregate,
-                                            IOT_quantity,
-                                            disaggregation_rate)
+        IOT_quantities = hhd.disaggregate_IOT(FC_to_disaggregate,
+                                              IOT_quantities,
+                                              disaggregation_rate)
         quantity_activities_mapping = hhd.replace_disaggregated_in_(quantity_activities_mapping,
                                                                     FC_to_disaggregate,
                                                                     ldl.get_header_from(disaggregation_rate))
@@ -107,24 +108,23 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
                                                      ['FC'], 'IC')
     quantity_ressource_categories = ['M', 'Y']
     ldl.is_IOT_balanced(use_categories, quantity_ressource_categories,
-                        IOT_quantity, quantity_coord)
+                        IOT_quantities, quantity_coord)
     current_ERE = ldl.get_ERE(use_categories, quantity_ressource_categories,
-                              IOT_quantity, quantity_coord)
-    quantity_uses_to_correct = {'Y': (IOT_quantity.loc[quantity_coord['Y']] != 0,
-                                      IOT_quantity.loc[quantity_coord['Y']] + current_ERE),
-                                'X': (IOT_quantity.loc[quantity_coord['Y']] == 0,
-                                      IOT_quantity.loc[quantity_coord['X']] - current_ERE)}
+                              IOT_quantities, quantity_coord)
+    quantity_uses_to_correct = {'Y': (IOT_quantities.loc[quantity_coord['Y']] != 0,
+                                      IOT_quantities.loc[quantity_coord['Y']] + current_ERE),
+                                'X': (IOT_quantities.loc[quantity_coord['Y']] == 0,
+                                      IOT_quantities.loc[quantity_coord['X']] - current_ERE)}
     for use_to_correct, correction_info in quantity_uses_to_correct.items():
         correction_condition, correction_value = correction_info
-        ldl.modify_activity_value(IOT_quantity, quantity_coord[use_to_correct],
+        ldl.modify_activity_value(IOT_quantities, quantity_coord[use_to_correct],
                                   correction_condition, correction_value)
     ldl.is_IOT_balanced(use_categories, quantity_ressource_categories,
-                        IOT_quantity, quantity_coord)
-
-    return (ldl.extract_IOTs_from(IOT_quantity,
+                        IOT_quantities, quantity_coord)
+    return (ldl.extract_IOTs_from(IOT_quantities,
                                   quantity_coord),
             quantity_coord,
-            IOT_quantity)
+            IOT_quantities)
 
 
 def get_IOT_prices(study_dashb: Dict[str, str],
@@ -174,8 +174,9 @@ def get_account_table(study_dashb: Dict[str, str],
         selected_accounts = hhd.replace_disaggregated_in_(selected_accounts,
                                                           account_to_disaggregate,
                                                           ldl.get_header_from(disaggregation_rate))
-    return ldl.extract_accounts(account_table,
-                                selected_accounts)
+    return (ldl.extract_accounts(account_table,
+                                 selected_accounts),
+            account_table)
 
 
 def get_IOT_values(study_dashb: Dict[str, str],
@@ -184,10 +185,11 @@ def get_IOT_values(study_dashb: Dict[str, str],
                    aggregation_items: (Dict[str, str],
                                        Dict[str, List[str]]),
                    disaggregation_rate: pd.DataFrame,
-                   IOT_quantity_disagg: pd.DataFrame,
+                   IOT_quantities_disagg: pd.DataFrame,
                    IOT_prices_disagg: pd.DataFrame
                    ) -> (Dict[str, pd.DataFrame],
-                         Dict[str, Coordinates]):
+                         Dict[str, Coordinates],
+                         pd.DataFrame):
     IOT_val = IOT_val_non_agg.copy()
     if Agg.is_aggregation(aggregation_items):
         IOT_val, common_activities_mapping = Agg.aggregate_IOT_and_activities_mapping(IOT_val,
@@ -226,7 +228,8 @@ def get_IOT_values(study_dashb: Dict[str, str],
     ldl.is_IOT_balanced(use_categories, value_ressource_categories,
                         IOT_val, value_coord)
     return (ldl.extract_IOTs_from(IOT_val, value_coord),
-            value_coord)
+            value_coord,
+            IOT_val)
 
 
 def get_IOT_CO2(study_dashb: Dict[str, str],
