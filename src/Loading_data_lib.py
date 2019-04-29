@@ -8,7 +8,8 @@ import numpy as np
 import operator
 import pandas as pd
 import pathlib as pl
-from src import common_utils as cu
+from src import (common_utils as cu,
+                 Households_disag as hhd)
 from src.parameters import (linebreaker, IOT_balance_tolerance)
 from typing import (Any, Dict, List, Iterator, Tuple, Union)
 
@@ -341,33 +342,10 @@ def get_categories_coordinates(categories_coord_path,
                                                     activities_mapping)
 
 
-# def _to_list_iter(entry: Any) -> Any:
-#     if not hasattr(entry, '__iter__'):
-#         return iter([entry])
-#     return iter(entry)
-
-
-# def remap_dict(entry_dict: Dict[str, Any],
-#                remapping_dict: Dict[Any, Any],
-#                keep=False) -> Dict[str, Any]:
-#     if not keep:
-#         _ = _check_values_in_dict(entry_dict.values(), remapping_dict)
-#     remapped_dict = dict()
-#     for entry_key, entry_value in entry_dict.items():
-#         try:
-#             remapped_dict[entry_key] = remapping_dict[entry_value]
-#         except KeyError:
-#             if keep:
-#                 remapped_dict[entry_key] = entry_value
-#             else:
-#                 pass
-#     return remapped_dict
-
-
-# def filter_dict(input_dict: Dict[str, Any],
-#                 exclude_list: List[str]
-#                 ) -> Dict[str, Any]:
-#     output_dict = copy.deepcopy(input_dict)
-#     for element_to_exclude in exclude_list:
-#         del output_dict[element_to_exclude]
-#     return output_dict
+def normalize_row_in(table: pd.DataFrame,
+                     item_normalize_onto: Union[str, None],
+                     reference: pd.Series
+                     ) -> pd.DataFrame:
+    return hhd.normalize_column_in(table.T,
+                                   item_normalize_onto,
+                                   reference).T
