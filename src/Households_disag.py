@@ -204,6 +204,22 @@ def disaggregate_IOT_prices(activity_to_disaggregate: str,
                                         disaggregated_activity)
 
 
+def disaggregate_IOT(activity_to_disaggregate: str,
+                     IOT: pd.DataFrame,
+                     distribution_key: pd.DataFrame,
+                     fill_value: Union[float, None] = 0.,
+                     item_normalize_onto: Union[str, None] = None
+                     ) -> pd.DataFrame:
+    disaggregated_activity = disaggregate_column_non_round_erred(activity_to_disaggregate,
+                                                                 IOT,
+                                                                 distribution_key,
+                                                                 fill_value=fill_value,
+                                                                 item_normalize_onto=item_normalize_onto)
+    return replace_disaggregated_column(activity_to_disaggregate,
+                                        IOT,
+                                        disaggregated_activity)
+
+
 def disaggregate_IOT_values(activity_to_disaggregate: str,
                             IOT_values: pd.DataFrame,
                             distribution_key: pd.DataFrame,
@@ -221,11 +237,12 @@ def disaggregate_IOT_values(activity_to_disaggregate: str,
                                                                    IOT_values,
                                                                    disaggregated_column_activity,
                                                                    fill_value=fill_value)
-
-    SpeMarg_to_disaggregate = 'SpeMarg_' + activity_to_disaggregate
+    SpeMarg_to_disaggregate = spemarg_prefix + activity_to_disaggregate
+    spemarg_distribution_key = get_spemarg_distribution_key(activity_to_disaggregate,
+                                                            distribution_key)
     disaggregated_row_activity = disaggregate_row_non_round_erred(SpeMarg_to_disaggregate,
                                                                   disaggregated_column_IOT_values,
-                                                                  distribution_key,
+                                                                  spemarg_distribution_key,
                                                                   fill_value=fill_value,
                                                                   item_normalize_onto=item_normalize_onto)
     return replace_disaggregated_row(SpeMarg_to_disaggregate,
@@ -247,20 +264,13 @@ def disaggregate_value_column(disag_IOT_quantities: pd.DataFrame,
                    distribution_key)
 
 
-def disaggregate_IOT(activity_to_disaggregate: str,
-                     IOT: pd.DataFrame,
-                     distribution_key: pd.DataFrame,
-                     fill_value: Union[float, None] = 0.,
-                     item_normalize_onto: Union[str, None] = None
-                     ) -> pd.DataFrame:
-    disaggregated_activity = disaggregate_column_non_round_erred(activity_to_disaggregate,
-                                                                 IOT,
-                                                                 distribution_key,
-                                                                 fill_value=fill_value,
-                                                                 item_normalize_onto=item_normalize_onto)
-    return replace_disaggregated_column(activity_to_disaggregate,
-                                        IOT,
-                                        disaggregated_activity)
+def get_spemarg_distribution_key(activity_to_disaggregate: str,
+                                 distribution_key: pd.DataFrame
+                                 ) -> pd.DataFrame:
+    spemarg_headers = get_disaggregated_spemarg_headers(distribution_key.columns)
+    return distribution_key.rename(columns=dict(zip(distribution_key.columns.tolist(),
+                                                    spemarg_headers)),
+                                   copy=True)
 
 
 def disaggregate_row_non_round_erred(item_to_disaggregate: str,
@@ -324,3 +334,10 @@ def get_values_activities_substitution(activity_to_disaggregate: str,
     substitution_dict[spemarg_to_disaggregate] = get_disaggregated_spemarg_headers(disaggregated_elements)
     return substitution_dict
 
+
+def get_disaggregated_spemarg_headers(disaggregated_elements: pd.Index
+                                      ) -> List[str]:
+    output_spemarg = list()
+    for disaggregated_element in disaggregated_elements.tolist():
+        output_spemarg.append(spemarg_prefix + disaggregated_element)
+    return output_spemarg
