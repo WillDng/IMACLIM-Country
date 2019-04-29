@@ -207,10 +207,10 @@ def test_disaggregate_column_non_round_erred():
                                   expected_disaggregated_households)
 
 
-def test_normalize_error_in_disaggregation():
-    pd.testing.assert_frame_equal(hhd.normalize_error_in_disaggregation(expected_disaggregated_households_round_erred,
-                                                                        None,
-                                                                        account_data.loc[:, 'Households']),
+def test_normalize_column_in():
+    pd.testing.assert_frame_equal(hhd.normalize_column_in(expected_disaggregated_households_round_erred,
+                                                          None,
+                                                          account_data.loc[:, 'Households']),
                                   expected_disaggregated_households)
 
 

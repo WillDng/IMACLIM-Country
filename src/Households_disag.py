@@ -64,9 +64,9 @@ def disaggregate_column_non_round_erred(item_to_disaggregate: str,
                                             to_disaggregate_table,
                                             distribution_key,
                                             fill_value=fill_value)
-    return normalize_error_in_disaggregation(round_erred_table,
-                                             item_normalize_onto,
-                                             to_disaggregate_table.loc[:, item_to_disaggregate])
+    return normalize_column_in(round_erred_table,
+                               item_normalize_onto,
+                               to_disaggregate_table.loc[:, item_to_disaggregate])
 
 
 def disaggregate_column(item_to_disaggregate: str,
@@ -100,16 +100,16 @@ def get_mistmatched_fill_value(fill_value: Union[float, None],
     return fill_value
 
 
-def normalize_error_in_disaggregation(disaggregated_erred_table: pd.DataFrame,
-                                      item_normalize_onto: Union[str, None],
-                                      reference: pd.Series
-                                      ) -> pd.DataFrame:
-    item_normalize_onto, remaining_headers = identify_normalization_items(disaggregated_erred_table,
+def normalize_column_in(table: pd.DataFrame,
+                        item_normalize_onto: Union[str, None],
+                        reference: pd.Series
+                        ) -> pd.DataFrame:
+    item_normalize_onto, remaining_headers = identify_normalization_items(table,
                                                                           item_normalize_onto)
-    remaining_headers_sum = disaggregated_erred_table.loc[:, remaining_headers].sum(axis='columns')
-    modified_disaggregated_table = disaggregated_erred_table.copy()
-    modified_disaggregated_table[item_normalize_onto] = reference - remaining_headers_sum
-    return modified_disaggregated_table
+    remaining_headers_sum = table.loc[:, remaining_headers].sum(axis='columns')
+    modified_table = table.copy()
+    modified_table[item_normalize_onto] = reference - remaining_headers_sum
+    return modified_table
 
 
 def identify_normalization_items(disaggregated_erred_table: pd.DataFrame,
