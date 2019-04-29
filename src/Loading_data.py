@@ -202,9 +202,10 @@ def get_IOT_values(study_dashb: Dict[str, str],
                                               disaggregation_rate,
                                               IOT_quantity_disagg,
                                               IOT_prices_disagg)
+        value_activities_substitution_mapping = hhd.get_values_activities_substitution(FC_to_disaggregate,
+                                                                                       ldl.get_header_from(disaggregation_rate))
         value_activities_mapping = hhd.replace_disaggregated_in_(value_activities_mapping,
-                                                                 FC_to_disaggregate,
-                                                                 ldl.get_header_from(disaggregation_rate))
+                                                                 substitution_dictionnary=value_activities_substitution_mapping)
     value_coord = ldl.get_categories_coordinates(study_dashb['studydata_dir'] / 'value_categories_coordinates.csv',
                                                  value_activities_mapping)
     value_coord = ldl.disaggregate_in_coordinates(value_coord,

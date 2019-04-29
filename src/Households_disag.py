@@ -288,12 +288,14 @@ def replace_disaggregated_row(activity_to_disaggregate: str,
 
 
 def replace_disaggregated_in_(entry_dictionnary: Dict[str, Union[str, Iterable[str]]],
-                              item_to_replace: str,
-                              item_to_replace_with: pd.Index
+                              item_to_replace: Union[str, None] = None,
+                              item_to_replace_with: Union[pd.Index, None] = None,
+                              substitution_dictionnary: Union[Dict[str, List[str]], None] = None
                               ) -> Iterable:
     replaced_dictionnary = dict()
-    substitution_dictionnary = dict()
-    substitution_dictionnary[item_to_replace] = item_to_replace_with.tolist()
+    if substitution_dictionnary is None:
+        substitution_dictionnary = dict()
+        substitution_dictionnary[item_to_replace] = item_to_replace_with.tolist()
     for key, value in entry_dictionnary.items():
         replaced_dictionnary[key] = substitute_dict_value(value,
                                                           substitution_dictionnary)
@@ -308,3 +310,17 @@ def substitute_dict_value(entry_value: Union[List[str], str],
     if isinstance(entry_value, list):
         return list(cu.flatten_list(map(substitute_if, entry_value)))
     return substitute_if(entry_value)
+
+
+spemarg_prefix = 'SpeMarg_'
+
+
+def get_values_activities_substitution(activity_to_disaggregate: str,
+                                       disaggregated_elements: pd.Index
+                                       ) -> Dict[str, Union[str, List[str]]]:
+    substitution_dict = dict()
+    substitution_dict[activity_to_disaggregate] = disaggregated_elements.tolist()
+    spemarg_to_disaggregate = spemarg_prefix + activity_to_disaggregate
+    substitution_dict[spemarg_to_disaggregate] = get_disaggregated_spemarg_headers(disaggregated_elements)
+    return substitution_dict
+
