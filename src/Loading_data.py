@@ -41,6 +41,14 @@ def load_data(study_dashb: Dict[str, str]
                                          disaggregation_rate,
                                          IOT_quantities_disagg,
                                          IOT_prices_disagg)
+    if disaggregation_rate is not None:
+        Initial_quantitites, Initial_values = apply_closure(disaggregation_rate,
+                                                            IOT_values_disagg,
+                                                            IOT_quantities_disagg,
+                                                            account_table,
+                                                            IOT_prices_disagg,
+                                                            value_coord,
+                                                            quantity_coord)
     Initial_CO2 = get_IOT_CO2(study_dashb,
                               common_activities_mapping,
                               aggregation_items)
@@ -202,7 +210,7 @@ def get_IOT_values(study_dashb: Dict[str, str],
         IOT_val = hhd.disaggregate_IOT_values(FC_to_disaggregate,
                                               IOT_val,
                                               disaggregation_rate,
-                                              IOT_quantity_disagg,
+                                              IOT_quantities_disagg,
                                               IOT_prices_disagg)
         value_activities_substitution_mapping = hhd.get_values_activities_substitution(FC_to_disaggregate,
                                                                                        ldl.get_header_from(disaggregation_rate))
@@ -316,3 +324,28 @@ def get_CO2_tax_indexes(quantity_coord: Dict[str, Tuple[List[str], List[str]]]
     government_index = final_consumption_columns.index('G')
     CO2_tax_columns = quantity_coord['IC'][1] + final_consumption_columns[:government_index]
     return CO2_tax_index, CO2_tax_columns
+
+
+def apply_closure(disaggregation_rate: pd.DataFrame,
+                  IOT_values: pd.DataFrame,
+                  IOT_quantities: pd.DataFrame,
+                  account_table: pd.DataFrame,
+                  IOT_prices: pd.DataFrame,
+                  value_coord: Dict[str, Coordinates],
+                  quantity_coord: Dict[str, Coordinates]
+                  ) -> Tuple[Dict[str, pd.DataFrame],
+                             Dict[str, pd.DataFrame]]:
+    composite_sector = 'Composite'
+    disaggregation_headers = ldl.get_header_from(disaggregation_rate)
+    modified_households_sub_IOT_values = ldl.normalize_row_in(IOT_values.reindex(IOT_values.index,
+                                                                                 disaggregation_headers),
+                                                              composite_sector,
+                                                              account_table.loc['FC_byAgent', :])
+    IOT_values.update(modified_households_sub_IOT_values)
+    composite_coordinates = (composite_sector, disaggregation_headers)
+    modified_households_composite_quantity = IOT_values.loc[composite_coordinates].divide(IOT_prices.loc[composite_coordinates])
+    hhd.update_row(composite_sector,
+                   IOT_quantities,
+                   modified_households_composite_quantity)
+    return (ldl.extract_IOTs_from(IOT_quantities, quantity_coord),
+            ldl.extract_IOTs_from(IOT_values, value_coord))
