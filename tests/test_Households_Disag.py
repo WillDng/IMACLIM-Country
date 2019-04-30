@@ -449,10 +449,10 @@ expected_disaggregated_IOT_prices = pd.DataFrame(expected_disaggregated_IOT_pric
                                                  columns=expected_disaggregated_IOT_prices_columns)
 
 
-def test_disaggregate_IOT_prices():
-    pd.testing.assert_frame_equal(hhd.disaggregate_IOT_prices('C',
-                                                              IOT_prices,
-                                                              H10_rate),
+def test_disaggregate_IOT_duplication():
+    pd.testing.assert_frame_equal(hhd.disaggregate_IOT_duplication('C',
+                                                                   IOT_prices,
+                                                                   H10_rate),
                                   expected_disaggregated_IOT_prices)
 
 

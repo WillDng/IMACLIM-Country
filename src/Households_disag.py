@@ -188,14 +188,18 @@ def update_row(index_to_update: str,
                dataframe_to_update: pd.DataFrame,
                series_to_put: pd.Series
                ) -> None:
+    # FIXME variable creation for test assertion might not be necessary
+    entry_dataframe = dataframe_to_update.copy()
     dataframe_to_put = series_to_put.to_frame(index_to_update)
     dataframe_to_update.update(dataframe_to_put.T)
+    if dataframe_to_update.equals(entry_dataframe):
+        raise ValueError('dataframe has not been updated, please check format')
 
 
-def disaggregate_IOT_prices(activity_to_disaggregate: str,
-                            IOT: pd.DataFrame,
-                            distribution_key: pd.DataFrame
-                            ) -> pd.DataFrame:
+def disaggregate_IOT_duplication(activity_to_disaggregate: str,
+                                 IOT: pd.DataFrame,
+                                 distribution_key: pd.DataFrame
+                                 ) -> pd.DataFrame:
     disaggregated_activity = disaggregate_column_non_round_erred(activity_to_disaggregate,
                                                                  IOT,
                                                                  distribution_key.replace(distribution_key, 1.),

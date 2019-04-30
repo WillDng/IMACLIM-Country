@@ -151,9 +151,9 @@ def get_IOT_prices(study_dashb: Dict[str, str],
     #     IOT_prices = Agg.aggregate_IOT(IOT_prices,
     #                                    keys_aggregation)
     if disaggregation_rate is not None:
-        IOT_prices = hhd.disaggregate_IOT_prices(FC_to_disaggregate,
-                                                 IOT_prices,
-                                                 disaggregation_rate)
+        IOT_prices = hhd.disaggregate_IOT_duplication(FC_to_disaggregate,
+                                                      IOT_prices,
+                                                      disaggregation_rate)
     return (ldl.extract_IOTs_from(IOT_prices,
                                   quantity_coord),
             IOT_prices)
