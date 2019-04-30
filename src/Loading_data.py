@@ -301,6 +301,10 @@ def get_demography(study_dashb: Dict[str, str],
         demography_table = hhd.disaggregate_IOT(demography_table.columns.to_list()[0],
                                                 demography_table,
                                                 demography_disaggregation_rate)
+        demography_account_to_modify = 'Consumtion_Units'
+        hhd.update_row(demography_account_to_modify,
+                       demography_table,
+                       demography_disaggregation_rate.loc[demography_account_to_modify, :])
     to_extract_demography = {line: demography_table.columns[0] for line in demography_table.index}
     return ldl.pick_selection(demography_table,
                               to_extract_demography)
