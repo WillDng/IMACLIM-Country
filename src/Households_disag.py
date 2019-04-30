@@ -12,6 +12,7 @@ def read_disaggregation_rate(study_dashb: Dict[str, str]
     if chosen_disaggregation is None:
         return None
     disaggregation_rate_dir = study_dashb['disaggregation_dir'] / 'rate'
+    study_dashb['disaggregation_rate_dir'] = disaggregation_rate_dir
     disaggregation_level_rate = 'IOT_rate_' + chosen_disaggregation + '.csv'
     return cu.read_table(disaggregation_rate_dir / disaggregation_level_rate,
                          delimiter=file_delimiter)

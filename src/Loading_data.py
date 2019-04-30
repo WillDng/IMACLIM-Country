@@ -55,7 +55,8 @@ def load_data(study_dashb: Dict[str, str]
                               disaggregation_rate)
     Initial_labour = get_labour(study_dashb,
                                 aggregation_items)
-    Initial_demography = get_demography(study_dashb)
+    Initial_demography = get_demography(study_dashb,
+                                        disaggregation_rate)
     Initial_import_values = get_import_rates(study_dashb,
                                              IOT_val_non_agg,
                                              aggregation_items,
@@ -286,12 +287,20 @@ def get_labour(study_dashb: Dict[str, str],
     return IOT_labour
 
 
-def get_demography(study_dashb: Dict[str, str]
+def get_demography(study_dashb: Dict[str, str],
+                   disaggregation_rate: pd.DataFrame
                    ) -> Dict[str, float]:
     demography_table = cu.read_table(study_dashb['studydata_dir'] / 'Demography.csv',
                                      delimiter=file_delimiter,
                                      skipfooter=1,
                                      engine='python')
+    if disaggregation_rate is not None:
+        demography_disaggregation_level_rate = 'Demography_rate_' + study_dashb['H_DISAGG'] + '.csv'
+        demography_disaggregation_rate = cu.read_table(study_dashb['disaggregation_rate_dir'] / demography_disaggregation_level_rate,
+                                                       delimiter=file_delimiter)
+        demography_table = hhd.disaggregate_IOT(demography_table.columns.to_list()[0],
+                                                demography_table,
+                                                demography_disaggregation_rate)
     to_extract_demography = {line: demography_table.columns[0] for line in demography_table.index}
     return ldl.pick_selection(demography_table,
                               to_extract_demography)
@@ -353,6 +362,7 @@ def apply_closure(disaggregation_rate: pd.DataFrame,
     IOT_values.update(modified_households_sub_IOT_values)
     composite_coordinates = (composite_sector, disaggregation_headers)
     modified_households_composite_quantity = IOT_values.loc[composite_coordinates].divide(IOT_prices.loc[composite_coordinates])
+    # FIXME need to check if function replace partial line
     hhd.update_row(composite_sector,
                    IOT_quantities,
                    modified_households_composite_quantity)
