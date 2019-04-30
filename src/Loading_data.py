@@ -51,7 +51,8 @@ def load_data(study_dashb: Dict[str, str]
                                                             quantity_coord)
     Initial_CO2 = get_IOT_CO2(study_dashb,
                               common_activities_mapping,
-                              aggregation_items)
+                              aggregation_items,
+                              disaggregation_rate)
     Initial_labour = get_labour(study_dashb,
                                 aggregation_items)
     Initial_demography = get_demography(study_dashb)
@@ -243,7 +244,8 @@ def get_IOT_values(study_dashb: Dict[str, str],
 def get_IOT_CO2(study_dashb: Dict[str, str],
                 common_activities_mapping: Dict[str, List[str]],
                 aggregation_items: (Dict[str, List[str]],
-                                    Dict[str, str])
+                                    Dict[str, str]),
+                disaggregation_rate: pd.DataFrame
                 ) -> Dict[str, pd.DataFrame]:
     IOT_CO2 = cu.read_table(study_dashb['studydata_dir'] / 'IOT_CO2.csv',
                             delimiter=file_delimiter,
@@ -256,6 +258,13 @@ def get_IOT_CO2(study_dashb: Dict[str, str],
     CO2_activities_mapping = ldl.extend_activities_mapping(study_dashb['studydata_dir'] / 'CO2_activities_mapping.csv',
                                                            IOT_CO2,
                                                            common_activities_mapping)
+    if disaggregation_rate is not None:
+        IOT_CO2 = hhd.disaggregate_IOT(FC_to_disaggregate,
+                                       IOT_CO2,
+                                       disaggregation_rate)
+        CO2_activities_mapping = hhd.replace_disaggregated_in_(CO2_activities_mapping,
+                                                               FC_to_disaggregate,
+                                                               ldl.get_header_from(disaggregation_rate))
     CO2_activities_coord = ldl.get_categories_coordinates(study_dashb['studydata_dir'] / 'CO2_categories_coordinates.csv',
                                                           CO2_activities_mapping)
     return ldl.extract_IOTs_from(IOT_CO2,
