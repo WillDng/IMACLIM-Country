@@ -60,7 +60,8 @@ def load_data(study_dashb: Dict[str, str]
     Initial_import_values = get_import_rates(study_dashb,
                                              IOT_val_non_agg,
                                              aggregation_items,
-                                             value_coord)
+                                             value_coord,
+                                             disaggregation_rate)
     Initial_CO2_tax = get_CO2_tax(quantity_coord)
 
 
@@ -314,7 +315,8 @@ def get_import_rates(study_dashb: Dict[str, str],
                      IOT_val_disagg: pd.DataFrame,
                      aggregation_items: (Dict[str, List[str]],
                                          Dict[str, str]),
-                     value_coord: Dict[str, Coordinates]
+                     value_coord: Dict[str, Coordinates],
+                     disaggregation_rate: pd.DataFrame
                      ) -> Dict[str, pd.DataFrame]:
     IOT_import_rate = cu.read_table(study_dashb['studydata_dir'] / 'IOT_Import_rate.csv',
                                     delimiter=file_delimiter)
@@ -323,6 +325,10 @@ def get_import_rates(study_dashb: Dict[str, str],
         keys_aggregation, values_aggregation = aggregation_items
         IOT_import_value = Agg.aggregate_IOT(IOT_import_value,
                                              keys_aggregation)
+    if disaggregation_rate is not None:
+        IOT_import_value = hhd.disaggregate_IOT_duplication(FC_to_disaggregate,
+                                                            IOT_import_rate,
+                                                            disaggregation_rate)
     import_value_coord = ldl.map_list_to_dict(use_categories, value_coord)
     import_value_coord = ldl.disaggregate_in_coordinates(import_value_coord,
                                                          ['FC'], 'IC')
