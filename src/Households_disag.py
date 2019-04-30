@@ -200,10 +200,10 @@ def disaggregate_IOT_duplication(activity_to_disaggregate: str,
                                  IOT: pd.DataFrame,
                                  distribution_key: pd.DataFrame
                                  ) -> pd.DataFrame:
-    disaggregated_activity = disaggregate_column_non_round_erred(activity_to_disaggregate,
-                                                                 IOT,
-                                                                 distribution_key.replace(distribution_key, 1.),
-                                                                 fill_value=0.)
+    disaggregated_activity = disaggregate_column(activity_to_disaggregate,
+                                                 IOT,
+                                                 distribution_key.replace(distribution_key, 1.),
+                                                 fill_value=0.)
     return replace_disaggregated_column(activity_to_disaggregate,
                                         IOT,
                                         disaggregated_activity)

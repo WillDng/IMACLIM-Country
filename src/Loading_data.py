@@ -301,7 +301,7 @@ def get_demography(study_dashb: Dict[str, str],
         demography_table = hhd.disaggregate_IOT(demography_table.columns.to_list()[0],
                                                 demography_table,
                                                 demography_disaggregation_rate)
-        demography_account_to_modify = 'Consumtion_Units'
+        demography_account_to_modify = 'Consumption_Units'
         hhd.update_row(demography_account_to_modify,
                        demography_table,
                        demography_disaggregation_rate.loc[demography_account_to_modify, :])
