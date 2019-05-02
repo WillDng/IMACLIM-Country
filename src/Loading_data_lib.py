@@ -124,7 +124,8 @@ def _slice_activities(IOT: pd.DataFrame,
                       activities_coordinates: List[List[str]]
                       ) -> pd.DataFrame:
     _check_coordinates_in_IOT(IOT, activities_coordinates)
-    sliced_IOT = IOT.loc[activities_coordinates]
+    sliced_IOT = IOT.reindex(index=activities_coordinates[0],
+                             columns=activities_coordinates[1])
     return sliced_IOT
 
 
@@ -243,7 +244,9 @@ def is_IOT_balanced(use_categories: List[str], ressource_categories: List[str],
 def modify_activity_value(IOT, coordinates: Coordinates,
                           condition: Union[pd.DataFrame, pd.Series],
                           fill_values: Union[pd.DataFrame, pd.Series]):
-    IOT.update(IOT.loc[coordinates].where(~condition, fill_values))
+    modified_partial_IOT = IOT.reindex(index=coordinates[0],
+                                       columns=coordinates[1]).where(~condition, fill_values)
+    IOT.update(modified_partial_IOT)
 
 
 def read_list(path: str, delimiter: str = ','
@@ -266,7 +269,7 @@ def extract_all_accounts(account_table: pd.DataFrame
                          ) -> Dict[str, pd.Series]:
     output_data_account = dict()
     for account in account_table.index:
-        output_data_account[account] = account_table.loc[account, ]
+        output_data_account[account] = account_table.loc[account, :]
     return output_data_account
 
 

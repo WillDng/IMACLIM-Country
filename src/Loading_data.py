@@ -365,14 +365,15 @@ def apply_closure(disaggregation_rate: pd.DataFrame,
                              Dict[str, pd.DataFrame]]:
     composite_sector = 'Composite'
     disaggregation_headers = ldl.get_header_from(disaggregation_rate)
-    modified_households_sub_IOT_values = ldl.normalize_row_in(IOT_values.reindex(IOT_values.index,
-                                                                                 disaggregation_headers),
+    modified_households_sub_IOT_values = ldl.normalize_row_in(IOT_values.reindex(index=IOT_values.index,
+                                                                                 columns=disaggregation_headers),
                                                               composite_sector,
                                                               account_table.loc['FC_byAgent', :])
     IOT_values.update(modified_households_sub_IOT_values)
     composite_coordinates = (composite_sector, disaggregation_headers)
     modified_households_composite_quantity = IOT_values.loc[composite_coordinates].divide(IOT_prices.loc[composite_coordinates])
     # FIXME need to check if function replace partial line
+    # FIXME might need to change .loc to .reindex but would lose flexibility on sector choice
     hhd.update_row(composite_sector,
                    IOT_quantities,
                    modified_households_composite_quantity)
