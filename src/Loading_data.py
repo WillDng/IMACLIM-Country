@@ -28,9 +28,9 @@ def load_data(study_dashb: Dict[str, str]
                                                  common_activities_mapping,
                                                  aggregation_items,
                                                  disaggregation_rate)
-    Initial_prices, IOT_prices_disagg = get_IOT_prices(study_dashb,
-                                                       quantity_coord,
-                                                       disaggregation_rate)
+    IOT_prices_disagg = get_IOT_prices(study_dashb,
+                                       quantity_coord,
+                                       disaggregation_rate)
     Initial_DataAccount, account_table = get_account_table(study_dashb,
                                                            disaggregation_rate)
     (Initial_values, value_coord,
@@ -147,17 +147,11 @@ def get_IOT_prices(study_dashb: Dict[str, str],
                                delimiter=file_delimiter,
                                skipfooter=1,
                                engine='python')
-    # FIXME doesn't work when is aggregated
-    # if keys_aggregation:
-    #     IOT_prices = Agg.aggregate_IOT(IOT_prices,
-    #                                    keys_aggregation)
     if disaggregation_rate is not None:
         IOT_prices = hhd.disaggregate_IOT_duplication(FC_to_disaggregate,
                                                       IOT_prices,
                                                       disaggregation_rate)
-    return (ldl.extract_IOTs_from(IOT_prices,
-                                  quantity_coord),
-            IOT_prices)
+    return IOT_prices
 
 
 def get_account_table(study_dashb: Dict[str, str],
