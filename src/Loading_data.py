@@ -34,13 +34,13 @@ def load_data(study_dashb: Dict[str, str]
     Initial_DataAccount, account_table = get_account_table(study_dashb,
                                                            disaggregation_rate)
     (Initial_values, value_coord,
-     IOT_values_disagg) = get_IOT_values(study_dashb,
-                                         IOT_val_non_agg,
-                                         common_activities_mapping,
-                                         aggregation_items,
-                                         disaggregation_rate,
-                                         IOT_quantities_disagg,
-                                         IOT_prices_disagg)
+     IOT_values_disagg, value_activities_mapping) = get_IOT_values(study_dashb,
+                                                                   IOT_val_non_agg,
+                                                                   common_activities_mapping,
+                                                                   aggregation_items,
+                                                                   disaggregation_rate,
+                                                                   IOT_quantities_disagg,
+                                                                   IOT_prices_disagg)
     if disaggregation_rate is not None:
         Initial_quantitites, Initial_values = apply_closure(disaggregation_rate,
                                                             IOT_values_disagg,
@@ -194,7 +194,8 @@ def get_IOT_values(study_dashb: Dict[str, str],
                    IOT_prices_disagg: pd.DataFrame
                    ) -> (Dict[str, pd.DataFrame],
                          Dict[str, Coordinates],
-                         pd.DataFrame):
+                         pd.DataFrame,
+                         Dict[str, List[str]]):
     IOT_val = IOT_val_non_agg.copy()
     if Agg.is_aggregation(aggregation_items):
         IOT_val, common_activities_mapping = Agg.aggregate_IOT_and_activities_mapping(IOT_val,
@@ -234,7 +235,8 @@ def get_IOT_values(study_dashb: Dict[str, str],
                         IOT_val, value_coord)
     return (ldl.extract_IOTs_from(IOT_val, value_coord),
             value_coord,
-            IOT_val)
+            IOT_val,
+            value_activities_mapping)
 
 
 def get_IOT_CO2(study_dashb: Dict[str, str],
