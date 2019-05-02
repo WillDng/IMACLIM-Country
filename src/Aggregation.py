@@ -30,7 +30,7 @@ def get_aggregation_items(chosen_aggregation: str,
                           ) -> Union[Tuple[Dict[str, str], Dict[str, List[str]]],
                                      Tuple[None, None]]:
     if chosen_aggregation not in aggregation_header:
-        raise KeyError('Chosen aggregation is not available at ' + aggregation_filepath)
+        raise KeyError('Chosen aggregation is not available at ' + str(aggregation_filepath))
     agg_index = aggregation_header.index(chosen_aggregation) + 1
     agg_keys = cu.fill_dict(aggregation_raw_data, agg_index)
     agg_values = cu.extract_aggregation_mapping(aggregation_raw_data,
