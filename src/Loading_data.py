@@ -6,6 +6,7 @@ from typing import (Dict, List, Tuple, Union)
 from src import (Aggregation as Agg,
                  common_utils as cu,
                  Households_disag as hhd,
+                 Hybridation as hyb,
                  Loading_data_lib as ldl)
 from src.parameters import file_delimiter
 import ipdb
@@ -49,6 +50,9 @@ def load_data(study_dashb: Dict[str, str]
                                                             IOT_prices_disagg,
                                                             value_coord,
                                                             quantity_coord)
+    Initial_prices = hyb.get_hybrid_prices(value_activities_mapping,
+                                           Initial_quantitites,
+                                           Initial_values)
     Initial_CO2 = get_IOT_CO2(study_dashb,
                               common_activities_mapping,
                               aggregation_items,
