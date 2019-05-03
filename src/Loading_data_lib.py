@@ -113,7 +113,7 @@ def _map_categories_to_coordinates(coordinates_mapping: Iterator[List[str]]
 
 def extract_IOTs_from(IOT: pd.DataFrame,
                       activities_coordinates_mapping: Dict[str, List[str]]
-                      ) -> Dict[str, Coordinates]:
+                      ) -> Dict[str, pd.DataFrame]:
     extracted_IOTs = dict()
     for category, activities_coordinates in activities_coordinates_mapping.items():
         extracted_IOTs[category] = _slice_activities(IOT, activities_coordinates)
@@ -140,6 +140,16 @@ def _check_coordinates_in_IOT(IOT: pd.DataFrame,
             sys.stderr.write("Warning : wrong coordinates" + linebreaker +
                              ', '.join(wrong_activities) + " not in " +
                              IOT_headers_name[positional_arg] + linebreaker)
+
+
+def extract_IOTs_value_from(IOT_value: pd.DataFrame,
+                            activities_coordinates_mapping: Dict[str, List[str]]
+                            ) -> Dict[str, pd.DataFrame]:
+    extracted_IOTs_value = extract_IOTs_from(IOT_value,
+                                             activities_coordinates_mapping)
+    extracted_IOTs_value['Y'] = (extracted_IOTs_value['Value_Added'].sum(axis='index') +
+                                 extracted_IOTs_value['IC'].sum(axis='index')).to_frame('Y')
+    return extracted_IOTs_value
 
 
 def map_categories_to_activities_coordinates(category_coordinates_mapping: Dict[str, List[str]],

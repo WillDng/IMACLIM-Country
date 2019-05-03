@@ -237,7 +237,7 @@ def get_IOT_values(study_dashb: Dict[str, str],
                                   correction_condition, correction_value)
     ldl.is_IOT_balanced(use_categories, value_ressource_categories,
                         IOT_val, value_coord)
-    return (ldl.extract_IOTs_from(IOT_val, value_coord),
+    return (ldl.extract_IOTs_value_from(IOT_val, value_coord),
             value_coord,
             IOT_val,
             value_activities_mapping)
@@ -378,4 +378,4 @@ def apply_closure(disaggregation_rate: pd.DataFrame,
                    IOT_quantities,
                    modified_households_composite_quantity)
     return (ldl.extract_IOTs_from(IOT_quantities, quantity_coord),
-            ldl.extract_IOTs_from(IOT_values, value_coord))
+            ldl.extract_IOTs_value_from(IOT_values, value_coord))
