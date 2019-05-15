@@ -147,9 +147,31 @@ def is_aggregation(aggregation_items: (Dict[str, str],
     return False
 
 
+def add_SpeMarg(aggregation_items: Tuple[Dict[str, str],
+                                         Dict[str, List[str]]]
+                ) -> Tuple[Dict[str, str],
+                           Dict[str, List[str]]]:
+    keys_aggregation, values_aggregation = aggregation_items
+    return (add_spemarg_mapping(keys_aggregation),
+            add_spemarg_mapping(values_aggregation))
+
+
+def add_spemarg_mapping(input_mapping: Dict[str, Union[str, List[str]]]
+                        ) -> Dict[str, Union[str, List[str]]]:
+    out_mapping = dict()
+    for key, value in input_mapping.items():
+        if isinstance(value, list):
+            modified_value = list(map(get_spemarg, value))
+        else:
+            modified_value = get_spemarg(value)
+        out_mapping[get_spemarg(key)] = modified_value
+    out_mapping.update(input_mapping)
+    return out_mapping
+
+
 def aggregate_IOT_and_activities_mapping(entry_IOT: pd.DataFrame,
-                                         aggregation_items: (Dict[str, str],
-                                                             Dict[str, List[str]]),
+                                         aggregation_items: Tuple[Dict[str, str],
+                                                                  Dict[str, List[str]]],
                                          # keys_aggregation: Dict[str, List[str]],
                                          common_activities_mapping: Dict[str, Dict[str, List[str]]]
                                          ) -> (pd.DataFrame, Dict[str, List[str]]):

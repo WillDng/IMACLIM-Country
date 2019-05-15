@@ -203,9 +203,10 @@ def get_IOT_values(study_dashb: Dict[str, str],
                          pd.DataFrame,
                          Dict[str, List[str]]):
     IOT_val = IOT_val_non_agg.copy()
-                                                                                      aggregation_items,
     if agg.is_aggregation(aggregation_items):
+        modified_aggregation_items = agg.add_SpeMarg(aggregation_items)
         IOT_val, common_activities_mapping = agg.aggregate_IOT_and_activities_mapping(IOT_val,
+                                                                                      modified_aggregation_items,
                                                                                       common_activities_mapping)
     value_activities_mapping = ldl.extend_activities_mapping(study_dashb['studydata_dir'] / 'value_activities_mapping.csv',
                                                              IOT_val,
