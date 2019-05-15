@@ -10,7 +10,7 @@ from src.parameters import file_delimiter
 def read_disaggregation_rate(study_dashb: Dict[str, str]
                              ) -> pd.DataFrame:
     chosen_disaggregation = study_dashb.get('H_DISAGG', None)
-    if chosen_disaggregation is None:
+    if chosen_disaggregation == 'HH1':
         return None
     disaggregation_rate_dir = study_dashb['disaggregation_dir'] / 'rate'
     study_dashb['disaggregation_rate_dir'] = disaggregation_rate_dir
