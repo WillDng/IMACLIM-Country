@@ -242,7 +242,7 @@ def disaggregate_IOT_values(activity_to_disaggregate: str,
                                                                    IOT_values,
                                                                    disaggregated_column_activity,
                                                                    fill_value=fill_value)
-    SpeMarg_to_disaggregate = spemarg_prefix + activity_to_disaggregate
+    SpeMarg_to_disaggregate = agg.get_spemarg(activity_to_disaggregate)
     spemarg_distribution_key = get_spemarg_distribution_key(activity_to_disaggregate,
                                                             distribution_key)
     disaggregated_row_activity = disaggregate_row_non_round_erred(SpeMarg_to_disaggregate,
@@ -327,16 +327,12 @@ def substitute_dict_value(entry_value: Union[List[str], str],
     return substitute_if(entry_value)
 
 
-spemarg_prefix = 'SpeMarg_'
-
-
 def get_values_activities_substitution(activity_to_disaggregate: str,
                                        disaggregated_elements: pd.Index
                                        ) -> Dict[str, Union[str, List[str]]]:
     substitution_dict = dict()
     substitution_dict[activity_to_disaggregate] = disaggregated_elements.tolist()
-    spemarg_to_disaggregate = spemarg_prefix + activity_to_disaggregate
-    substitution_dict[spemarg_to_disaggregate] = get_disaggregated_spemarg_headers(disaggregated_elements)
+    substitution_dict[agg.get_spemarg(activity_to_disaggregate)] = get_disaggregated_spemarg_headers(disaggregated_elements)
     return substitution_dict
 
 
@@ -344,5 +340,5 @@ def get_disaggregated_spemarg_headers(disaggregated_elements: pd.Index
                                       ) -> List[str]:
     output_spemarg = list()
     for disaggregated_element in disaggregated_elements.tolist():
-        output_spemarg.append(spemarg_prefix + disaggregated_element)
+        output_spemarg.append(agg.get_spemarg(disaggregated_element))
     return output_spemarg

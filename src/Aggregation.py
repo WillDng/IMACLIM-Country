@@ -160,3 +160,10 @@ def aggregate_IOT_and_activities_mapping(entry_IOT: pd.DataFrame,
                                                              values_aggregation,
                                                              ldl.get_headers_from(aggregated_IOT))
     return aggregated_IOT, common_activities_mapping
+
+
+spemarg_prefix = 'SpeMarg_'
+
+
+def get_spemarg(input_string: str) -> str:
+    return spemarg_prefix + input_string

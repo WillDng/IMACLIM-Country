@@ -29,7 +29,7 @@ def get_p(values_activities_mapping: Dict[str, List[str]],
           Initial_values: Dict[str, Union[pd.DataFrame, pd.Series]]) -> pd.Series:
     hydrid_value = Initial_values['IC'].sum(axis='index') + \
                    Initial_values['Value_Added'].sum(axis='index') + \
-                   Initial_values['M_value']
+                   Initial_values['M']
     hydrid_quantity = Initial_quantities['IC'].sum(axis='columns') + \
                       Initial_quantities['FC'].sum(axis='columns')
     hybrid_p = hydrid_value.divide(hydrid_quantity.T)
