@@ -306,7 +306,8 @@ def replace_disaggregated_row(activity_to_disaggregate: str,
 def replace_disaggregated_in_(entry_dictionnary: Dict[str, Union[str, Iterable[str]]],
                               item_to_replace: Union[str, None] = None,
                               item_to_replace_with: Union[pd.Index, None] = None,
-                              substitution_dictionnary: Union[Dict[str, List[str]], None] = None
+                              substitution_dictionnary: Union[Dict[str, List[str]], None] = None,
+                              add_disaggregated: bool = True
                               ) -> Iterable:
     replaced_dictionnary = dict()
     if substitution_dictionnary is None:
@@ -315,6 +316,8 @@ def replace_disaggregated_in_(entry_dictionnary: Dict[str, Union[str, Iterable[s
     for key, value in entry_dictionnary.items():
         replaced_dictionnary[key] = substitute_dict_value(value,
                                                           substitution_dictionnary)
+    if add_disaggregated:
+        replaced_dictionnary.update(substitution_dictionnary)
     return replaced_dictionnary
 
 

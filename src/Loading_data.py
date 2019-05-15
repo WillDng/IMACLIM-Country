@@ -183,7 +183,8 @@ def get_account_table(study_dashb: Dict[str, str],
                                                        account_table_mapping)
         selected_accounts = hhd.replace_disaggregated_in_(selected_accounts,
                                                           account_to_disaggregate,
-                                                          ldl.get_header_from(disaggregation_rate))
+                                                          ldl.get_header_from(disaggregation_rate),
+                                                          add_disaggregated=False)
     return (ldl.extract_accounts(account_table,
                                  selected_accounts),
             account_table)
