@@ -49,7 +49,8 @@ def load_data(study_dashb: Dict[str, str]
                                                             IOT_prices_disagg,
                                                             value_coord,
                                                             quantity_coord)
-    Initial_prices = hyb.get_hybrid_prices(value_activities_mapping,
+    Initial_prices = hyb.get_hybrid_prices(study_dashb,
+                                           value_activities_mapping,
                                            Initial_quantitites,
                                            Initial_values)
     Initial_CO2 = get_IOT_CO2(study_dashb,

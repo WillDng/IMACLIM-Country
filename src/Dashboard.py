@@ -19,6 +19,7 @@ def read_(study_ISO: str) -> Dict[str, str]:
                         study_ISO)
     add_disaggregation_path(dashboard,
                             dashboard['studydata_dir'])
+    dashboard['region'] = study_ISO
     return dashboard
 
 
