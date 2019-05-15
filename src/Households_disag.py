@@ -194,7 +194,9 @@ def update_row(index_to_update: str,
     dataframe_to_put = series_to_put.to_frame(index_to_update)
     dataframe_to_update.update(dataframe_to_put.T)
     if dataframe_to_update.equals(entry_dataframe):
-        raise ValueError('dataframe has not been updated, please check format')
+        missing_activity = dataframe_to_put.columns.tolist()[0]
+        raise ValueError('dataframe has not been updated, please check format or ' +
+                         missing_activity + ' not in dataframe to update')
 
 
 def disaggregate_IOT_duplication(activity_to_disaggregate: str,
