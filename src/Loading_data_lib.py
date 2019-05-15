@@ -112,11 +112,18 @@ def _map_categories_to_coordinates(coordinates_mapping: Iterator[List[str]]
 
 
 def extract_IOTs_from(IOT: pd.DataFrame,
-                      activities_coordinates_mapping: Dict[str, List[str]]
+                      activities_coordinates_mapping: Dict[str, List[str]],
+                      exclude_list: List[str] = None
                       ) -> Dict[str, pd.DataFrame]:
     extracted_IOTs = dict()
+    if exclude_list is None:
+        exclude_list = list()
     for category, activities_coordinates in activities_coordinates_mapping.items():
-        extracted_IOTs[category] = _slice_activities(IOT, activities_coordinates)
+        sliced_IOT = _slice_activities(IOT, activities_coordinates)
+        single_dataframe = any(map(lambda header: len(header) == 1, [sliced_IOT.index, sliced_IOT.columns]))
+        if single_dataframe and category not in exclude_list:
+            sliced_IOT = sliced_IOT.squeeze()
+        extracted_IOTs[category] = sliced_IOT
     return extracted_IOTs
 
 
@@ -124,9 +131,8 @@ def _slice_activities(IOT: pd.DataFrame,
                       activities_coordinates: List[List[str]]
                       ) -> pd.DataFrame:
     _check_coordinates_in_IOT(IOT, activities_coordinates)
-    sliced_IOT = IOT.reindex(index=activities_coordinates[0],
-                             columns=activities_coordinates[1])
-    return sliced_IOT
+    return IOT.reindex(index=activities_coordinates[0],
+                       columns=activities_coordinates[1])
 
 
 def _check_coordinates_in_IOT(IOT: pd.DataFrame,
@@ -143,12 +149,14 @@ def _check_coordinates_in_IOT(IOT: pd.DataFrame,
 
 
 def extract_IOTs_value_from(IOT_value: pd.DataFrame,
-                            activities_coordinates_mapping: Dict[str, List[str]]
+                            activities_coordinates_mapping: Dict[str, List[str]],
+                            exclude_list: Union[List[str], None] = None
                             ) -> Dict[str, pd.DataFrame]:
     extracted_IOTs_value = extract_IOTs_from(IOT_value,
-                                             activities_coordinates_mapping)
+                                             activities_coordinates_mapping,
+                                             exclude_list)
     extracted_IOTs_value['Y'] = (extracted_IOTs_value['Value_Added'].sum(axis='index') +
-                                 extracted_IOTs_value['IC'].sum(axis='index')).to_frame('Y')
+                                 extracted_IOTs_value['IC'].sum(axis='index')).rename('Y')
     return extracted_IOTs_value
 
 
@@ -277,6 +285,7 @@ def extract_accounts(account_table: pd.DataFrame,
 
 def extract_all_accounts(account_table: pd.DataFrame
                          ) -> Dict[str, pd.Series]:
+    # FIXME could use _slice_IOTs()
     output_data_account = dict()
     for account in account_table.index:
         output_data_account[account] = account_table.loc[account, :]

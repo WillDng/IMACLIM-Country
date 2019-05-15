@@ -137,7 +137,9 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
     ldl.is_IOT_balanced(use_categories, quantity_ressource_categories,
                         IOT_quantities, quantity_coord)
     return (ldl.extract_IOTs_from(IOT_quantities,
-                                  quantity_coord),
+                                  quantity_coord,
+                                  [FC_to_disaggregate,
+                                   agg.get_spemarg(FC_to_disaggregate)]),
             quantity_coord,
             IOT_quantities)
 
@@ -237,7 +239,10 @@ def get_IOT_values(study_dashb: Dict[str, str],
                                   correction_condition, correction_value)
     ldl.is_IOT_balanced(use_categories, value_ressource_categories,
                         IOT_val, value_coord)
-    return (ldl.extract_IOTs_value_from(IOT_val, value_coord),
+    return (ldl.extract_IOTs_value_from(IOT_val,
+                                        value_coord,
+                                        [FC_to_disaggregate,
+                                         agg.get_spemarg(FC_to_disaggregate)]),
             value_coord,
             IOT_val,
             value_activities_mapping)
