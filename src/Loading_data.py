@@ -48,7 +48,8 @@ def load_data(study_dashb: Dict[str, str]
                                                             account_table,
                                                             IOT_prices_disagg,
                                                             value_coord,
-                                                            quantity_coord)
+                                                            quantity_coord,
+                                                            study_dashb)
     Initial_prices = hyb.get_hybrid_prices(study_dashb,
                                            value_activities_mapping,
                                            Initial_quantitites,
@@ -373,7 +374,8 @@ def apply_closure(disaggregation_rate: pd.DataFrame,
                   account_table: pd.DataFrame,
                   IOT_prices: pd.DataFrame,
                   value_coord: Dict[str, Coordinates],
-                  quantity_coord: Dict[str, Coordinates]
+                  quantity_coord: Dict[str, Coordinates],
+                  study_dashb: Dict[str, str]
                   ) -> Tuple[Dict[str, pd.DataFrame],
                              Dict[str, pd.DataFrame]]:
     composite_sector = 'Composite'
@@ -384,9 +386,14 @@ def apply_closure(disaggregation_rate: pd.DataFrame,
                                                               account_table.loc['FC_byAgent', :])
     IOT_values.update(modified_households_sub_IOT_values)
     composite_coordinates = (composite_sector, disaggregation_headers)
-    modified_households_composite_quantity = IOT_values.loc[composite_coordinates].divide(IOT_prices.loc[composite_coordinates])
-    # FIXME need to check if function replace partial line
-    # FIXME might need to change .loc to .reindex but would lose flexibility on sector choice
+    # hotfix for FRA_update
+    if study_dashb['region'] == 'FRA_update':
+        modified_households_composite_quantity = IOT_values.loc[composite_coordinates].divide(IOT_prices.loc[('Comp', disaggregation_headers)])
+    else:
+        # FIXME might need to change .loc to .reindex but would lose flexibility on sector choice
+        modified_households_composite_quantity = IOT_values.loc[composite_coordinates].divide(IOT_prices.loc[composite_coordinates])
+
+    # FIXME need to check if function replace partial line as function currently replace whole line and not only households
     hhd.update_row(composite_sector,
                    IOT_quantities,
                    modified_households_composite_quantity)
