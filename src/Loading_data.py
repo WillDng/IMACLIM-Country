@@ -110,6 +110,7 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
     quantity_activities_mapping = ldl.extend_activities_mapping(study_dashb['studydata_dir'] / 'quantity_activities_mapping.csv',
                                                                 IOT_quantities,
                                                                 common_activities_mapping)
+    quantity_coordinates_mapping = ldl.get_categories_coordinates_mapping(study_dashb['studydata_dir'] / 'quantity_categories_coordinates.csv')
     if disaggregation_rate is not None:
         IOT_quantities = hhd.disaggregate_IOT(FC_to_disaggregate,
                                               IOT_quantities,
@@ -117,8 +118,10 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
         quantity_activities_mapping = hhd.replace_disaggregated_in_(quantity_activities_mapping,
                                                                     FC_to_disaggregate,
                                                                     ldl.get_header_from(disaggregation_rate))
-    quantity_coord = ldl.get_categories_coordinates(study_dashb['studydata_dir'] / 'quantity_categories_coordinates.csv',
-                                                    quantity_activities_mapping)
+        quantity_coordinates_mapping = ldl.add_substituted_FC_coord(quantity_coordinates_mapping,
+                                                                    FC_to_disaggregate)
+    quantity_coord = ldl.map_categories_to_activities_coordinates(quantity_coordinates_mapping,
+                                                                  quantity_activities_mapping)
     quantity_coord = ldl.disaggregate_in_coordinates(quantity_coord,
                                                      ['FC'], 'IC')
     quantity_ressource_categories = ['M', 'Y']
@@ -211,6 +214,7 @@ def get_IOT_values(study_dashb: Dict[str, str],
     value_activities_mapping = ldl.extend_activities_mapping(study_dashb['studydata_dir'] / 'value_activities_mapping.csv',
                                                              IOT_val,
                                                              common_activities_mapping)
+    value_coordinates_mapping = ldl.get_categories_coordinates_mapping(study_dashb['studydata_dir'] / 'value_categories_coordinates.csv')
     if disaggregation_rate is not None:
         IOT_val = hhd.disaggregate_IOT_values(FC_to_disaggregate,
                                               IOT_val,
@@ -221,8 +225,11 @@ def get_IOT_values(study_dashb: Dict[str, str],
                                                                                        ldl.get_header_from(disaggregation_rate))
         value_activities_mapping = hhd.replace_disaggregated_in_(value_activities_mapping,
                                                                  substitution_dictionnary=value_activities_substitution_mapping)
-    value_coord = ldl.get_categories_coordinates(study_dashb['studydata_dir'] / 'value_categories_coordinates.csv',
-                                                 value_activities_mapping)
+        value_coordinates_mapping = ldl.add_substituted_FC_coord(value_coordinates_mapping,
+                                                                 FC_to_disaggregate,
+                                                                 add_SpeMarg=True)
+    value_coord = ldl.map_categories_to_activities_coordinates(value_coordinates_mapping,
+                                                               value_activities_mapping)
     value_coord = ldl.disaggregate_in_coordinates(value_coord,
                                                   ['FC', 'OthPart_IOT'], 'IC')
     value_ressource_categories = ['IC', 'OthPart_IOT']
@@ -335,7 +342,7 @@ def get_import_rates(study_dashb: Dict[str, str],
         IOT_import_value = hhd.disaggregate_IOT_duplication(FC_to_disaggregate,
                                                             IOT_import_rate,
                                                             disaggregation_rate)
-    import_value_coord = ldl.map_list_to_dict(use_categories, value_coord)
+    import_value_coord = ldl.map_list_to_dict(use_categories + list(FC_to_disaggregate), value_coord)
     import_value_coord = ldl.disaggregate_in_coordinates(import_value_coord,
                                                          ['FC'], 'IC')
     return ldl.extract_IOTs_from(IOT_import_value,

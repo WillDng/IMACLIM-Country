@@ -9,7 +9,8 @@ import operator
 import pandas as pd
 import pathlib as pl
 from src import (common_utils as cu,
-                 Households_disag as hhd)
+                 Households_disag as hhd,
+                 Aggregation as agg)
 from src.parameters import (linebreaker, IOT_balance_tolerance)
 from typing import (Any, Dict, List, Iterator, Tuple, Union)
 
@@ -356,12 +357,35 @@ def extend_activities_mapping(to_extend_activities_mapping_path: str,
     return dict(common_mapping, **cu.unpack_nested_dict(new_activities_mapping))
 
 
+def get_categories_coordinates_mapping(categories_coord_path: pl.Path):
+    return read_categories_coordinates(categories_coord_path,
+                                       delimiter=',')
+
+
 def get_categories_coordinates(categories_coord_path,
                                activities_mapping):
     categories_coord = read_categories_coordinates(categories_coord_path,
                                                    delimiter=',')
     return map_categories_to_activities_coordinates(categories_coord,
                                                     activities_mapping)
+
+
+def add_substituted_FC_coord(coordinates_mapping: Coordinates,
+                             FC_to_disaggregate: str,
+                             add_SpeMarg: bool = False
+                             ) -> Dict[str, Coordinates]:
+    FC_string = 'FC'
+    out_coordinates = copy.deepcopy(coordinates_mapping)
+    disaggregated_FC_coordinates = coordinates_mapping[FC_string]
+    disaggregated_FC_coordinates[1] = FC_to_disaggregate
+    out_coordinates[FC_to_disaggregate] = disaggregated_FC_coordinates
+    #
+    if add_SpeMarg:
+        SpeMarg_FC_to_disaggregate = agg.get_spemarg(FC_to_disaggregate)
+        disaggregated_SpeMarg_FC_coordinates = coordinates_mapping[agg.get_spemarg(FC_string)]
+        disaggregated_SpeMarg_FC_coordinates[0] = SpeMarg_FC_to_disaggregate
+        out_coordinates[SpeMarg_FC_to_disaggregate] = disaggregated_SpeMarg_FC_coordinates
+    return out_coordinates
 
 
 def normalize_row_in(table: pd.DataFrame,
