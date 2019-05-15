@@ -227,9 +227,9 @@ def get_IOT_values(study_dashb: Dict[str, str],
                         IOT_val, value_coord)
     current_ERE = ldl.get_ERE(use_categories, value_ressource_categories,
                               IOT_val, value_coord)
-    value_ressources_to_correct = {'M_value': (IOT_val.loc[value_coord['M_value']] != 0,
-                                               IOT_val.loc[value_coord['M_value']] - current_ERE),
-                                   'Profit_margin': (IOT_val.loc[value_coord['M_value']] == 0,
+    value_ressources_to_correct = {'M': (IOT_val.loc[value_coord['M']] != 0,
+                                         IOT_val.loc[value_coord['M']] - current_ERE),
+                                   'Profit_margin': (IOT_val.loc[value_coord['M']] == 0,
                                                      IOT_val.loc[value_coord['Profit_margin']] - current_ERE)}
     for ressource_to_correct, correction_info in value_ressources_to_correct.items():
         correction_condition, correction_value = correction_info

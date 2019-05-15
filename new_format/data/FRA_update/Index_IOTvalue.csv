@@ -39,7 +39,7 @@ Row;Labour_Tax;OthPart_IOT;Value_Added;-;-;-;-;-;-;-;-;-;-;-
 Row;Capital_income;OthPart_IOT;Value_Added;-;-;-;-;-;-;-;-;-;-;-
 Row;Production_Tax;OthPart_IOT;Value_Added;-;-;-;-;-;-;-;-;-;-;-
 Row;Profit_margin;OthPart_IOT;Value_Added;-;-;-;-;-;-;-;-;-;-;-
-Row;M_value;OthPart_IOT;-;-;-;-;-;-;-;-;-;-;-;-
+Row;M;OthPart_IOT;-;-;-;-;-;-;-;-;-;-;-;-
 Row;Trade_margins;OthPart_IOT;Margins;-;-;-;-;-;-;-;-;-;-;-
 Row;Transp_margins;OthPart_IOT;Margins;-;-;-;-;-;-;-;-;-;-;-
 Row;SpeMarg_Crude_oil;OthPart_IOT;SpeMarg;SpeMarg_IC;-;-;-;-;-;-;-;-;-;-

@@ -38,7 +38,7 @@ Labour_Tax;OthPart_IOT
 Capital_income;OthPart_IOT
 Production_Tax;OthPart_IOT
 Profit_margin;OthPart_IOT
-M_value;OthPart_IOT
+M;OthPart_IOT
 Trade_margins;OthPart_IOT
 Transp_margins;OthPart_IOT
 SpeMarg_Crude_oil;OthPart_IOT

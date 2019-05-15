@@ -75,7 +75,7 @@ def test_treat_remaining():
                                 'Automobile', 'OthSectors', 'Load_PipeTransp', 'PassTransp',
                                 'Agri_Food_industry', 'Property_business', 'Labour_income',
                                 'Labour_Tax', 'Capital_income', 'Production_Tax', 'Profit_margin',
-                                'M_value', 'Trade_margins', 'Transp_margins', 'SpeMarg_Crude_oil',
+                                'M', 'Trade_margins', 'Transp_margins', 'SpeMarg_Crude_oil',
                                 'SpeMarg_Natural_gas', 'SpeMarg_Coking_coal', 'SpeMarg_Bituminous_coal',
                                 'SpeMarg_Coke', 'SpeMarg_Other_coal', 'SpeMarg_Gasoline', 'SpeMarg_LPG',
                                 'SpeMarg_Jetfuel', 'SpeMarg_Fuel', 'SpeMarg_Fuel_oil',
