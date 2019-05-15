@@ -2,7 +2,8 @@
 
 import pandas as pd
 from typing import (Dict, Iterable, List, Union)
-from src import common_utils as cu
+from src import (common_utils as cu,
+                 Aggregation as agg)
 from src.parameters import file_delimiter
 
 

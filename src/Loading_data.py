@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 from typing import (Dict, List, Tuple, Union)
-from src import (Aggregation as Agg,
+from src import (Aggregation as agg,
                  common_utils as cu,
                  Households_disag as hhd,
                  Hybridation as hyb,
@@ -69,7 +69,7 @@ def load_data(study_dashb: Dict[str, str]
 
 
 def read_and_check_input_files(study_dashb: Dict[str, str]):
-    aggregation_items = Agg.read_aggregation(study_dashb)
+    aggregation_items = agg.read_aggregation(study_dashb)
     IOT_val_disagg = cu.read_table(study_dashb['studydata_dir'] / 'IOT_Val.csv',
                                    delimiter=file_delimiter)
     common_activities_mapping = get_common_activies_mapping(study_dashb,
@@ -102,8 +102,8 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
                                    delimiter=file_delimiter,
                                    skipfooter=1,
                                    engine='python')
-    if Agg.is_aggregation(aggregation_items):
-        IOT_quantities, common_activities_mapping = Agg.aggregate_IOT_and_activities_mapping(IOT_quantities,
+    if agg.is_aggregation(aggregation_items):
+        IOT_quantities, common_activities_mapping = agg.aggregate_IOT_and_activities_mapping(IOT_quantities,
                                                                                              aggregation_items,
                                                                                              common_activities_mapping)
     quantity_activities_mapping = ldl.extend_activities_mapping(study_dashb['studydata_dir'] / 'quantity_activities_mapping.csv',
@@ -201,9 +201,9 @@ def get_IOT_values(study_dashb: Dict[str, str],
                          pd.DataFrame,
                          Dict[str, List[str]]):
     IOT_val = IOT_val_non_agg.copy()
-    if Agg.is_aggregation(aggregation_items):
-        IOT_val, common_activities_mapping = Agg.aggregate_IOT_and_activities_mapping(IOT_val,
                                                                                       aggregation_items,
+    if agg.is_aggregation(aggregation_items):
+        IOT_val, common_activities_mapping = agg.aggregate_IOT_and_activities_mapping(IOT_val,
                                                                                       common_activities_mapping)
     value_activities_mapping = ldl.extend_activities_mapping(study_dashb['studydata_dir'] / 'value_activities_mapping.csv',
                                                              IOT_val,
@@ -256,8 +256,8 @@ def get_IOT_CO2(study_dashb: Dict[str, str],
                             delimiter=file_delimiter,
                             skipfooter=1,
                             engine='python')
-    if Agg.is_aggregation(aggregation_items):
-        IOT_CO2, common_activities_mapping = Agg.aggregate_IOT_and_activities_mapping(IOT_CO2,
+    if agg.is_aggregation(aggregation_items):
+        IOT_CO2, common_activities_mapping = agg.aggregate_IOT_and_activities_mapping(IOT_CO2,
                                                                                       aggregation_items,
                                                                                       common_activities_mapping)
     CO2_activities_mapping = ldl.extend_activities_mapping(study_dashb['studydata_dir'] / 'CO2_activities_mapping.csv',
@@ -284,9 +284,9 @@ def get_labour(study_dashb: Dict[str, str],
                                delimiter=file_delimiter,
                                skipfooter=1,
                                engine='python')
-    if Agg.is_aggregation(aggregation_items):
+    if agg.is_aggregation(aggregation_items):
         keys_aggregation, values_aggregation = aggregation_items
-        IOT_labour = Agg.aggregate_IOT(IOT_labour,
+        IOT_labour = agg.aggregate_IOT(IOT_labour,
                                        keys_aggregation)
     return IOT_labour
 
@@ -324,9 +324,9 @@ def get_import_rates(study_dashb: Dict[str, str],
     IOT_import_rate = cu.read_table(study_dashb['studydata_dir'] / 'IOT_Import_rate.csv',
                                     delimiter=file_delimiter)
     IOT_import_value = IOT_import_rate.multiply(IOT_val_disagg)
-    if Agg.is_aggregation(aggregation_items):
+    if agg.is_aggregation(aggregation_items):
         keys_aggregation, values_aggregation = aggregation_items
-        IOT_import_value = Agg.aggregate_IOT(IOT_import_value,
+        IOT_import_value = agg.aggregate_IOT(IOT_import_value,
                                              keys_aggregation)
     if disaggregation_rate is not None:
         IOT_import_value = hhd.disaggregate_IOT_duplication(FC_to_disaggregate,
