@@ -30,7 +30,6 @@ def load_data(study_dashb: Dict[str, str]
                                                  aggregation_items,
                                                  disaggregation_rate)
     IOT_prices_disagg = get_IOT_prices(study_dashb,
-                                       quantity_coord,
                                        disaggregation_rate)
     Initial_DataAccount, account_table = get_account_table(study_dashb,
                                                            disaggregation_rate)
@@ -145,7 +144,6 @@ def get_IOT_quantities(study_dashb: Dict[str, str],
 
 
 def get_IOT_prices(study_dashb: Dict[str, str],
-                   quantity_coord: Dict[str, Tuple[List[str], List[str]]],
                    disaggregation_rate: pd.Index
                    ) -> (Dict[str, pd.DataFrame],
                          pd.DataFrame):
