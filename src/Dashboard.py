@@ -108,10 +108,10 @@ def nested_list_to_dict(nested_list: List[List[str]],
     for row in nested_list:
         key = row[key_col]
         if value_col:
-            value = row[value_col]
+            value = [row[value_col]]
         else:
             value = row
-        value.remove(key)
+            value.remove(key)
         output_dict[key] = value_if_alone(value)
     return output_dict
 
