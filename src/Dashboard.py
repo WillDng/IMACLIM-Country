@@ -4,13 +4,16 @@ from typing import (Any, Dict, Iterator, List, Union)
 from src.paths import (study_frames_dir, data_dir)
 import src.common_utils as cu
 from src.common_utils import InputError
+from src.parameters import file_delimiter
+import pathlib as pl
 import copy
 
 
 def read_(study_ISO: str) -> Dict[str, str]:
     dashboard_path = study_frames_dir / study_ISO / 'Dashboard.csv'
-    dashboard_raw = cu._read_csv(dashboard_path, delimiter=';')
-    dashboard_data = filter_comment_in_dashboard(dashboard_raw)
+    dashboard_data = read_and_filtler_csv(dashboard_path,
+                                          delimiter=';')
+    # dashboard_data = filter_comment_in_dashboard(dashboard_raw)
     dashboard_data = _convert_dashboard_values(dashboard_data)
     _validate_or_raise_dashboard(copy.deepcopy(dashboard_data))
     dashboard = nested_list_to_dict(dashboard_data)
@@ -21,6 +24,12 @@ def read_(study_ISO: str) -> Dict[str, str]:
                             dashboard['studydata_dir'])
     dashboard['region'] = study_ISO
     return dashboard
+
+
+def read_and_filtler_csv(dashboard_path: pl.Path,
+                         delimiter: str = file_delimiter):
+    dashboard_raw = cu._read_csv(dashboard_path, delimiter=delimiter)
+    return filter_comment_in_dashboard(dashboard_raw)
 
 
 def filter_comment_in_dashboard(dashboard_raw: Iterator[List[str]]
