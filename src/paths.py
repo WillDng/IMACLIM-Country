@@ -9,3 +9,6 @@ data_dir = basedir.joinpath('new_format', 'data')
 
 study_frames_dir = basedir.joinpath('new_format', 'study_frames')
 # study_frames_dir = basedir / 'study_frames'
+
+params_dir = basedir.joinpath('new_format', 'params')
+# params_dir = basedir / 'params'
