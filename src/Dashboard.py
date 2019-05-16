@@ -123,7 +123,7 @@ def value_if_alone(input_list: List[Any]
     elif len(input_list) == 1:
         return input_list[0]
     else:
-        return iter(input_list)
+        return input_list
 
 
 def convert_boolean_in_dict(input_dict: Dict[str, str]
