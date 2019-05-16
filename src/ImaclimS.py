@@ -4,9 +4,11 @@
 # hence path_fix
 import path_fix
 from src import (Dashboard,
-                 Loading_data as ld)
+                 Loading_data as ld,
+                 Loading_params as lp)
 
 ISO_selection = 'FRA_update'
 
-Dashboard = Dashboard.read_(ISO_selection)
-Initial_values = ld.load_data(Dashboard)
+dashboard = Dashboard.read_(ISO_selection)
+initial_values = ld.load_data(dashboard)
+parameters = lp.load_params(dashboard)
