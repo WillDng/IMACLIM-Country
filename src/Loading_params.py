@@ -85,14 +85,17 @@ def is_float(entry: str) -> bool:
 
 
 def path_to(filename_core: str,
-            dashb: Dict[str, Union[str, float, bool]]
+            dashb: Dict[str, Union[str, float, bool]],
+            suffix: Union[str, None] = None
             ) -> str:
     path_arguments = list()
     filename = filename_core
     aggregation_level = dashb['AGG_type']
     if aggregation_level:
         path_arguments.append(aggregation_level)
-        filename = filename_core + filename_sep + aggregation_level
+        filename = filename_sep.join([filename_core, aggregation_level])
+    if suffix:
+        filename += filename_sep + suffix
     filename += csv_extension
     path_arguments.append(filename)
     return path_arguments
