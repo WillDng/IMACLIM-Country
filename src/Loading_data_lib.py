@@ -121,11 +121,15 @@ def extract_IOTs_from(IOT: pd.DataFrame,
         exclude_list = list()
     for category, activities_coordinates in activities_coordinates_mapping.items():
         sliced_IOT = _slice_activities(IOT, activities_coordinates)
-        single_dataframe = any(map(lambda header: len(header) == 1, [sliced_IOT.index, sliced_IOT.columns]))
-        if single_dataframe and category not in exclude_list:
+        if ((is_single_dataframe(sliced_IOT)) and (category not in exclude_list)):
             sliced_IOT = sliced_IOT.squeeze()
         extracted_IOTs[category] = sliced_IOT
     return extracted_IOTs
+
+
+def is_single_dataframe(input_df: pd.DataFrame) -> bool:
+    return any(map(lambda header: len(header) == 1,
+                   get_headers_from(input_df)))
 
 
 def _slice_activities(IOT: pd.DataFrame,
