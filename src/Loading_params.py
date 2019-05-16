@@ -7,11 +7,11 @@ from parameters import file_delimiter
 import pathlib as pl
 from paths import params_dir
 from typing import (Dict, Iterator, List, Union)
-import ipdb
 
 
 filename_sep = '_'
 csv_extension = '.csv'
+parameters_file_nan = '%nan'
 
 
 def load_params(study_dashb: Dict[str, Union[str, int, bool]]):
@@ -49,7 +49,21 @@ def load_params(study_dashb: Dict[str, Union[str, int, bool]]):
         sectors_sectors_params = cu.read_table(study_parameters_path.joinpath(*sectors_sectors_elements),
                                                delimiter=file_delimiter)
         parameters[sectors_sectors_parameter] = sectors_sectors_params
-    ipdb.set_trace()
+
+    # ///////////////////////////////////////////////////////////////
+    # // All parameters sect x HH dimension ( or HH dimension x sect )
+    # ///////////////////////////////////////////////////////////////
+    sectors_households_parameters = ['CarbonTax_Diff_C', 'sigma_pC', 'ConstrainedShare_C']
+    for sectors_households_parameter in sectors_households_parameters:
+        sectors_households_elements = path_to(sectors_households_parameter,
+                                              study_dashb,
+                                              suffix=study_dashb['H_DISAGG'])
+        sectors_households_params = cu.read_table(study_parameters_path.joinpath(*sectors_households_elements),
+                                                  delimiter=file_delimiter,
+                                                  na_values=parameters_file_nan,
+                                                  squeeze=True)
+        parameters[sectors_households_parameter] = sectors_households_params
+    return parameters
 
 
 def read_parameters(parameters_path: str
