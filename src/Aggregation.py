@@ -15,7 +15,7 @@ def read_aggregation(study_dashb: Dict[str, str]
         return None, None
     agg_filepath = study_dashb['studydata_dir'] / 'aggregation.csv'
     # FIXME delimiter is hardcoded
-    aggregation_raw_data = cu._read_csv(agg_filepath, delimiter=';')
+    aggregation_raw_data = cu.read_csv(agg_filepath, delimiter=';')
     agg_header, aggregation_raw_data = list(filter(None, aggregation_raw_data.__next__())), list(aggregation_raw_data)
     return get_aggregation_items(chosen_aggregation,
                                  agg_header,

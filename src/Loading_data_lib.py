@@ -34,7 +34,7 @@ def read_activities_mapping(mapping_path: pl.Path, delimiter: str = '|',
                             headers: Union[List[List[str]], None] = None
                             ) -> Dict[str, Dict[str, List[str]]]:
     """ Hypothesis : in first column are the names of the activities and in columns aggregates names """
-    mapping_raw_data = cu._read_csv(mapping_path,
+    mapping_raw_data = cu.read_csv(mapping_path,
                                     delimiter,
                                     remove_blanks=False)
     file_header = list(filter(None, mapping_raw_data.__next__()))
@@ -94,7 +94,7 @@ def change_order_of(unordered_activities: List[str],
 
 def read_categories_coordinates(mapping_path: pl.Path, delimiter='|'
                                 ) -> Dict[str, List[str]]:
-    mapping_raw_data = cu._read_csv(mapping_path, delimiter)
+    mapping_raw_data = cu.read_csv(mapping_path, delimiter)
     read_mapping = _map_categories_to_coordinates(mapping_raw_data)
     return read_mapping
 
@@ -274,7 +274,7 @@ def modify_activity_value(IOT, coordinates: Coordinates,
 
 def read_list(path: str, delimiter: str = ','
               ) -> List[str]:
-    iter_raw_data = cu._read_csv(path, delimiter)
+    iter_raw_data = cu.read_csv(path, delimiter)
     return list(itertools.chain.from_iterable(iter_raw_data))
 
 

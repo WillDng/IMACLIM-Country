@@ -28,7 +28,7 @@ def read_(study_ISO: str) -> Dict[str, str]:
 
 def read_and_filtler_csv(dashboard_path: pl.Path,
                          delimiter: str = file_delimiter):
-    dashboard_raw = cu._read_csv(dashboard_path, delimiter=delimiter)
+    dashboard_raw = cu.read_csv(dashboard_path, delimiter=delimiter)
     return filter_comment_in_dashboard(dashboard_raw)
 
 

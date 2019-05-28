@@ -68,7 +68,7 @@ def load_params(study_dashb: Dict[str, Union[str, int, bool]]):
 
 def read_parameters(parameters_path: str
                     ) -> Dict[str, float]:
-    parameters_raw = cu._read_csv(parameters_path,
+    parameters_raw = cu.read_csv(parameters_path,
                                   delimiter=file_delimiter)
     parameters_data = ds.filter_comment_in_dashboard(parameters_raw)
     parameters_data = _convert_parameters_values(parameters_data)

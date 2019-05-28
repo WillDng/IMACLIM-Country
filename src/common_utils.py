@@ -9,9 +9,9 @@ from src.parameters import (linebreaker, file_delimiter)
 from typing import (Any, Dict, Iterator, List, Union, Tuple)
 
 
-def _read_csv(path: pl.Path,
-              delimiter: str,
-              remove_blanks: bool = True) -> Iterator[List[str]]:
+def read_csv(path: pl.Path,
+             delimiter: str,
+             remove_blanks: bool = True) -> Iterator[List[str]]:
     mapping_raw_data = list(csv.reader(open(path), delimiter=delimiter))
     _warns_if_bad_delimiter(mapping_raw_data, path)
     if remove_blanks:
