@@ -6,7 +6,7 @@ import csv
 import pandas as pd
 import pathlib as pl
 from src.parameters import (linebreaker, file_delimiter)
-from typing import (Any, Dict, Iterator, List, Union, Tuple)
+from typing import (Any, Callable, Dict, Iterator, List, Union, Tuple)
 
 
 def read_csv(path: pl.Path,
@@ -144,3 +144,12 @@ def flatten_list(l):
             yield from flatten_list(el)
         else:
             yield el
+
+
+def separate_iterator_header(iterator: Iterator[List[str]],
+                             function_to_apply: Callable[[iter], Any] = None) -> List[str]:
+    header = iterator.__next__()
+    if not function_to_apply:
+        return header, iterator
+    else:
+        return header, function_to_apply(iterator)

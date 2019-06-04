@@ -35,12 +35,12 @@ def read_activities_mapping(mapping_path: pl.Path, delimiter: str = '|',
                             ) -> Dict[str, Dict[str, List[str]]]:
     """ Hypothesis : in first column are the names of the activities and in columns aggregates names """
     mapping_raw_data = cu.read_csv(mapping_path,
-                                    delimiter,
-                                    remove_blanks=False)
-    file_header = list(filter(None, mapping_raw_data.__next__()))
-    mapping_raw_data = list(mapping_raw_data)
+                                   delimiter,
+                                   remove_blanks=False)
+    file_header, mapping_raw_data = cu.separate_iterator_header(mapping_raw_data,
+                                                                function_to_apply=list)
     activities_mapping = dict()
-    for grouping_index, grouping_name in enumerate(file_header):
+    for grouping_index, grouping_name in enumerate(filter(None, file_header)):
         read_mapping = cu.extract_aggregation_mapping(mapping_raw_data,
                                                       col=grouping_index + 1)
         if read_mapping.get('', None):
