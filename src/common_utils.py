@@ -38,7 +38,7 @@ def _remove_trailing_blanks(file_content: List[List[str]]):
 def read_dict(path: pl.Path, value_col: int, key_col: int = 0,
               delimiter: str = '|', overwrite: bool = False,
               raises: bool = False) -> Dict[str, str]:
-    iter_data = _read_csv(path, delimiter)
+    iter_data = read_csv(path, delimiter)
     if not overwrite:
         iter_data, duplicates = filter_list_duplicate(iter_data,
                                                       key_col=key_col)
@@ -107,8 +107,8 @@ def read_aggregation_mapping(mapping_path: pl.Path,
                              delimiter: str = ';',
                              col: Union[int, None] = None
                              ) -> Dict[str, List[str]]:
-    mapping_raw = _read_csv(mapping_path,
-                            delimiter=delimiter)
+    mapping_raw = read_csv(mapping_path,
+                           delimiter=delimiter)
     return extract_aggregation_mapping(mapping_raw,
                                        col)
 
