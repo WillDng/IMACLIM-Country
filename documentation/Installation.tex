@@ -1,0 +1,125 @@
+\chapter{Installation}
+
+The model is written in python3.7, and use several modules listed in requirements.txt
+Depending on the OS you are using, python might also be used by the system, thus changing python files might break functions at the system level.\\
+
+It is highly recommended to used a virtual environment to isolate code and python versions from the system
+
+\section{Prerequesites} % (fold)
+\label{sec:prerequesites}
+
+\subsection{On Linux}
+\subsubsection{python 3.7}
+
+First check if python3 is installed.
+\begin{lstlisting}[language=bash]
+  $ python3 --version
+\end{lstlisting}
+
+If python3 is not installed or the version is inferior to 3.7.
+
+\begin{lstlisting}[language=bash]
+  $ sudo apt-get update
+  $ sudo apt-get upgrade
+  $ sudo apt-get install python3.7
+\end{lstlisting}
+
+If you had already a python3.x installed, the 3.7 version should be declared as alternative
+
+\begin{lstlisting}[language=bash]
+  $ sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.x 1
+  $ sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 2
+\end{lstlisting}
+
+Then update python3 to point to python3.7 (the same procedure can be used to revert back to previous 3.x if needed)
+
+\begin{lstlisting}[language=bash]
+  $ sudo update-alternatives --config python3
+\end{lstlisting}
+
+And select 2.\\
+
+Before going on, be sure confirm python's version.\\
+
+\subsubsection{pip}
+
+To ease the installation of the needed modules, it is recommanded to install modules through pip (or any python package manager).\\
+
+First check if pip for python3 is installed.
+
+\begin{lstlisting}[language=bash]
+  $ pip3 --version
+\end{lstlisting}
+
+If pip for python3 is not installed.
+
+\begin{lstlisting}[language=bash]
+  $ sudo apt-get install python3-pip
+\end{lstlisting}
+
+\subsubsection{Virtual environment}
+
+Behind these barbaric terms, lies the idea of setting python's installations apart from the OS. With this, it is thus possible to set project by project separate configurations. In the following example, we will use venv since it is shipped with python since v.3.3 but any other virtual environments tool can be used.
+
+First check if venv is installed
+
+\begin{lstlisting}[language=bash]
+  $ python -m venv
+\end{lstlisting}
+
+if venv is not installed
+
+\begin{lstlisting}[language=bash]
+  $ pip install --user virtualenv
+\end{lstlisting}
+
+From there it is possible to create a virtual environment either using
+
+\begin{lstlisting}[language=bash]
+  $ python -m venv -p /usr/bin/python3.7 --no-site-packages path/to/project/project_name
+\end{lstlisting}
+
+or
+
+\begin{lstlisting}[language=bash]
+  $ virtualenv -p /usr/bin/python3.7 --no-site-packages path/to/project/project_name
+\end{lstlisting}
+
+The options \lstinline{-p /usr/bin/python3.7} is used to specify the use of python 3.7 and \lstinline{--no-site-packages} is used to get an empty environment without inheriting system packages, including only standard libraries such as \lstinline{os, sys, itertools, json, ...}
+
+From there to work in the virtual environment
+
+\begin{lstlisting}[language=bash]
+  $ source /path/to/project/project_name/bin/activate
+\end{lstlisting}
+
+Your command line should prompt
+
+\begin{lstlisting}[language=bash]
+  $ (project_name) user: $
+\end{lstlisting}
+
+\subsection{On Windows}
+\subsubsection{Virtual environment}
+
+From there to work in the virtual environment
+
+\begin{lstlisting}[language=bash]
+  $ C:\\path\to\project\project_name\Scripts\activate.bat
+\end{lstlisting}
+% section prerequesites (end)
+
+\section{Packages installation} % (fold)
+\label{sec:packages_installation}
+
+In the folder, there is a requirements.txt listing all the packages needed to run the model. To install all the packages use\\
+
+\textit{In the following example, it is assumed that the user is useing a virtual environment.
+If not replace} \lstinline{pip} \textit{by} \lstinline{pip3} \textit{and} \lstinline{python} \textit{by} \lstinline{python3} \textit{.}\\
+\textit{While OS would suggest to use} \lstinline{sudo} \textit{to install packages, it is highly recommended to use the option} \lstinline{--user} \textit{instead.}
+
+\begin{lstlisting}[language=bash]
+  $ pip install -r requirements.txt
+\end{lstlisting}
+
+% section packages_installation (end)

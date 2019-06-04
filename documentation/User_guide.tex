@@ -1,0 +1,35 @@
+\documentclass[10pt,a4paper]{book}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage[edges]{forest}
+\usepackage[french]{babel}
+\author{Dang W., Le Treut G., Teixeira A.}
+\title{%
+IMACLIM User Guide \\
+\large Python Version \\
+V 0.0.1}
+\include{config}
+\begin{document}
+    \pagenumbering{gobble}
+    \maketitle
+    \newpage
+    \pagenumbering{roman}
+    \tableofcontents
+    \newpage
+    \pagenumbering{arabic}
+    \lstset{language=Python}
+
+\include{Installation}
+
+\include{Architecture}
+
+\include{Development}
+
+\bibliographystyle{plain}
+\bibliography{IMACLIM_python}
+
+\end{document}

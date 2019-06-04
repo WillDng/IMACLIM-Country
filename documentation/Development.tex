@@ -1,0 +1,86 @@
+\chapter{Development}
+
+\section{Type hinting} % (fold)
+\label{sec:type_hinting}
+
+\lstinline{python} is a dynamically typed language, meaning that user does not need to declare beforehand the nature of the variable they intend to use. While it is easier for the user, it can lead to higher runtime compared to statically typed language.\\
+But one of the biggest issue is related to expected results, especially when processed by a function not written by the user himself. One might expect a \lstinline{int}, might get a \lstinline{str} instead.\\
+
+Introduced in \lstinline{python3.5}, \lstinline{python} supports type hinting \textit{i.e} variable type information when defining functions. While not mandatory, it greatly helps development down the road.
+
+\begin{lstlisting}[language=python]
+def function_name(variable1: List[int],
+                  variable2: Dict[str, str]
+                  ) -> pd.DataFrame:
+    result = do something...
+    return result
+\end{lstlisting}
+
+While declaring the function signature, the user can declare the nature of expected input variables and the intended output variables.
+for more informations and additional types refer to \cite{python_software_foundation_typing_2019}
+
+% section type_hinting (end)
+\section{Tests} % (fold)
+\label{sec:tests}
+
+Though optional, part of the code is covered with unit tests and integration test.\\
+The purpose of the tests are in one hand to ensure while developong that the coded funtions yields what is intended, and in the other hand ensure that future developments will not break what is already developed.
+
+\subsection{Installation} % (fold)
+\label{sec:installation}
+
+Tests are launched using \lstinline{pytest} but any other framework can be used as long as test are rewritten to fit the grammar.
+In case, \lstinline{pytest} wasn't installed with the requirements.txt file at the beginning, to install \lstinline{pytest}:
+
+\begin{lstlisting}[language=bash]
+  $ pip install pytest
+\end{lstlisting}
+
+\subsection{Tree folder overview} % (fold)
+\label{sec:tree_folder_overview}
+
+\begin{forest}
+    for tree={font=\sffamily, %grow'=0,
+    folder indent=.9em, folder icons,
+    edge=densely dotted}
+    [IMACLIM_Country
+        [(...)]
+        [tests
+            [mock_data
+                [activities_mapping_part.csv, is file]
+                [categories_coordinates_mapping.csv, is file]
+                [(...).py, is file]]
+            [test_Aggregation.py, is file]
+            [test_Dashboard.py, is file]
+            [test_(...).py, is file]]
+    ]
+\end{forest}
+% section tree_folder_overview (end)
+
+\subsection{Running tests} % (fold)
+\label{sec:running_tests}
+
+
+To run the whole series of tests, ensure that you are at the root of IMACLIM-Country and simply run
+
+\begin{lstlisting}[language=bash]
+  $ pytest
+\end{lstlisting}
+
+\lstinline{pytest} will automatically browse through the file tree to find the tests file and run them.\\
+For more details about the test run, it is possible to ask for a more verbose mode by using the option:
+
+\begin{lstlisting}[language=bash]
+  $ pytest -vv
+\end{lstlisting}
+
+If you want to run a specific set of tests, you can target the file by running:
+
+\begin{lstlisting}[language=bash]
+  $ pytest tests/test_the_file_you_want_to_test.py
+\end{lstlisting}
+% section running_tests (end)
+
+
+% section tests (end)
+
