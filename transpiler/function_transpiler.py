@@ -46,7 +46,7 @@ def is_comment(line: str) -> bool:
         return True
 
 
-function_signature_re = re.compile("^function (\[?.+\]?) = (.+\(.*\)) ?;?$")
+function_signature_re = re.compile("^function (\[?.+\]?) *= *(.+\(.*\)) ?;?$")
 
 
 def is_function_start(line: str) -> bool:
