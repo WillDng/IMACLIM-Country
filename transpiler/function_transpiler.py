@@ -65,9 +65,9 @@ def transpile_function(line: str,
 
 
 indentation = '    '
+fixme = python_comment_char + indentation + 'FIXME '
 
-
-line_re = {'\.\*': '*',
+line_re = {'\.([\*|\^|/])': '\g<1>',
            '\t': indentation,
            ';[ \t]*$': '',
            '(?<=\w) +': ' ',
@@ -78,16 +78,18 @@ line_re = {'\.\*': '*',
            'lambda': 'Lambda',
            '\.\^': '^',
            '(sum\(.*) ("r")': '\g<1> axis=1',
-           '(sum\(.*) ("c")': '\g<1> axis=2',
+           '(sum\(.*)"c"': '\g<1> axis=2',
            '\*\.': '*',
            '<>': '!=',
            '1:nb_Sectors-1': 'nb_Sectors',
-           # '\(([\w_]+, *:)\)': '[\g<1>]',
+           '\(([\w_\+\$:]+, *:)\)': '[\g<1>]',
            '\(([\w\s+]* *: *[\w\s+\(\)]* *)\)' : '[\g<1>]',
            '\.\. *$': '\\\\',
            '^ {,3}(?=\w)': indentation,
            '^ {3,100}(?=\w)': indentation,
-           '^(?=\S)': indentation}
+           '^(?=\S)': indentation,
+           '; *': ', ',
+           '(^ +[\w_]*[\(\[].*\$.*[\)\]].*$)': fixme + 'append to variable\n#\g<1>'}
 
 
 def format_header(line: str
